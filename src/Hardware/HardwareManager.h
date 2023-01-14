@@ -17,14 +17,32 @@
 
 class HardwareManager {
 public:
-// Declare motor and sensor types here (only for interchangable hardware - stuff that has a wrapper).
-
-#ifdef TEST_BOARD
-// Test board hardware.
-#else
-// Regular robot hardware.
+    // The I/O Map for the robot.
+    using IOMap = 
+#if WHICH_ROBOT == 2023
+        IOMap2023;
+#elif WHICH_ROBOT == 2022
+        IOMap2022;
+#elif WHICH_ROBOT == TEST
+        IOMapTest;
 #endif
 
+    // Motor and sensor types.
+#if WHICH_ROBOT == 2023 || WHICH_ROBOT == 2022
+    using SwerveDriveMotor = ThunderCANSparkMax;
+    using SwerveTurningMotor = ThunderCANSparkMax;
+    using SwerveTurningEncoder = ThunderCANCoder;
+    using DriveIMU = ThunderADIS16470IMU;
+
+#elif WHICH_ROBOT == TEST
+    using SwerveDriveMotor = ThunderCANMotorController;
+    using SwerveTurningMotor = ThunderCANMotorController;
+    using SwerveTurningEncoder = ThunderCANMagneticEncoder;
+    using DriveIMU = ThunderIMU;
+
+#endif
+
+    // Game controller types.
     using DriveGameController = ThunderPS4Controller;
     using AuxGameController = ThunderPS4Controller;
 };

@@ -2,6 +2,7 @@
 
 #include <Hardware/IOMap.h>
 #include <Basic/Settings.h>
+#include <units/current.h>
 
 class Mechanism {
 public:
@@ -46,6 +47,11 @@ public:
      * of competition except for disabled.
      */
     virtual void process();
+
+    /**
+     * Should be implemented to return the total current draw of the mechanism.
+    */
+    virtual units::ampere_t getCurrent();
 
     static Settings settings;
 

@@ -29,4 +29,8 @@ Mechanism::MatchMode Mechanism::getCurrentMode() {
     }
 }
 
+units::ampere_t Mechanism::getCurrent() {
+    return 0_A;
+}
+
 Settings Mechanism::settings {};

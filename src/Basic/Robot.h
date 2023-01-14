@@ -5,6 +5,7 @@
 #include <vector>
 
 #include <Control/Controls.h>
+#include <RollingRaspberry/RollingRaspberry.h>
 #include <Drive/Drive.h>
 #include <GamePiece/GamePiece.h>
 
@@ -28,17 +29,18 @@ public:
 private:
     void reset(Mechanism::MatchMode mode);
 
-    Drive drive;
+    RollingRaspberry rollingRaspberry;
+    Drive drive { &rollingRaspberry };
     GamePiece gamePiece;
     Controls controls { &drive, &gamePiece };
 
     // Every mechanism on the robot.
     std::vector<Mechanism*> allMechanisms {
-        &drive, &gamePiece, &controls,
+        &drive, &gamePiece, &controls, &rollingRaspberry
     };
 
     // Mechanisms that are run universally when the robot is running.
     std::vector<Mechanism*> universalMechanisms {
-        
+        &rollingRaspberry,
     };
 };

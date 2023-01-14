@@ -11,7 +11,16 @@ std::string Parser::getFile(std::filesystem::path path) {
   }
 
   std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-  return str;
+
+  // Remove DOS line endings.
+  std::string new_str;
+  for (const char& c : str) {
+    if (c != '\r') {
+      new_str.push_back(c);
+    }
+  }
+
+  return new_str;
 }
 
 std::ptrdiff_t Parser::countWhile(Iter currIter, Iter endIter, ConditionFunc condFunc) {
@@ -58,8 +67,10 @@ double Parser::parseNumber(Iter& currIter, Iter endIter) {
   std::string intStr = parseWhile(currIter, endIter, [](char c) {
     return std::isdigit(c);
   });
+
+  bool do_more = *currIter == '.' || *currIter == 'e';
   
-  if (currIter == endIter || (*currIter != '.' && *currIter != 'e' && *currIter != 'E')) {
+  if (currIter == endIter || !do_more) {
     return std::stoi(intStr) * sign;
   }
 
@@ -72,7 +83,7 @@ double Parser::parseNumber(Iter& currIter, Iter endIter) {
       return std::isdigit(c);
     });
 
-    num = std::stod(fmt::format("{}.{}", intStr, ".", decStr)) * sign;
+    num = std::stod(fmt::format("{}.{}", intStr, decStr)) * sign;
   }
 
   // Parse the exponent part.
