@@ -1,6 +1,7 @@
 #include <GamePiece/GamePiece.h>
 
-GamePiece::GamePiece() {
+GamePiece::GamePiece(Grabber* _grabber, Lift* _lift) 
+: grabber(_grabber), lift(_lift){
 
 }
 

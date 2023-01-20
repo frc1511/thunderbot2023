@@ -31,13 +31,16 @@ private:
 
     RollingRaspberry rollingRaspberry;
     Drive drive { &rollingRaspberry };
-    GamePiece gamePiece;
+    Grabber grabber;
+    Lift lift;
+    GamePiece gamePiece { &grabber, &lift};
     Controls controls { &drive, &gamePiece };
 
     // Every mechanism on the robot.
     std::vector<Mechanism*> allMechanisms {
-        &drive, &gamePiece, &controls, &rollingRaspberry
+        &drive, &gamePiece, &controls, &rollingRaspberry, &grabber, &lift
     };
+
 
     // Mechanisms that are run universally when the robot is running.
     std::vector<Mechanism*> universalMechanisms {

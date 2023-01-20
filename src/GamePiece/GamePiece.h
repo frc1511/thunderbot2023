@@ -6,7 +6,7 @@
 
 class GamePiece : public Mechanism {
 public:
-    GamePiece();
+    GamePiece(Grabber* grabber, Lift* lift);
     ~GamePiece();
 
     void resetToMode(MatchMode mode) override;
@@ -48,4 +48,6 @@ public:
     void placeGamePiece();
 private:
 
+    Grabber* grabber;
+    Lift* lift;
 };
