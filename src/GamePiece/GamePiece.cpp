@@ -21,11 +21,11 @@ void GamePiece::process() {
 
 }
 
-void GamePiece::setPreset(Preset preset) {
+void GamePiece::setLiftPreset(LiftPreset preset) {
 
 }
 
-void GamePiece::setGrabberGamePiece(GamePieceType gamepiece, bool topDown) {
+void GamePiece::prepareForAquisition(GamePieceType gamePieceType, AquisitionPosition aquisitionPosition) {
 
 }
 
