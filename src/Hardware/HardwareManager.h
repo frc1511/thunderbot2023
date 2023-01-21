@@ -24,7 +24,7 @@ public:
 #elif WHICH_ROBOT == 2022
         IOMap2022;
 #elif WHICH_ROBOT == TEST
-        IOMapTest;
+        IOMapTestBoard;
 #endif
 
     // Motor and sensor types.

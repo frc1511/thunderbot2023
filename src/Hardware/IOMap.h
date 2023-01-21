@@ -77,7 +77,7 @@ enum class IOMap2022 {
 };
 
 // I/O Map for the test board (select devices for testing).
-enum class TestBoard {
+enum class IOMapTestBoard {
     // CAN
     CAN_SWERVE_DRIVE_MOTOR_FL = IO_MISSING,
     CAN_SWERVE_DRIVE_MOTOR_BL = IO_MISSING,
