@@ -42,11 +42,16 @@ enum class IOMap2023 {
     CAN_SWERVE_ROT_CAN_CODER_BR = 13,
     CAN_SWERVE_ROT_CAN_CODER_FR = 12,
 
+    CAN_GRABBER_INTAKE_L = 2,
+    CAN_GRABBER_INTAKE_R = 3,
+
+
+
     // PWM
     PWM_BLINKY_BLINKY = 0,
 
     // DIO
-
+    DIO_GRABBER_INTAKE = 0,
     // SPI
 };
 

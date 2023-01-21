@@ -23,11 +23,6 @@ public:
 
     void setLiftPreset(LiftPreset preset);
 
-    enum class GamePieceType {
-        CONE,
-        CUBE,
-        NONE,
-    };
 
     // Represents the possible positions for aquisition.
     enum class AquisitionPosition {
@@ -44,7 +39,7 @@ public:
      * gamePieceType: The type of GamePiece to configure for (Cube or Cone).
      * aquisitionPosition: The position of aquisition.
      */
-    void prepareForAquisition(GamePieceType gamePieceType, AquisitionPosition aquisitionPosition);
+    void prepareForAquisition(Grabber::GamePieceType gamePieceType, AquisitionPosition aquisitionPosition);
 
     // Sets the state of the grabber rollers to INTAKE, OUTTAKE, or IDLE.
     void setGrabberAction(Grabber::Action action);
@@ -56,7 +51,7 @@ public:
     void setManualExtensionSpeed(double speed);
 
     // Returns which GamePiece is currently being held (or NONE if nothing).
-    GamePieceType getGamePiece();
+    Grabber::GamePieceType getGamePiece();
 
     void overrideHasGamePiece(bool hasGamePiece);
 

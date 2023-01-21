@@ -1,6 +1,9 @@
 #pragma once
 
 #include <Basic/Mechanism.h>
+#include <frc/Timer.h>
+#include <Hardware/HardwareManager.h>
+#include <frc/DigitalInput.h>
 
 class Grabber : public Mechanism {
 public:
@@ -28,9 +31,22 @@ public:
 
     void setPosition(Position position);
 
-    bool hasGamePiece();
-    void overrideHasGamePiece(bool hasGamePiece);
+    enum class GamePieceType {
+        CONE,
+        CUBE,
+        NONE,
+    };
+
+    GamePieceType getGamePieceType();
+    void overrideHasGamePiece();
     void placeGamePiece();
 private:
-
+    Action currentAction;
+    Position currentPosition;
+    GamePieceType gamePieceType;
+    bool placingGamePiece;
+    frc::Timer placingGamePieceTimer;
+    HardwareManager::GrabberIntakeMotor leftIntakeMotor;
+    HardwareManager::GrabberIntakeMotor rightIntakeMotor;
+    frc::DigitalInput intakeSensor;
 };
