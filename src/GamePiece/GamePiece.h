@@ -46,6 +46,8 @@ public:
     // Sets the state of the grabber rollers to INTAKE, OUTTAKE, or IDLE.
     void setGrabberAction(Grabber::Action action);
 
+    void setGrabberPosition(Grabber::Position position);
+
     // Manually set the speed of the motor to control the angle of the lift.
     void setManualAngleSpeed(double speed);
 

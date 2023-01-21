@@ -40,16 +40,20 @@ void GamePiece::setGrabberAction(Grabber::Action action) {
     grabber->setAction(action);
 }
 
-Grabber::GamePieceType GamePiece::getGamePiece() {
+void GamePiece::setGrabberPosition(Grabber::Position position) {
+    grabber->setPosition(position);
+}
 
+Grabber::GamePieceType GamePiece::getGamePiece() {
+    return grabber->getGamePieceType();
 }
 
 void GamePiece::overrideHasGamePiece(bool hasGamePiece) {
-
+    grabber->overrideHasGamePiece();
 }
 
 void GamePiece::placeGamePiece() {
-    
+    grabber->placeGamePiece();
 }
 
 void GamePiece::sendFeedback() {
