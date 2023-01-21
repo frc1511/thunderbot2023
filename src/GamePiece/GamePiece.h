@@ -51,6 +51,7 @@ public:
     // Manually set the speed of the motor to control the angle of the lift.
     void setManualAngleSpeed(double speed);
 
+
     // Manually set the speed of the motor to control the extension distance of the lift.
     void setManualExtensionSpeed(double speed);
 

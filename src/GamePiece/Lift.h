@@ -40,8 +40,8 @@ private:
     double maxExtensionPosition;
     bool atPosition;
     HardwareManager::LiftExtensionMotor extensionMotor;
-    HardwareManager::LiftPivotMotor pivotMotorRight;
     HardwareManager::LiftPivotMotor pivotMotorLeft;
+    HardwareManager::LiftPivotMotor pivotMotorRight;
 
 
 

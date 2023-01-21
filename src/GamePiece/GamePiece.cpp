@@ -25,7 +25,27 @@ void GamePiece::setLiftPreset(LiftPreset preset) {
     lift->setEndPosition(presetMap.at(preset).first, presetMap.at(preset).second);
 }
 
-void GamePiece::prepareForAcquisition(Grabber::GamePieceType gamePieceType, AcquisitionPosition aquisitionPosition) {
+void GamePiece::prepareForAcquisition(Grabber::GamePieceType gamePieceType, AcquisitionPosition acquisitionPosition) {
+    if(getGamePiece() != Grabber::GamePieceType::NONE) {
+        return ;
+    }
+
+    if (getGamePiece() == Grabber::GamePieceType::CONE) {
+        setGrabberPosition(Grabber::Position::AGAPE);
+    }
+
+    else {
+        setGrabberPosition(Grabber::Position::OPEN);
+    }
+
+    if (acquisitionPosition == AcquisitionPosition::GROUND) {
+        setLiftPreset(LiftPreset::GROUND);
+    }
+
+    if (acquisitionPosition == AcquisitionPosition::BALCONY) {
+        setLiftPreset(LiftPreset::BALCONY);
+    }
+    
 
 }
 
