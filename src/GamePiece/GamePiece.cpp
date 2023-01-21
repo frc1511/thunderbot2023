@@ -25,7 +25,7 @@ void GamePiece::setLiftPreset(LiftPreset preset) {
 
 }
 
-void GamePiece::prepareForAquisition(Grabber::GamePieceType gamePieceType, AquisitionPosition aquisitionPosition) {
+void GamePiece::prepareForAcquisition(Grabber::GamePieceType gamePieceType, AcquisitionPosition aquisitionPosition) {
 
 }
 
