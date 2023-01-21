@@ -22,7 +22,7 @@ void GamePiece::process() {
 }
 
 void GamePiece::setLiftPreset(LiftPreset preset) {
-
+    lift->setEndPosition(presetMap.at(preset).first, presetMap.at(preset).second);
 }
 
 void GamePiece::prepareForAcquisition(Grabber::GamePieceType gamePieceType, AcquisitionPosition aquisitionPosition) {
@@ -30,14 +30,14 @@ void GamePiece::prepareForAcquisition(Grabber::GamePieceType gamePieceType, Acqu
 }
 
 void GamePiece::setManualAngleSpeed(double speed) {
-
+    lift->setManualAngleSpeed(speed);
 }
 void GamePiece::setManualExtensionSpeed(double speed) {
-
+    lift->setManualExtensionSpeed(speed);
 }
 
 void GamePiece::setGrabberAction(Grabber::Action action) {
-
+    grabber->setAction(action);
 }
 
 Grabber::GamePieceType GamePiece::getGamePiece() {

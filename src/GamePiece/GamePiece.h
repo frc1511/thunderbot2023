@@ -3,6 +3,8 @@
 #include <Basic/Mechanism.h>
 #include <GamePiece/Grabber.h>
 #include <GamePiece/Lift.h>
+#include <map>
+#include <utility>
 
 class GamePiece : public Mechanism {
 public:
@@ -63,4 +65,5 @@ public:
 private:
     Grabber* grabber;
     Lift* lift;
+    const std::map<LiftPreset, std::pair<units::meter_t, units::meter_t>> presetMap;
 };
