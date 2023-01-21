@@ -45,6 +45,9 @@ enum class IOMap2023 {
     CAN_GRABBER_INTAKE_L = 2,
     CAN_GRABBER_INTAKE_R = 3,
 
+    CAN_LIFT_EXTENSION = 4,
+    CAN_LIFT_PIVOT_LEFT = 5,
+    CAN_LIFT_PIVOT_RIGHT = 6,
 
 
     // PWM

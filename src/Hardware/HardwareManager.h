@@ -34,6 +34,8 @@ public:
     using SwerveTurningEncoder = ThunderCANCoder;
     using DriveIMU = ThunderADIS16470IMU;
     using GrabberIntakeMotor = ThunderCANSparkMax;
+    using LiftExtensionMotor = ThunderCANSparkMax;
+    using LiftPivotMotor = ThunderCANSparkMax;
 
 #elif WHICH_ROBOT == TEST
     using SwerveDriveMotor = ThunderCANMotorController;
