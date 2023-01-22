@@ -5,7 +5,11 @@
 Lift::Lift() :
 extensionMotor((int)HardwareManager::IOMap::CAN_LIFT_EXTENSION),
 pivotMotorLeft((int)HardwareManager::IOMap::CAN_LIFT_PIVOT_LEFT), 
-pivotMotorRight((int)HardwareManager::IOMap::CAN_LIFT_PIVOT_RIGHT) {
+pivotMotorRight((int)HardwareManager::IOMap::CAN_LIFT_PIVOT_RIGHT),
+homeSensor((int)HardwareManager::IOMap::DIO_LIFT_HOME),
+extensionSensor((int)HardwareManager::IOMap::DIO_LIFT_EXTENSION)
+
+ {
 
 }
 
@@ -23,6 +27,12 @@ void Lift::doPersistentConfiguration() {
 
 void Lift::process() {
     if (controlType == ControlType::MANUAL){
+        if (extensionSensor.Get() && manualExtensionSpeed > 0) {
+            manualExtensionSpeed = 0;
+        }
+        if (homeSensor.Get() && manualExtensionSpeed < 0) {
+            manualExtensionSpeed = 0;
+        }
         extensionMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, manualExtensionSpeed);
         pivotMotorLeft.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, manualAngleSpeed);
         pivotMotorRight.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, manualAngleSpeed);
@@ -50,6 +60,7 @@ void Lift::process() {
             atPosition = false;
         }
     }
+
 }
 
 void Lift::setManualAngleSpeed(double speed) {

@@ -5,6 +5,7 @@
 #include <units/angle.h>
 #include <units/math.h>
 #include <Hardware/HardwareManager.h>
+#include <frc/DigitalInput.h>
 class Lift : public Mechanism {
 public:
     Lift();
@@ -42,6 +43,8 @@ private:
     HardwareManager::LiftExtensionMotor extensionMotor;
     HardwareManager::LiftPivotMotor pivotMotorLeft;
     HardwareManager::LiftPivotMotor pivotMotorRight;
+    frc::DigitalInput homeSensor;
+    frc::DigitalInput extensionSensor;
 
 
 

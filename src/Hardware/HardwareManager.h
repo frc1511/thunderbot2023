@@ -37,6 +37,10 @@ public:
     using LiftExtensionMotor = ThunderCANSparkMax;
     using LiftPivotMotor = ThunderCANSparkMax;
 
+
+
+
+
 #elif WHICH_ROBOT == TEST
     using SwerveDriveMotor = ThunderCANMotorController;
     using SwerveTurningMotor = ThunderCANMotorController;

@@ -55,6 +55,10 @@ enum class IOMap2023 {
 
     // DIO
     DIO_GRABBER_INTAKE = 0,
+    DIO_LIFT_HOME = 1,
+    DIO_LIFT_EXTENSION = 2, 
+
+
     // SPI
 
     //PCM
