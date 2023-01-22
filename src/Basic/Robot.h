@@ -29,6 +29,8 @@ public:
 private:
     void reset(Mechanism::MatchMode mode);
 
+    Mechanism::MatchMode lastMode = Mechanism::MatchMode::DISABLED;
+
     RollingRaspberry rollingRaspberry;
     Drive drive { &rollingRaspberry };
     Grabber grabber;

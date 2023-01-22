@@ -62,8 +62,10 @@ void Robot::TestPeriodic() { }
 
 void Robot::reset(Mechanism::MatchMode mode) {
     for (Mechanism* mech : allMechanisms) {
-        mech->resetToMode(mode);
+        mech->callResetToMode(lastMode);
     }
+
+    lastMode = mode;
 }
 
 #ifndef RUNNING_FRC_TESTS

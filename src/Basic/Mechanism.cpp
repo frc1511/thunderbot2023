@@ -29,8 +29,17 @@ Mechanism::MatchMode Mechanism::getCurrentMode() {
     }
 }
 
+Mechanism::MatchMode Mechanism::getLastMode() {
+    return lastMode;
+}
+
 units::ampere_t Mechanism::getCurrent() {
     return 0_A;
+}
+
+void Mechanism::callResetToMode(MatchMode _lastMode) {
+    lastMode = _lastMode;
+    resetToMode(getCurrentMode());
 }
 
 Settings Mechanism::settings {};

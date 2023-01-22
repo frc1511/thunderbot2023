@@ -4,6 +4,8 @@
 #include <Basic/Settings.h>
 #include <units/current.h>
 
+class Robot;
+
 class Mechanism {
 public:
     virtual ~Mechanism();
@@ -57,4 +59,13 @@ public:
 
 protected:
     MatchMode getCurrentMode();
+
+    MatchMode getLastMode();
+
+private:
+    MatchMode lastMode;
+
+    void callResetToMode(Mechanism::MatchMode lastMode);
+
+    friend class Robot;
 };
