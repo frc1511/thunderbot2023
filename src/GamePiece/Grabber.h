@@ -4,6 +4,7 @@
 #include <frc/Timer.h>
 #include <Hardware/HardwareManager.h>
 #include <frc/DigitalInput.h>
+#include <frc/DoubleSolenoid.h>
 
 class Grabber : public Mechanism {
 public:
@@ -49,4 +50,7 @@ private:
     HardwareManager::GrabberIntakeMotor leftIntakeMotor;
     HardwareManager::GrabberIntakeMotor rightIntakeMotor;
     frc::DigitalInput intakeSensor;
+    frc::DoubleSolenoid grabberPiston1;
+    frc::DoubleSolenoid grabberPiston2;
+
 };

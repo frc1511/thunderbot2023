@@ -3,8 +3,15 @@
 Grabber::Grabber() 
 : leftIntakeMotor((int)HardwareManager::IOMap::CAN_GRABBER_INTAKE_L),
   rightIntakeMotor((int)HardwareManager::IOMap::CAN_GRABBER_INTAKE_R),
-  intakeSensor((int)HardwareManager::IOMap::DIO_GRABBER_INTAKE) {
-
+  intakeSensor((int)HardwareManager::IOMap::DIO_GRABBER_INTAKE),
+   grabberPiston1(frc::PneumaticsModuleType::CTREPCM,
+        (int)HardwareManager::IOMap::PCM_GRABBER_PISTON_1_EXTEND,
+        (int)HardwareManager::IOMap::PCM_GRABBER_PISTON_1_RETRACT),
+   grabberPiston2(frc::PneumaticsModuleType::CTREPCM,
+        (int)HardwareManager::IOMap::PCM_GRABBER_PISTON_2_EXTEND,
+        (int)HardwareManager::IOMap::PCM_GRABBER_PISTON_2_RETRACT)
+   {
+  
 }
 
 Grabber::~Grabber() {
@@ -15,6 +22,13 @@ void Grabber::resetToMode(MatchMode mode) {
     currentAction = Action::IDLE;
     leftIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, 0);
     rightIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, 0);
+
+    placingGamePiece = false;
+
+    if (!(mode == Mechanism::MatchMode::DISABLED && getLastMode() == Mechanism::MatchMode::AUTO)
+     && !(mode == Mechanism::MatchMode::TELEOP && getLastMode() == Mechanism::MatchMode::DISABLED)) {
+        gamePieceType = GamePieceType::NONE;
+    }
 }
 
 void Grabber::doPersistentConfiguration() {
@@ -69,13 +83,19 @@ void Grabber::process() {
 
 
     if (currentPosition == Position::OPEN) {
-        //TO DO:Implement extending both pistons.
+        //Both pistons are extended and the grabber is able to fit a cube.
+        grabberPiston1.Set(frc::DoubleSolenoid::Value::kForward); 
+        grabberPiston2.Set(frc::DoubleSolenoid::Value::kForward);   
     } 
     else if (currentPosition == Position::AGAPE) {
-        //TO DO:Implement extending only shorter piston.
+        //Only the shorter piston is extended and the grabber is able to fit a cone.
+        grabberPiston1.Set(frc::DoubleSolenoid::Value::kReverse); 
+        grabberPiston2.Set(frc::DoubleSolenoid::Value::kForward);
     } 
     else if (currentPosition == Position::AJAR) {
-        //TO DO:Implement closing both pistons.
+        //Both pistons are retracted and the grabber is able to squish and transport the cone after intaking it.
+        grabberPiston1.Set(frc::DoubleSolenoid::Value::kReverse); 
+        grabberPiston2.Set(frc::DoubleSolenoid::Value::kReverse);     
     }
 }
 

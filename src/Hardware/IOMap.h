@@ -56,6 +56,12 @@ enum class IOMap2023 {
     // DIO
     DIO_GRABBER_INTAKE = 0,
     // SPI
+
+    //PCM
+    PCM_GRABBER_PISTON_1_EXTEND = 0,
+    PCM_GRABBER_PISTON_1_RETRACT = 1,
+    PCM_GRABBER_PISTON_2_EXTEND = 2,
+    PCM_GRABBER_PISTON_2_RETRACT = 3,
 };
 
 // I/O Map for the 2022 robot (select devices for testing).
