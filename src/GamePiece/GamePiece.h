@@ -25,24 +25,6 @@ public:
 
     void setLiftPreset(LiftPreset preset);
 
-
-    // Represents the possible positions for acquisition.
-    enum class AcquisitionPosition {
-        GROUND, // Normal ground intake - cubes and upright cones.
-        GROUND_TOP_DOWN, // Top-down ground intake - tipped over cones.
-        BALCONY, // Intake from Human Player station balcony.
-    };
-
-    /**
-     * Configures the states of the grabbber and lift mechanisms to prepare the
-     * robot for accquisition of a specified GamePiece. Sets the spacing between
-     * grabbers, position of lift, etc. to make it ready to aquire.
-     * 
-     * gamePieceType: The type of GamePiece to configure for (Cube or Cone).
-     * acquisitionPosition: The position of acquisition.
-     */
-    void prepareForAcquisition(Grabber::GamePieceType gamePieceType, AcquisitionPosition acquisitionPosition);
-
     // Sets the state of the grabber rollers to INTAKE, OUTTAKE, or IDLE.
     void setGrabberAction(Grabber::Action action);
 
@@ -58,7 +40,7 @@ public:
     // Returns which GamePiece is currently being held (or NONE if nothing).
     Grabber::GamePieceType getGamePiece();
 
-    void overrideHasGamePiece(bool hasGamePiece);
+    void overrideHasGamePiece();
 
     /**
      * Performs the actions to place a GamePiece on the aligned grid node.
