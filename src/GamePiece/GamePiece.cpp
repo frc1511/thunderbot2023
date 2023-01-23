@@ -25,8 +25,8 @@ void GamePiece::setLiftPreset(LiftPreset preset) {
     lift->setEndPosition(presetMap.at(preset).first, presetMap.at(preset).second);
 }
 
-void GamePiece::setManualAngleSpeed(double speed) {
-    lift->setManualAngleSpeed(speed);
+void GamePiece::setManualPivotSpeed(double speed) {
+    lift->setManualPivotSpeed(speed);
 }
 void GamePiece::setManualExtensionSpeed(double speed) {
     lift->setManualExtensionSpeed(speed);

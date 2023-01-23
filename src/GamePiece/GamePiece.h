@@ -31,8 +31,7 @@ public:
     void setGrabberPosition(Grabber::Position position);
 
     // Manually set the speed of the motor to control the angle of the lift.
-    void setManualAngleSpeed(double speed);
-
+    void setManualPivotSpeed(double speed);
 
     // Manually set the speed of the motor to control the extension distance of the lift.
     void setManualExtensionSpeed(double speed);
@@ -50,5 +49,10 @@ public:
 private:
     Grabber* grabber;
     Lift* lift;
-    const std::map<LiftPreset, std::pair<units::meter_t, units::meter_t>> presetMap;
+    const std::map<LiftPreset, std::pair<units::meter_t, units::meter_t>> presetMap {
+        { LiftPreset::GROUND, std::make_pair(1_m, 1_m) },
+        { LiftPreset::MID, std::make_pair(1_m, 1_m) },
+        { LiftPreset::HIGH, std::make_pair(1_m, 1_m) },
+        { LiftPreset::BALCONY, std::make_pair(1_m, 1_m) },
+    }
 };
