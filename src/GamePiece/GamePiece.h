@@ -17,6 +17,7 @@ public:
     void sendFeedback() override;
 
     enum class LiftPreset {
+        INTAKE,
         GROUND,
         MID,
         HIGH,
@@ -52,6 +53,7 @@ private:
     Lift* lift;
 
     const std::map<LiftPreset, std::pair<units::meter_t, units::meter_t>> presetMap {
+        { LiftPreset::INTAKE, std::make_pair(1_m, 1_m) },
         { LiftPreset::GROUND, std::make_pair(1_m, 1_m) },
         { LiftPreset::MID, std::make_pair(1_m, 1_m) },
         { LiftPreset::HIGH, std::make_pair(1_m, 1_m) },

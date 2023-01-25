@@ -20,9 +20,15 @@ void Controls::resetToMode(MatchMode mode) {
 }
 
 void Controls::process() {
-    doDrive();
-    doAux();
     doSwitchPanel();
+    doDrive();
+
+    if (manualAux) {
+        doAuxManual();
+    }
+    else {
+        doAux();
+    }
 }
 
 void Controls::processInDisabled() {
@@ -181,6 +187,73 @@ void Controls::doAux() {
     using AuxAxis = HardwareManager::AuxGameController::Axis;
 
     // Regular Aux controls.
+
+    bool prepareCone = auxController.GetRawButtonPressed(AuxButton::TRIANGLE);
+    bool prepareCube = auxController.GetRawButtonPressed(AuxButton::SQUARE);
+    bool liftHigh = auxController.GetPOV() == 0;
+    bool liftMid = auxController.GetPOV() == 90;
+    bool liftLow = auxController.GetPOV() == 180;
+    bool score = auxController.GetRawAxis(AuxAxis::LEFT_TRIGGER) > AXIS_DEADZONE;
+    bool intake = auxController.GetRawAxis(AuxAxis::RIGHT_TRIGGER) > AXIS_DEADZONE;
+    bool outtake = auxController.GetRawButton(AuxButton::RIGHT_BUMPER);
+    bool overrideGamePiece = auxController.GetRawButton(AuxButton::SHARE);
+
+    //Sets the grabber to the AGAPE position to fit a cone.
+    if(prepareCone) {
+        if(gamePiece->getGamePieceType() == Grabber::GamePieceType::NONE) {
+            gamePiece->setGrabberPosition(Grabber::Position::AGAPE);
+        }
+    }
+    //Sets the grabber to the OPEN position to fit a cube.
+    if(prepareCube) {
+        if(gamePiece->getGamePieceType() == Grabber::GamePieceType::NONE) {
+            gamePiece->setGrabberPosition(Grabber::Position::OPEN);
+        }
+    }
+    //Moves the lift to the high grid position if it has a game piece, and moves it to the balcony position if it has no game piece.
+    if(liftHigh) {
+        if(gamePiece->getGamePieceType() == Grabber::GamePieceType::NONE) {
+            gamePiece->setLiftPreset(GamePiece::LiftPreset::BALCONY);
+        }
+        else {
+            gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH);
+        }
+    }
+    //Moves the lift to the mid grid position.
+    if(liftMid) {
+        gamePiece->setLiftPreset(GamePiece::LiftPreset::MID);
+    }
+    //Moves the lift to the hybrid grid position if it has a game piece, and moves it to the intaking position if it has no game piece.
+    if(liftLow) {
+        if(gamePiece->getGamePieceType() == Grabber::GamePieceType::NONE) {
+            gamePiece->setLiftPreset(GamePiece::LiftPreset::INTAKE);
+        }
+        else {
+            gamePiece->setLiftPreset(GamePiece::LiftPreset::GROUND);
+        }        
+    }
+    //Initiates the automated scoring process of the grabber.
+    if(score) {
+        if(gamePiece->getGamePieceType() != Grabber::GamePieceType::NONE) {
+            gamePiece->placeGamePiece();
+        }
+    }
+    //Spins the wheels on the grabber inward to intake a gamepiece.
+    if(intake) {
+        gamePiece->setGrabberAction(Grabber::Action::INTAKE);
+    }
+    //Spins the wheels on the grabber outward to outtake a gamepiece.
+    else if(outtake) {
+        gamePiece->setGrabberAction(Grabber::Action::OUTTAKE);
+    }
+    //If the grabber is neither intaking or outtaking the action is set to idle.
+    else {
+        gamePiece->setGrabberAction(Grabber::Action::IDLE);
+    }
+    //Overrides the current game piece count.
+    if(overrideGamePiece) {
+        gamePiece->overrideHasGamePiece();
+    }
 }
 
 void Controls::doAuxManual() {
@@ -195,8 +268,8 @@ void Controls::doAuxManual() {
     bool outake = auxController.GetRawButton(AuxButton::RIGHT_BUMPER);
     bool intake = auxController.GetRawAxis(AuxAxis::RIGHT_TRIGGER) > AXIS_DEADZONE;
 
-    double pivotLift = auxController.GetRawAxis(AuxAxis::RIGHT_Y);
-    double extendLift = auxController.GetRawAxis(AuxAxis::LEFT_Y);
+    double pivotLift = -auxController.GetRawAxis(AuxAxis::RIGHT_Y);
+    double extendLift = -auxController.GetRawAxis(AuxAxis::LEFT_Y);
 
     if (agape) {
         gamePiece->setGrabberPosition(Grabber::Position::AGAPE);
@@ -229,6 +302,7 @@ void Controls::doSwitchPanel() {
     settings.isCraterMode = switchPanel.GetRawButton(1);
     driveRobotCentric = switchPanel.GetRawButton(2);
     driveRecording = switchPanel.GetRawButton(3);
+    manualAux = switchPanel.GetRawButton(4);
 }
 
 void Controls::sendFeedback() {

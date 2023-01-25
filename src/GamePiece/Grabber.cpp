@@ -113,6 +113,7 @@ Grabber::GamePieceType Grabber::getGamePieceType() {
 
 void Grabber::overrideHasGamePiece() {
     gamePieceType = GamePieceType::NONE;
+    placingGamePiece = false;
 }
 
 void Grabber::placeGamePiece() {

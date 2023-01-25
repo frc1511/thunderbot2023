@@ -31,6 +31,8 @@ private:
     void doSwitchPanel();
     bool driveLockX = false;
 
+    bool manualAux = false;
+
     bool driveRobotCentric = false;
     unsigned driveCtrlFlags = 0;
 
