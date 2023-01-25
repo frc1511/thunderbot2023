@@ -27,6 +27,7 @@ private:
     frc::GenericHID switchPanel {2};
     void doDrive();
     void doAux();
+    void doAuxManual();
     void doSwitchPanel();
     bool driveLockX = false;
 

@@ -42,6 +42,17 @@ void Controls::processInDisabled() {
     }
 }
 
+bool Controls::getShouldPersistConfig() {
+    doSwitchPanel();
+
+    using DriveButton = HardwareManager::DriveGameController::Button;
+    using AuxButton = HardwareManager::AuxGameController::Button;
+
+    return settings.isCraterMode
+        && driveController.GetRawButton(DriveButton::TRIANGLE) && driveController.GetPOV() == 180
+        && auxController.GetRawButton(AuxButton::CROSS) && auxController.GetPOV() == 0;
+}
+
 void Controls::doDrive() {
     using DriveButton = HardwareManager::DriveGameController::Button;
     using DriveAxis = HardwareManager::DriveGameController::Axis;
@@ -165,22 +176,18 @@ void Controls::doDrive() {
     }
 }
 
-bool Controls::getShouldPersistConfig() {
-    doSwitchPanel();
-
-    using DriveButton = HardwareManager::DriveGameController::Button;
+void Controls::doAux() {
     using AuxButton = HardwareManager::AuxGameController::Button;
+    using AuxAxis = HardwareManager::AuxGameController::Axis;
 
-    return settings.isCraterMode
-        && driveController.GetRawButton(DriveButton::TRIANGLE) && driveController.GetPOV() == 180
-        && auxController.GetRawButton(AuxButton::CROSS) && auxController.GetPOV() == 0;
+    // Regular Aux controls.
 }
 
-void Controls::doAux() {
-    // using AuxButton = HardwareManager::AuxGameController::Button;
-    // using AuxAxis = HardwareManager::AuxGameController::Axis;
+void Controls::doAuxManual() {
+    using AuxButton = HardwareManager::AuxGameController::Button;
+    using AuxAxis = HardwareManager::AuxGameController::Axis;
 
-    // D:
+    // Manual Aux controls.
 }
 
 void Controls::doSwitchPanel() {
