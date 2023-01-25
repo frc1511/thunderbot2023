@@ -188,6 +188,41 @@ void Controls::doAuxManual() {
     using AuxAxis = HardwareManager::AuxGameController::Axis;
 
     // Manual Aux controls.
+
+    bool agape = auxController.GetRawButtonPressed(AuxButton::TRIANGLE);
+    bool ajar = auxController.GetRawButtonPressed(AuxButton::CIRCLE);
+    bool open = auxController.GetRawButtonPressed(AuxButton::SQUARE);
+    bool outake = auxController.GetRawButton(AuxButton::RIGHT_BUMPER);
+    bool intake = auxController.GetRawAxis(AuxAxis::RIGHT_TRIGGER) > AXIS_DEADZONE;
+
+    double pivotLift = auxController.GetRawAxis(AuxAxis::RIGHT_Y);
+    double extendLift = auxController.GetRawAxis(AuxAxis::LEFT_Y);
+
+    if (agape) {
+        gamePiece->setGrabberPosition(Grabber::Position::AGAPE);
+    } else if (ajar) {
+        gamePiece->setGrabberPosition(Grabber::Position::AJAR);
+    } else if (open) {
+        gamePiece->setGrabberPosition(Grabber::Position::OPEN);
+    }
+
+    if (intake) {
+        gamePiece->setGrabberAction(Grabber::Action::INTAKE);
+    } else if (outake) {
+        gamePiece->setGrabberAction(Grabber::Action::OUTTAKE);
+    } else {
+        gamePiece->setGrabberAction(Grabber::Action::IDLE);
+    }
+
+    if (pivotLift < AXIS_DEADZONE) {
+        pivotLift = 0;
+    }
+    if (extendLift < AXIS_DEADZONE) {
+        extendLift = 0;
+    }
+
+    gamePiece->setManualPivotSpeed(pivotLift);
+    gamePiece->setManualExtensionSpeed(extendLift);
 }
 
 void Controls::doSwitchPanel() {
