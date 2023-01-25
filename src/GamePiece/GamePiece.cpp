@@ -22,12 +22,14 @@ void GamePiece::process() {
 }
 
 void GamePiece::setLiftPreset(LiftPreset preset) {
-    lift->setEndPosition(presetMap.at(preset).first, presetMap.at(preset).second);
+    const auto& [y, z] = presetMap.at(preset);
+    lift->setEndPosition(y, z);
 }
 
 void GamePiece::setManualPivotSpeed(double speed) {
     lift->setManualPivotSpeed(speed);
 }
+
 void GamePiece::setManualExtensionSpeed(double speed) {
     lift->setManualExtensionSpeed(speed);
 }
@@ -40,7 +42,7 @@ void GamePiece::setGrabberPosition(Grabber::Position position) {
     grabber->setPosition(position);
 }
 
-Grabber::GamePieceType GamePiece::getGamePiece() {
+Grabber::GamePieceType GamePiece::getGamePieceType() {
     return grabber->getGamePieceType();
 }
 

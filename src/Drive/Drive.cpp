@@ -186,10 +186,10 @@ void Drive::manualControlAbsRotation(double xPct, double yPct, units::radian_t a
     manualControlRelRotation(xPct, yPct, angPct, flags);
 }
 
-void Drive::runTrajectory(const Trajectory& _trajectory, const std::map<u_int32_t, Action*>& actionMap) {
+void Drive::runTrajectory(Trajectory* _trajectory, const std::map<u_int32_t, Action*>& actionMap) {
     driveMode = DriveMode::TRAJECTORY;
     // Set the trajectory.
-    trajectory = &_trajectory;
+    trajectory = _trajectory;
 
     // Set the initial action.
     trajectoryActionIter = trajectory->getActions().cbegin();
@@ -259,7 +259,7 @@ frc::Rotation2d Drive::getRotation() {
 }
 
 void Drive::reloadRecordedTrajectory() {
-    recordedTrajectory = Trajectory(RECORDED_TRAJ_PATH);
+    recordedTrajectory = CSVTrajectory(RECORDED_TRAJ_PATH);
 }
 
 void Drive::updateOdometry() {

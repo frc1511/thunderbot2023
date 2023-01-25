@@ -41,6 +41,7 @@ public:
     GamePieceType getGamePieceType();
     void overrideHasGamePiece();
     void placeGamePiece();
+
 private:
     Action currentAction;
     Position currentPosition;
@@ -52,5 +53,4 @@ private:
     frc::DigitalInput intakeSensor;
     frc::DoubleSolenoid grabberPiston1;
     frc::DoubleSolenoid grabberPiston2;
-
 };

@@ -46,9 +46,9 @@ void Autonomous::doNothing() {
     // Very bad function. - jeff ups
 }
 
-void Autonomous::runTrajectory(const Trajectory& trajectory) {
+void Autonomous::runTrajectory(CSVTrajectory& trajectory) {
     if (step == 0) {
-        drive->runTrajectory(trajectory, actions);
+        drive->runTrajectory(&trajectory, actions);
         ++step;
     }
     else if (step == 1 && drive->isFinished()) {

@@ -1,7 +1,7 @@
-#include <Trajectory/Trajectory.h>
+#include <Trajectory/CSVTrajectory.h>
 #include <Util/Parser.h>
 
-Trajectory::Trajectory(std::filesystem::path path) {
+CSVTrajectory::CSVTrajectory(std::filesystem::path path) {
     std::string fileStr = Parser::getFile(path);
     if (fileStr.empty()) exit(1);
 
@@ -31,9 +31,9 @@ Trajectory::Trajectory(std::filesystem::path path) {
     }
 }
 
-Trajectory::~Trajectory() { }
+CSVTrajectory::~CSVTrajectory() { }
 
-Trajectory::State Trajectory::sample(units::second_t time) const {
+CSVTrajectory::State CSVTrajectory::sample(units::second_t time) {
     decltype(states)::const_iterator upperBound = states.upper_bound(time),
                                      lowerBound = --states.lower_bound(time);
     
@@ -73,12 +73,12 @@ Trajectory::State Trajectory::sample(units::second_t time) const {
     return State{ pose, velocity };
 }
 
-units::second_t Trajectory::getDuration() const {
+units::second_t CSVTrajectory::getDuration() {
     // Reverse iterator to get the last element.
     return states.rbegin()->first;
 }
 
-frc::Pose2d Trajectory::getInitialPose() const {
+frc::Pose2d CSVTrajectory::getInitialPose() {
     const State& state(states.cbegin()->second);
 
     return state.pose;

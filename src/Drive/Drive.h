@@ -3,7 +3,7 @@
 #include <Basic/Mechanism.h>
 #include <Hardware/HardwareManager.h>
 #include <Drive/SwerveModule.h>
-#include <Trajectory/Trajectory.h>
+#include <Trajectory/CSVTrajectory.h>
 #include <Trajectory/TrajectoryRecorder.h>
 #include <Autonomous/Action.h>
 
@@ -117,7 +117,7 @@ public:
     /**
      * Runs a trajectory.
      */
-    void runTrajectory(const Trajectory& trajectory, const std::map<u_int32_t, Action*>& actionMap);
+    void runTrajectory(Trajectory* trajectory, const std::map<u_int32_t, Action*>& actionMap);
 
     /**
      * Returns whether the current process is finished or not.
@@ -158,7 +158,7 @@ public:
     /**
      * Returns the recorded trajectory.
      */
-    inline const Trajectory& getRecordedTrajectory() const { return recordedTrajectory; }
+    inline CSVTrajectory& getRecordedTrajectory() { return recordedTrajectory; }
 
 private:
     /**
@@ -317,10 +317,10 @@ private:
     units::second_t lastTeleopTime;
 
     // The recorded trajectory.
-    Trajectory recordedTrajectory { RECORDED_TRAJ_PATH };
+    CSVTrajectory recordedTrajectory { RECORDED_TRAJ_PATH };
 
     // The trajectory that is currently being run.
-    const Trajectory* trajectory = nullptr;
+    Trajectory* trajectory = nullptr;
 
     // The available actions.
     const std::map<u_int32_t, Action*>* trajectoryActions = nullptr;

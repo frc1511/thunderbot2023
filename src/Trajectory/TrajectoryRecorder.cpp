@@ -48,6 +48,6 @@ void TrajectoryRecorder::addState(units::second_t dt, frc::Pose2d pose) {
     }
 
     lastStateIt = states.emplace_hint(states.cend(),
-        time, Trajectory::State{ pose, vel }
+        time, CSVTrajectory::State{ pose, vel }
     );
 }

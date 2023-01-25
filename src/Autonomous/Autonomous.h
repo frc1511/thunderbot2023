@@ -2,7 +2,7 @@
 
 #include <Basic/Mechanism.h>
 #include <frc/Timer.h>
-#include <Trajectory/Trajectory.h>
+#include <Trajectory/CSVTrajectory.h>
 #include <Autonomous/Action.h>
 #include <map>
 #include <cstdint>
@@ -27,7 +27,7 @@ private:
     };
 
     void doNothing();
-    void runTrajectory(const Trajectory& trajectory);
+    void runTrajectory(CSVTrajectory& trajectory);
 
     AutoMode currentMode = AutoMode::DO_NOTHING;
 

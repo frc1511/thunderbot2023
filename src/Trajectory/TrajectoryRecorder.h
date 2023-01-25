@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Trajectory/Trajectory.h>
+#include <Trajectory/CSVTrajectory.h>
 #include <frc/geometry/Rotation2d.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Twist2d.h>
@@ -36,7 +36,7 @@ public:
     void addState(units::second_t deltaTime, frc::Pose2d currentPose);
 
 private:
-   std::map<units::second_t, Trajectory::State> states;
+   std::map<units::second_t, CSVTrajectory::State> states;
 
    decltype(states)::const_iterator lastStateIt;
 };

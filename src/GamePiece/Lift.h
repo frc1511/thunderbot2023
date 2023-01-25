@@ -6,6 +6,7 @@
 #include <units/math.h>
 #include <Hardware/HardwareManager.h>
 #include <frc/DigitalInput.h>
+
 class Lift : public Mechanism {
 public:
     Lift();
@@ -23,6 +24,7 @@ public:
 
     //Set the coordinate position of where the end effector should be.
     void setEndPosition(units::meter_t y, units::meter_t z);
+
 private:
     double manualPivotSpeed;
     double manualExtensionSpeed;
