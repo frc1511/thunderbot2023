@@ -12,10 +12,12 @@
     I/O pins for motors and sensors.
 */
 
+#define TEST_BOARD 1
+
 // Which robot to build the robot code for.
 #define WHICH_ROBOT 2023 // 2023 Robot.
 // #define WHICH_ROBOT 2022 // 2022 Robot.
-// #define WHICH_ROBOT TEST // Test board
+// #define WHICH_ROBOT TEST_BOARD // Test board
 
 #ifndef WHICH_ROBOT
 # error No Robot Specified
@@ -44,11 +46,11 @@ public:
         CAN_SWERVE_ROT_CAN_CODER_BR = 13,
         CAN_SWERVE_ROT_CAN_CODER_FR = 12,
 
-        CAN_GRABBER_INTAKE_LEFT = 2,
+        CAN_GRABBER_INTAKE_LEFT  = 2,
         CAN_GRABBER_INTAKE_RIGHT = 3,
 
-        CAN_LIFT_EXTENSION = 4,
-        CAN_LIFT_PIVOT_LEFT = 5,
+        CAN_LIFT_EXTENSION   = 4,
+        CAN_LIFT_PIVOT_LEFT  = 5,
         CAN_LIFT_PIVOT_RIGHT = 6,
 
         // PWM
@@ -56,15 +58,15 @@ public:
 
         // DIO
         DIO_GRABBER_INTAKE = 0,
-        DIO_LIFT_HOME = 1,
+        DIO_LIFT_HOME      = 1,
         DIO_LIFT_EXTENSION = 2, 
 
         // SPI
 
         // PCM
-        PCM_GRABBER_PISTON_1_EXTEND = 0,
+        PCM_GRABBER_PISTON_1_EXTEND  = 0,
         PCM_GRABBER_PISTON_1_RETRACT = 1,
-        PCM_GRABBER_PISTON_2_EXTEND = 2,
+        PCM_GRABBER_PISTON_2_EXTEND  = 2,
         PCM_GRABBER_PISTON_2_RETRACT = 3,
     };
 };
@@ -89,28 +91,28 @@ public:
         CAN_SWERVE_ROT_CAN_CODER_BR = 19,
         CAN_SWERVE_ROT_CAN_CODER_FR = 20,
 
-        CAN_GRABBER_INTAKE_LEFT = 2,
-        CAN_GRABBER_INTAKE_RIGHT = 3,
+        CAN_GRABBER_INTAKE_LEFT  = IO_MISSING,
+        CAN_GRABBER_INTAKE_RIGHT = IO_MISSING,
 
-        CAN_LIFT_EXTENSION = 4,
-        CAN_LIFT_PIVOT_LEFT = 5,
-        CAN_LIFT_PIVOT_RIGHT = 6,
+        CAN_LIFT_EXTENSION   = IO_MISSING,
+        CAN_LIFT_PIVOT_LEFT  = IO_MISSING,
+        CAN_LIFT_PIVOT_RIGHT = IO_MISSING,
 
         // PWM
-        PWM_BLINKY_BLINKY = 0,
+        PWM_BLINKY_BLINKY = IO_MISSING,
 
         // DIO
-        DIO_GRABBER_INTAKE = 0,
-        DIO_LIFT_HOME = 1,
-        DIO_LIFT_EXTENSION = 2, 
+        DIO_GRABBER_INTAKE = IO_MISSING,
+        DIO_LIFT_HOME      = IO_MISSING,
+        DIO_LIFT_EXTENSION = IO_MISSING,
 
         // SPI
 
         // PCM
-        PCM_GRABBER_PISTON_1_EXTEND = 0,
-        PCM_GRABBER_PISTON_1_RETRACT = 1,
-        PCM_GRABBER_PISTON_2_EXTEND = 2,
-        PCM_GRABBER_PISTON_2_RETRACT = 3,
+        PCM_GRABBER_PISTON_1_EXTEND  = IO_MISSING,
+        PCM_GRABBER_PISTON_1_RETRACT = IO_MISSING,
+        PCM_GRABBER_PISTON_2_EXTEND  = IO_MISSING,
+        PCM_GRABBER_PISTON_2_RETRACT = IO_MISSING,
     };
 };
 
@@ -134,27 +136,27 @@ public:
         CAN_SWERVE_ROT_CAN_CODER_BR = IO_MISSING,
         CAN_SWERVE_ROT_CAN_CODER_FR = IO_MISSING,
 
-        CAN_GRABBER_INTAKE_LEFT = 2,
-        CAN_GRABBER_INTAKE_RIGHT = 3,
+        CAN_GRABBER_INTAKE_LEFT  = IO_MISSING,
+        CAN_GRABBER_INTAKE_RIGHT = IO_MISSING,
 
-        CAN_LIFT_EXTENSION = 4,
-        CAN_LIFT_PIVOT_LEFT = 5,
-        CAN_LIFT_PIVOT_RIGHT = 6,
+        CAN_LIFT_EXTENSION   = IO_MISSING,
+        CAN_LIFT_PIVOT_LEFT  = IO_MISSING,
+        CAN_LIFT_PIVOT_RIGHT = IO_MISSING,
 
         // PWM
-        PWM_BLINKY_BLINKY = 0,
+        PWM_BLINKY_BLINKY = IO_MISSING,
 
         // DIO
-        DIO_GRABBER_INTAKE = 0,
-        DIO_LIFT_HOME = 1,
-        DIO_LIFT_EXTENSION = 2, 
+        DIO_GRABBER_INTAKE = IO_MISSING,
+        DIO_LIFT_HOME      = IO_MISSING,
+        DIO_LIFT_EXTENSION = IO_MISSING,
 
         // SPI
 
         // PCM
-        PCM_GRABBER_PISTON_1_EXTEND = 0,
-        PCM_GRABBER_PISTON_1_RETRACT = 1,
-        PCM_GRABBER_PISTON_2_EXTEND = 2,
-        PCM_GRABBER_PISTON_2_RETRACT = 3,
+        PCM_GRABBER_PISTON_1_EXTEND  = IO_MISSING,
+        PCM_GRABBER_PISTON_1_RETRACT = IO_MISSING,
+        PCM_GRABBER_PISTON_2_EXTEND  = IO_MISSING,
+        PCM_GRABBER_PISTON_2_RETRACT = IO_MISSING,
     };
 };

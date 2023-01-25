@@ -8,6 +8,7 @@
 #include <RollingRaspberry/RollingRaspberry.h>
 #include <Drive/Drive.h>
 #include <GamePiece/GamePiece.h>
+#include <Basic/RobotChess.h>
 
 class Robot : public frc::TimedRobot {
 public:
@@ -30,6 +31,8 @@ private:
     void reset(Mechanism::MatchMode mode);
 
     Mechanism::MatchMode lastMode = Mechanism::MatchMode::DISABLED;
+
+    RobotChess robotChess;
 
     RollingRaspberry rollingRaspberry;
     Drive drive { &rollingRaspberry };

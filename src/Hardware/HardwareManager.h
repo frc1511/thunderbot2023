@@ -23,7 +23,7 @@ public:
         IOMap2023;
 #elif WHICH_ROBOT == 2022
         IOMap2022;
-#elif WHICH_ROBOT == TEST
+#elif WHICH_ROBOT == TEST_BOARD
         IOMapTestBoard;
 #endif
 
@@ -37,7 +37,7 @@ public:
     using LiftExtensionMotor = ThunderCANSparkMax;
     using LiftPivotMotor = ThunderCANSparkMax;
 
-#elif WHICH_ROBOT == TEST
+#elif WHICH_ROBOT == TEST_BOARD
     using SwerveDriveMotor = ThunderCANMotorController;
     using SwerveTurningMotor = ThunderCANMotorController;
     using SwerveTurningEncoder = ThunderCANMagneticEncoder;
