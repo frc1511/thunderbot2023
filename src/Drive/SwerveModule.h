@@ -12,7 +12,7 @@
 
 class SwerveModule : public Mechanism {
 public:
-    SwerveModule(HardwareManager::IOMap driveID, HardwareManager::IOMap turningID, HardwareManager::IOMap canCoderID, bool driveInverted);
+    SwerveModule(int driveID, int turningID, int canCoderID, bool driveInverted);
     ~SwerveModule();
 
     void sendFeedback(std::size_t moduleIndex);

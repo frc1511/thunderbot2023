@@ -36,8 +36,8 @@
 #define DRIVE_ENCODER_TO_METER_FACTOR (1 / (DRIVE_METER_TO_ENCODER_FACTOR))
 
 
-SwerveModule::SwerveModule(HardwareManager::IOMap driveID, HardwareManager::IOMap turningID, HardwareManager::IOMap canCoderID, bool driveInverted)
-: driveMotor((int)driveID), turningMotor((int)turningID), turningAbsEncoder((int)canCoderID), driveInverted(driveInverted) {
+SwerveModule::SwerveModule(int driveID, int turningID, int canCoderID, bool driveInverted)
+: driveMotor(driveID), turningMotor(turningID), turningAbsEncoder(canCoderID), driveInverted(driveInverted) {
     
     configureMotors();
 

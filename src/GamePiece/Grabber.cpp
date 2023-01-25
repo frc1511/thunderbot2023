@@ -1,15 +1,15 @@
 #include <GamePiece/Grabber.h>
 
 Grabber::Grabber() 
-: leftIntakeMotor((int)HardwareManager::IOMap::CAN_GRABBER_INTAKE_L),
-  rightIntakeMotor((int)HardwareManager::IOMap::CAN_GRABBER_INTAKE_R),
-  intakeSensor((int)HardwareManager::IOMap::DIO_GRABBER_INTAKE),
+: leftIntakeMotor(HardwareManager::IOMap::CAN_GRABBER_INTAKE_LEFT),
+  rightIntakeMotor(HardwareManager::IOMap::CAN_GRABBER_INTAKE_RIGHT),
+  intakeSensor(HardwareManager::IOMap::DIO_GRABBER_INTAKE),
    grabberPiston1(frc::PneumaticsModuleType::CTREPCM,
-        (int)HardwareManager::IOMap::PCM_GRABBER_PISTON_1_EXTEND,
-        (int)HardwareManager::IOMap::PCM_GRABBER_PISTON_1_RETRACT),
+        HardwareManager::IOMap::PCM_GRABBER_PISTON_1_EXTEND,
+        HardwareManager::IOMap::PCM_GRABBER_PISTON_1_RETRACT),
    grabberPiston2(frc::PneumaticsModuleType::CTREPCM,
-        (int)HardwareManager::IOMap::PCM_GRABBER_PISTON_2_EXTEND,
-        (int)HardwareManager::IOMap::PCM_GRABBER_PISTON_2_RETRACT)
+        HardwareManager::IOMap::PCM_GRABBER_PISTON_2_EXTEND,
+        HardwareManager::IOMap::PCM_GRABBER_PISTON_2_RETRACT)
    {
   
 }

@@ -13,11 +13,11 @@
 #define MANUAL_EXTENSION_SPEED_COEFF 0.5
 
 Lift::Lift()
-: extensionMotor((int)HardwareManager::IOMap::CAN_LIFT_EXTENSION),
-  pivotMotorLeft((int)HardwareManager::IOMap::CAN_LIFT_PIVOT_LEFT), 
-  pivotMotorRight((int)HardwareManager::IOMap::CAN_LIFT_PIVOT_RIGHT),
-  homeSensor((int)HardwareManager::IOMap::DIO_LIFT_HOME),
-  extensionSensor((int)HardwareManager::IOMap::DIO_LIFT_EXTENSION) {
+: extensionMotor(HardwareManager::IOMap::CAN_LIFT_EXTENSION),
+  pivotMotorLeft(HardwareManager::IOMap::CAN_LIFT_PIVOT_LEFT), 
+  pivotMotorRight(HardwareManager::IOMap::CAN_LIFT_PIVOT_RIGHT),
+  homeSensor(HardwareManager::IOMap::DIO_LIFT_HOME),
+  extensionSensor(HardwareManager::IOMap::DIO_LIFT_EXTENSION) {
 
 }
 
