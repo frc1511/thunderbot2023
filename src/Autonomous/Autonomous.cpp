@@ -18,19 +18,39 @@ void Autonomous::resetToMode(MatchMode mode) {
 }
 
 void Autonomous::process() {
-    currentMode = static_cast<AutoMode>(frc::SmartDashboard::GetNumber("Auto_Mode", 0.0));
+    // The starting location of the robot.
+    startingLocation = static_cast<StartingLocation>(frc::SmartDashboard::GetNumber("thunderdashboard_auto_starting_location", -1.0));
+
+    // Whether we are actually running an auto mode.
+    if (frc::SmartDashboard::GetNumber("thunderdashboard_auto_do_nothing", 0.0)) {
+        startingLocation = StartingLocation::MARS;
+    }
+
+    // Starting GamePiece (Cube = 0, Cone = 1).
+    startingGamePiece = frc::SmartDashboard::GetNumber("thunderdashboard_auto_starting_gamepiece", -1.0);
+    // The GamePiece to be collecting on the field (Cube = 0, Cone = 1).
+    fieldGamePiece = frc::SmartDashboard::GetNumber("thunderdashboard_auto_field_gamepiece", -1.0);
+
+    // The final action of the autonomous mode (dependant on starting location).
+    finalAction = frc::SmartDashboard::GetNumber("thunderdashboard_auto_final_action", -1.0);
 
     // Autonomous delay.
     if (delayTimer.Get().value() <= frc::SmartDashboard::GetNumber("thunderdashboard_auto_start_delay", 0.0)) {
         return;
     }
 
-    switch (currentMode) {
-        case AutoMode::DO_NOTHING:
+    switch (startingLocation) {
+        case StartingLocation::MARS:
             doNothing();
             break;
-        case AutoMode::RECORDED:
-            runTrajectory(drive->getRecordedTrajectory());
+        case StartingLocation::BARRIER_SIDE:
+            barrierSideAuto();
+            break;
+        case StartingLocation::MIDDLE:
+            middleAuto();
+            break;
+        case StartingLocation::EDGE_SIDE:
+            edgeSideAuto();
             break;
     }
 }
@@ -40,10 +60,53 @@ void Autonomous::doNothing() {
         //it does something because it is doing nothing - ishan(2022)
         //I disagree - peter(2022)
         //I agree with peter -L Wrench
+        //I still disagree with ishan - peter(2023)
 
     // Good function.
     // Very good function. - jeff downs
     // Very bad function. - jeff ups
+}
+
+void Autonomous::barrierSideAuto() {
+    /**
+     * Auto mode for starting at side of the community closest to barrier.
+     * 1. Score preloaded GamePiece on grid.
+     * 2. Drive around the Charge Station and collect GamePiece 1.
+     * 3. Configurable final action:
+     *    a. Do nothing
+     *    b. Score collected GamePiece 1
+     *    c. Balance on Charge Station
+     */
+
+    // Code ...
+}
+
+void Autonomous::middleAuto() {
+    /**
+     * Auto mode for starting in the middle of the community behind the charging station.
+     * 1. Score preloaded GamePiece on grid.
+     * 2. Configurable final action:
+     *    a. Do nothing
+     *    b. Balance on Charge Station
+     *    c. Go over Charge Station and collect GamePiece 2/3
+     *    d. Go over Charge Station, collect GamePiece 2/3, then balance on Charge Station
+     */
+
+    // Code ...
+}
+
+void Autonomous::edgeSideAuto() {
+    /**
+     * Auto mode for starting at the side of the community closest to wall.
+     * 1. Score preloaded GamePiece on grid.
+     * 2. Drive around the Charge Station and collect GamePiece 4.
+     * 3. Configure final action:
+     *    a. Do nothing
+     *    b. Score collected GamePiece 4
+     *    c. Balance on Charge Station
+     */
+
+    // Code ...
 }
 
 void Autonomous::runTrajectory(CSVTrajectory& trajectory) {
@@ -59,20 +122,6 @@ void Autonomous::runTrajectory(CSVTrajectory& trajectory) {
 void Autonomous::sendFeedback() {
     frc::SmartDashboard::PutNumber("Autonomous_step", step);
     frc::SmartDashboard::PutBoolean("Autonomous_drive_finished", drive->isFinished());
-
-    std::string buffer;
-
-    auto sendAutoMode = [&](AutoMode mode, const char* description) {
-        // Append mode number to the end of the buffer.
-        buffer.append(fmt::format(",{}", static_cast<int>(mode)));
-
-        frc::SmartDashboard::PutString(fmt::format("thunderdashboard_auto_{}", fmt::format("{}", static_cast<int>(mode))), description);
-    };
-
-    sendAutoMode(AutoMode::DO_NOTHING, "Do Nothing");
-    sendAutoMode(AutoMode::RECORDED, "Recorded Trajectory");
-
-    frc::SmartDashboard::PutString("thunderdashboard_auto_list", buffer);
 }
 
 Autonomous::PauseAction::PauseAction(units::second_t dur)

@@ -21,15 +21,54 @@ public:
     void resetToMode(MatchMode mode) override;
 
 private:
-    enum class AutoMode {
-        DO_NOTHING = 0, // Do nothing or something.
-        RECORDED = 1, // Run the recorded trajectory.
-    };
-
     void doNothing();
+
+    /**
+     * Auto mode for starting at side of the community closest to barrier.
+     * 1. Score preloaded GamePiece on grid.
+     * 2. Drive around the Charge Station and collect GamePiece 1.
+     * 3. Configurable final action:
+     *    a. Do nothing
+     *    b. Score collected GamePiece 1
+     *    c. Balance on Charge Station
+     */
+    void barrierSideAuto();
+
+    /**
+     * Auto mode for starting in the middle of the community behind the charging station.
+     * 1. Score preloaded GamePiece on grid.
+     * 2. Configurable final action:
+     *    a. Do nothing
+     *    b. Balance on Charge Station
+     *    c. Go over Charge Station and collect GamePiece 2/3
+     *    d. Go over Charge Station, collect GamePiece 2/3, then balance on Charge Station
+     */
+    void middleAuto();
+
+    /**
+     * Auto mode for starting at the side of the community closest to wall.
+     * 1. Score preloaded GamePiece on grid.
+     * 2. Drive around the Charge Station and collect GamePiece 4.
+     * 3. Configure final action:
+     *    a. Do nothing
+     *    b. Score collected GamePiece 4
+     *    c. Balance on Charge Station
+     */
+    void edgeSideAuto();
+
     void runTrajectory(CSVTrajectory& trajectory);
 
-    AutoMode currentMode = AutoMode::DO_NOTHING;
+    enum class StartingLocation {
+        MARS = -1, // Not really mars - signifies that we aren't running any auto.
+        BARRIER_SIDE = 0,
+        MIDDLE = 1,
+        EDGE_SIDE = 2,
+    };
+
+    StartingLocation startingLocation;
+    int startingGamePiece,
+        fieldGamePiece,
+        finalAction;
 
     frc::Timer delayTimer,
                autoTimer;
