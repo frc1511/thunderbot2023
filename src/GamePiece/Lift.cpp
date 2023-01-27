@@ -4,7 +4,7 @@
 #define PIVOT_POINT_HEIGHT 0.5_m
 
 #define MIN_PIVOT_ANGLE -20_deg
-#define MAX_PIVPT_ANGLE 45_deg
+#define MAX_PIVOT_ANGLE 45_deg
 #define MAX_PIVOT_ENCODER 100
 #define MAX_EXTENSION_LENGTH 4_ft
 #define MAX_EXTENSION_ENCODER 100
@@ -12,8 +12,9 @@
 #define MANUAL_PIVOT_SPEED_COEFF 0.5
 #define MANUAL_EXTENSION_SPEED_COEFF 0.
 
-// The max amperage of the drive motors.
-#define INTAKE_MAX_AMPERAGE 40_A
+// The max amperage of the pivot and extension motors.
+#define PIVOT_MAX_AMPERAGE 40_A
+#define EXTENSION_MAX_AMPERAGE 40_A
 
 // --- PID Values ---
 #define PIVOT_P 0
@@ -68,7 +69,7 @@ void Lift::process() {
         pivotMotorRight.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, manualPivotSpeed);
     }
     else{
-        double pivotPercent = positionalAngle / (MAX_PIVPT_ANGLE - MIN_PIVOT_ANGLE);
+        double pivotPercent = positionalAngle / (MAX_PIVOT_ANGLE - MIN_PIVOT_ANGLE);
         double pivotPosition = pivotPercent * MAX_PIVOT_ENCODER;
         pivotMotorLeft.set(ThunderCANMotorController::ControlMode::POSITION, pivotPosition);
         pivotMotorRight.set(ThunderCANMotorController::ControlMode::POSITION, pivotPosition);
@@ -118,8 +119,8 @@ void Lift::configureMotors() {
     // Left Pivot Motor Configuration
     pivotMotorLeft.configFactoryDefault();
     pivotMotorLeft.configFactoryDefault();
-    pivotMotorLeft.setIdleMode(ThunderCANMotorController::IdleMode::COAST);
-    pivotMotorLeft.configSmartCurrentLimit(INTAKE_MAX_AMPERAGE);
+    pivotMotorLeft.setIdleMode(ThunderCANMotorController::IdleMode::BRAKE);
+    pivotMotorLeft.configSmartCurrentLimit(PIVOT_MAX_AMPERAGE);
     pivotMotorLeft.setInverted(false);
 
     pivotMotorLeft.configP(PIVOT_P);
@@ -131,8 +132,8 @@ void Lift::configureMotors() {
     // Right Pivot Motor Configuration
     pivotMotorRight.configFactoryDefault();
     pivotMotorRight.configFactoryDefault();
-    pivotMotorRight.setIdleMode(ThunderCANMotorController::IdleMode::COAST);
-    pivotMotorRight.configSmartCurrentLimit(INTAKE_MAX_AMPERAGE);
+    pivotMotorRight.setIdleMode(ThunderCANMotorController::IdleMode::BRAKE);
+    pivotMotorRight.configSmartCurrentLimit(PIVOT_MAX_AMPERAGE);
     pivotMotorRight.setInverted(false);
 
     pivotMotorRight.configP(PIVOT_P);
@@ -143,9 +144,9 @@ void Lift::configureMotors() {
     
     // Extension Motor Configuration
     extensionMotor.configFactoryDefault();
-    extensionMotor.setIdleMode(ThunderCANMotorController::IdleMode::COAST);
-    extensionMotor.configSmartCurrentLimit(INTAKE_MAX_AMPERAGE);
-    extensionMotor.setInverted(true);
+    extensionMotor.setIdleMode(ThunderCANMotorController::IdleMode::BRAKE);
+    extensionMotor.configSmartCurrentLimit(EXTENSION_MAX_AMPERAGE);
+    extensionMotor.setInverted(false);
 
     extensionMotor.configP(EXTENSION_P);
     extensionMotor.configI(EXTENSION_I);

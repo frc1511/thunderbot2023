@@ -1,7 +1,7 @@
 #include <GamePiece/Grabber.h>
 
-// The max amperage of the drive motors.
-#define INTAKE_MAX_AMPERAGE 40_A
+// The max amperage of the intake motors.
+#define INTAKE_MAX_AMPERAGE 20_A
 
 
 // --- PID Values ---
