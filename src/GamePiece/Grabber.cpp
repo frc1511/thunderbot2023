@@ -1,5 +1,19 @@
 #include <GamePiece/Grabber.h>
 
+// The max amperage of the drive motors.
+#define INTAKE_MAX_AMPERAGE 40_A
+
+
+// --- PID Values ---
+
+#define INTAKE_P 0.00001
+#define INTAKE_I 0
+#define INTAKE_D 0
+#define INTAKE_I_ZONE 0
+#define INTAKE_FF 0.000187
+
+
+
 Grabber::Grabber() 
 : leftIntakeMotor(HardwareManager::IOMap::CAN_GRABBER_INTAKE_LEFT),
   rightIntakeMotor(HardwareManager::IOMap::CAN_GRABBER_INTAKE_RIGHT),
@@ -120,6 +134,29 @@ void Grabber::placeGamePiece() {
     placingGamePiece = true;
     placingGamePieceTimer.Reset();
     placingGamePieceTimer.Start();
+}
+void Grabber::configureMotors() {
+    leftIntakeMotor.configFactoryDefault();
+    leftIntakeMotor.setIdleMode(ThunderCANMotorController::IdleMode::COAST);
+    leftIntakeMotor.configSmartCurrentLimit(INTAKE_MAX_AMPERAGE);
+    leftIntakeMotor.setInverted(false);
+
+    leftIntakeMotor.configP(INTAKE_P);
+    leftIntakeMotor.configI(INTAKE_I);
+    leftIntakeMotor.configD(INTAKE_D);
+    leftIntakeMotor.configIZone(INTAKE_I_ZONE);
+    leftIntakeMotor.configFF(INTAKE_FF);
+    
+    rightIntakeMotor.configFactoryDefault();
+    rightIntakeMotor.setIdleMode(ThunderCANMotorController::IdleMode::COAST);
+    rightIntakeMotor.configSmartCurrentLimit(INTAKE_MAX_AMPERAGE);
+    rightIntakeMotor.setInverted(true);
+
+    rightIntakeMotor.configP(INTAKE_P);
+    rightIntakeMotor.configI(INTAKE_I);
+    rightIntakeMotor.configD(INTAKE_D);
+    rightIntakeMotor.configIZone(INTAKE_I_ZONE);
+    rightIntakeMotor.configFF(INTAKE_FF);
 }
 
 void Grabber::sendFeedback() {

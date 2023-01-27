@@ -158,7 +158,7 @@ void Controls::doDrive() {
     if (wasBrickDrive && !isMoving()) {
         driveCtrlFlags |= Drive::ControlFlag::BRICK;
     }
-
+// Hi Peter!!!
     if (xySlowMode){
         finalXVel *= .5;
         finalYVel *= .5;

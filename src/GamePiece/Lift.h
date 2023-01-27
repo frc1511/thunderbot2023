@@ -43,4 +43,5 @@ private:
     HardwareManager::LiftPivotMotor pivotMotorRight;
     frc::DigitalInput homeSensor;
     frc::DigitalInput extensionSensor;
+    void configureMotors();
 };

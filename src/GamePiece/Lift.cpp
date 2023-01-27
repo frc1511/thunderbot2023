@@ -10,7 +10,23 @@
 #define MAX_EXTENSION_ENCODER 100
 
 #define MANUAL_PIVOT_SPEED_COEFF 0.5
-#define MANUAL_EXTENSION_SPEED_COEFF 0.5
+#define MANUAL_EXTENSION_SPEED_COEFF 0.
+
+// The max amperage of the drive motors.
+#define INTAKE_MAX_AMPERAGE 40_A
+
+// --- PID Values ---
+#define PIVOT_P 0
+#define PIVOT_I 0
+#define PIVOT_D 0
+#define PIVOT_I_ZONE 0
+#define PIVOT_FF 0
+
+#define EXTENSION_P 0
+#define EXTENSION_I 0
+#define EXTENSION_D 0
+#define EXTENSION_I_ZONE 0 
+#define EXTENSION_FF 0
 
 Lift::Lift()
 : extensionMotor(HardwareManager::IOMap::CAN_LIFT_EXTENSION),
@@ -96,6 +112,46 @@ bool Lift::isAtPosition(){
         return atPosition;
     }
     return true;
+}
+
+void Lift::configureMotors() {
+    // Left Pivot Motor Configuration
+    pivotMotorLeft.configFactoryDefault();
+    pivotMotorLeft.configFactoryDefault();
+    pivotMotorLeft.setIdleMode(ThunderCANMotorController::IdleMode::COAST);
+    pivotMotorLeft.configSmartCurrentLimit(INTAKE_MAX_AMPERAGE);
+    pivotMotorLeft.setInverted(false);
+
+    pivotMotorLeft.configP(PIVOT_P);
+    pivotMotorLeft.configI(PIVOT_I);
+    pivotMotorLeft.configD(PIVOT_D);
+    pivotMotorLeft.configIZone(PIVOT_I_ZONE);
+    pivotMotorLeft.configFF(PIVOT_FF);
+
+    // Right Pivot Motor Configuration
+    pivotMotorRight.configFactoryDefault();
+    pivotMotorRight.configFactoryDefault();
+    pivotMotorRight.setIdleMode(ThunderCANMotorController::IdleMode::COAST);
+    pivotMotorRight.configSmartCurrentLimit(INTAKE_MAX_AMPERAGE);
+    pivotMotorRight.setInverted(false);
+
+    pivotMotorRight.configP(PIVOT_P);
+    pivotMotorRight.configI(PIVOT_I);
+    pivotMotorRight.configD(PIVOT_D);
+    pivotMotorRight.configIZone(PIVOT_I_ZONE);
+    pivotMotorRight.configFF(PIVOT_FF);
+    
+    // Extension Motor Configuration
+    extensionMotor.configFactoryDefault();
+    extensionMotor.setIdleMode(ThunderCANMotorController::IdleMode::COAST);
+    extensionMotor.configSmartCurrentLimit(INTAKE_MAX_AMPERAGE);
+    extensionMotor.setInverted(true);
+
+    extensionMotor.configP(EXTENSION_P);
+    extensionMotor.configI(EXTENSION_I);
+    extensionMotor.configD(EXTENSION_D);
+    extensionMotor.configIZone(EXTENSION_I_ZONE);
+    extensionMotor.configFF(EXTENSION_FF);
 }
 
 void Lift::sendFeedback() {

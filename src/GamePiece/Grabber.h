@@ -53,4 +53,5 @@ private:
     frc::DigitalInput intakeSensor;
     frc::DoubleSolenoid grabberPiston1;
     frc::DoubleSolenoid grabberPiston2;
+    void configureMotors();
 };
