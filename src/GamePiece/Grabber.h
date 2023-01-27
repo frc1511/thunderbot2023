@@ -24,6 +24,8 @@ public:
 
     void setAction(Action action);
 
+    Action getAction();
+
     enum class Position {
         OPEN, //All the way open - cube intake, placement
         AGAPE, //Semi open - cone intake

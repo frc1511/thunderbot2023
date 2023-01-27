@@ -117,6 +117,10 @@ void Grabber::setAction(Action action) {
     currentAction = action;
 }
 
+Grabber::Action Grabber::getAction(){
+    return currentAction;
+}
+
 void Grabber::setPosition(Position position) {
     currentPosition = position;
 }

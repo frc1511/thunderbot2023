@@ -18,12 +18,19 @@ void GamePiece::doPersistentConfiguration() {
 }
 
 void GamePiece::process() {
-
+    if (grabber->getAction() == Grabber::Action::INTAKE) {
+        if (getGamePieceType() != Grabber::GamePieceType::NONE) {
+            if (liftPreset == LiftPreset::GROUND) {
+                setLiftPreset(LiftPreset::TRAVEL);
+            }
+        }
+    }
 }
 
 void GamePiece::setLiftPreset(LiftPreset preset) {
     const auto& [y, z] = presetMap.at(preset);
     lift->setEndPosition(y, z);
+    liftPreset = preset;
 }
 
 void GamePiece::setManualPivotSpeed(double speed) {

@@ -22,6 +22,7 @@ public:
         MID,
         HIGH,
         BALCONY,
+        TRAVEL,
     };
 
     // Sets the pivot and extension of the lift to a preset.
@@ -58,5 +59,8 @@ private:
         { LiftPreset::MID, std::make_pair(1_m, 1_m) },
         { LiftPreset::HIGH, std::make_pair(1_m, 1_m) },
         { LiftPreset::BALCONY, std::make_pair(1_m, 1_m) },
+        { LiftPreset::TRAVEL, std::make_pair(1_m, 1_m) },
     };
+
+    LiftPreset liftPreset;
 };
