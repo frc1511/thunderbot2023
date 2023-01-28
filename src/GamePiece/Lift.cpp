@@ -1,4 +1,11 @@
 #include <GamePiece/Lift.h>
+#include <RollingRaspberry/RollingRaspberry.h>
+#include <frc/geometry/Twist2d.h>
+#include <Util/Parser.h>
+#include <frc/smartdashboard/SmartDashboard.h>
+#include <fmt/core.h>
+#define ENCODER_TOLERANCE 0.1
+
 
 #define ENCODER_TOLERANCE 0.1
 #define PIVOT_POINT_HEIGHT 0.5_m
@@ -156,5 +163,14 @@ void Lift::configureMotors() {
 }
 
 void Lift::sendFeedback() {
+    // Lift Feedback
+    frc::SmartDashboard::PutNumber("Lift_Positional_Extension_Length", positionalExtensionLength.value());
+    frc::SmartDashboard::PutNumber("Lift_Positional_Angle", positionalAngle.value());
+    frc::SmartDashboard::PutBoolean("Lift_At_Position", atPosition);
+    frc::SmartDashboard::PutNumber("Lift_Extension_Motor_Encoder", extensionMotor.getEncoderPosition());
+    frc::SmartDashboard::PutNumber("Lift_Pivot_Left_Motor_Encoder", pivotMotorLeft.getEncoderPosition());
+    frc::SmartDashboard::PutNumber("Lift_Pivot_Motor_Right_Encoder", pivotMotorRight.getEncoderPosition());
+    frc::SmartDashboard::PutBoolean("Lift_Home_Sensor", homeSensor.Get());
+    frc::SmartDashboard::PutBoolean("Lift_Extension_Sensor", extensionSensor.Get());
 
 }

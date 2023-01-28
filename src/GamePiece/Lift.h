@@ -25,6 +25,8 @@ public:
     //Set the coordinate position of where the end effector should be.
     void setEndPosition(units::meter_t y, units::meter_t z);
 
+
+
 private:
     double manualPivotSpeed;
     double manualExtensionSpeed;
