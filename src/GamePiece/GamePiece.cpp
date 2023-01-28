@@ -1,4 +1,6 @@
 #include <GamePiece/GamePiece.h>
+#include <frc/smartdashboard/SmartDashboard.h>
+
 
 GamePiece::GamePiece(Grabber* _grabber, Lift* _lift) 
 : grabber(_grabber), lift(_lift){
@@ -62,5 +64,28 @@ void GamePiece::placeGamePiece() {
 }
 
 void GamePiece::sendFeedback() {
+    std::string liftPresetString = "";
 
+    switch (liftPreset) {
+        case LiftPreset::BALCONY:
+            liftPresetString = "Balcony";
+            break;
+        case LiftPreset::GROUND:
+            liftPresetString = "Ground";
+            break;
+        case LiftPreset::HIGH:
+            liftPresetString = "High";
+            break;
+        case LiftPreset::INTAKE:
+            liftPresetString = "Intake";
+            break;
+        case LiftPreset::MID:
+            liftPresetString = "Mid";
+            break;
+        case LiftPreset::TRAVEL:
+            liftPresetString = "Travel";
+            break;
+        }
+
+     frc::SmartDashboard::PutString("GamePiece_liftpreset", liftPresetString);
 }
