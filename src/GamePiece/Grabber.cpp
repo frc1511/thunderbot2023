@@ -1,4 +1,6 @@
 #include <GamePiece/Grabber.h>
+#include <frc/smartdashboard/SmartDashboard.h>
+
 
 // The max amperage of the intake motors.
 #define INTAKE_MAX_AMPERAGE 20_A
@@ -164,5 +166,53 @@ void Grabber::configureMotors() {
 }
 
 void Grabber::sendFeedback() {
+    std::string grabberAction = "";
+    switch (currentAction) {
+        case Action::INTAKE:
+            grabberAction = "Intake";
+            break;
+        case Action::OUTTAKE:
+            grabberAction = "Outtake";
+            break;
+        case Action::IDLE:
+            grabberAction = "Idle";
+            break;
+    }
 
+    frc::SmartDashboard::PutString("Grabber_Action", grabberAction.c_str());
+
+    std::string grabberPosition = "";
+    switch (currentPosition) {
+        case Position::OPEN:
+            grabberPosition = "Open";
+            break;
+        case Position::AGAPE:
+            grabberPosition = "Agape";
+            break;
+        case Position::AJAR:
+            grabberPosition = "Ajar";
+            break;
+    }
+
+    frc::SmartDashboard::PutString("Grabber_Position", grabberPosition.c_str());
+
+    std::string typeGamePiece = "";
+    switch (gamePieceType) {
+        case GamePieceType::CONE:
+            typeGamePiece = "Cone";
+            break;
+        case GamePieceType::CUBE:
+            typeGamePiece = "Cube";
+            break;
+        case GamePieceType::NONE:
+            typeGamePiece = "None";
+            break;
+    }
+
+    frc::SmartDashboard::PutString("Grabber_GamePieceType", typeGamePiece.c_str());
+
+    frc::SmartDashboard::PutBoolean("Grabber_PlacingGamePiece", placingGamePiece);
+    frc::SmartDashboard::PutNumber("Grabber_PlacingGamePieceTimer", placingGamePieceTimer.Get().value());
+    frc::SmartDashboard::PutBoolean("Grabber_Sensor", intakeSensor.Get());
 }
+
