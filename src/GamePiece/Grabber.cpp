@@ -214,5 +214,9 @@ void Grabber::sendFeedback() {
     frc::SmartDashboard::PutBoolean("Grabber_PlacingGamePiece", placingGamePiece);
     frc::SmartDashboard::PutNumber("Grabber_PlacingGamePieceTimer", placingGamePieceTimer.Get().value());
     frc::SmartDashboard::PutBoolean("Grabber_Sensor", intakeSensor.Get());
+    frc::SmartDashboard::PutNumber("Grabber_RightMotorTemp", rightIntakeMotor.getTemperature().value());
+    frc::SmartDashboard::PutNumber("Grabber_LeftMotorTemp", leftIntakeMotor.getTemperature().value());
+    frc::SmartDashboard::PutNumber("Grabber_RightMotorCurrent", rightIntakeMotor.getOutputCurrent().value());
+    frc::SmartDashboard::PutNumber("Grabber_LeftMotorCurrent", leftIntakeMotor.getOutputCurrent().value());
 }
 
