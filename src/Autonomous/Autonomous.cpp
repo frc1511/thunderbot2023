@@ -120,8 +120,8 @@ void Autonomous::runTrajectory(CSVTrajectory& trajectory) {
 }
 
 void Autonomous::sendFeedback() {
-    frc::SmartDashboard::PutNumber("Autonomous_step", step);
-    frc::SmartDashboard::PutBoolean("Autonomous_drive_finished", drive->isFinished());
+    frc::SmartDashboard::PutNumber("Autonomous_Step", step);
+    frc::SmartDashboard::PutBoolean("Autonomous_DriveFinished", drive->isFinished());
 }
 
 Autonomous::PauseAction::PauseAction(units::second_t dur)

@@ -87,5 +87,5 @@ void GamePiece::sendFeedback() {
             break;
         }
 
-     frc::SmartDashboard::PutString("GamePiece_liftpreset", liftPresetString);
+     frc::SmartDashboard::PutString("GamePiece_LiftPreset", liftPresetString);
 }

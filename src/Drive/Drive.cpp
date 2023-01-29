@@ -591,18 +591,18 @@ void Drive::sendFeedback() {
     frc::Pose2d pose(getEstimatedPose());
 
     // Drive feedback.
-    frc::SmartDashboard::PutNumber("Drive_x_pos",          pose.X().value());
-    frc::SmartDashboard::PutNumber("Drive_y_pos",          pose.Y().value());
-    frc::SmartDashboard::PutNumber("Drive_rotation_deg",   getRotation().Degrees().value());
-    frc::SmartDashboard::PutNumber("Drive_manual_x_pct",   manualData.xPct);
-    frc::SmartDashboard::PutNumber("Drive_manual_y_pct",   manualData.yPct);
-    frc::SmartDashboard::PutNumber("Drive_manual_ang_pct", manualData.angPct);
-    frc::SmartDashboard::PutBoolean("Drive_field_centric", manualData.flags & ControlFlag::FIELD_CENTRIC);
-    frc::SmartDashboard::PutBoolean("Drive_brick",         manualData.flags & ControlFlag::BRICK);
-    frc::SmartDashboard::PutBoolean("Drive_recording",     manualData.flags & ControlFlag::RECORDING);
-    frc::SmartDashboard::PutBoolean("Drive_lock_x",        manualData.flags & ControlFlag::LOCK_X);
-    frc::SmartDashboard::PutBoolean("Drive_lock_y",        manualData.flags & ControlFlag::LOCK_Y);
-    frc::SmartDashboard::PutBoolean("Drive_lock_rot",      manualData.flags & ControlFlag::LOCK_ROT);
+    frc::SmartDashboard::PutNumber("Drive_PoseY_m",          pose.X().value());
+    frc::SmartDashboard::PutNumber("Drive_PoseX_m",          pose.Y().value());
+    frc::SmartDashboard::PutNumber("Drive_PoseRot_deg",      getRotation().Degrees().value());
+    frc::SmartDashboard::PutNumber("Drive_ManualPercentX",   manualData.xPct);
+    frc::SmartDashboard::PutNumber("Drive_ManualPercentY",   manualData.yPct);
+    frc::SmartDashboard::PutNumber("Drive_ManualPercentRot", manualData.angPct);
+    frc::SmartDashboard::PutBoolean("Drive_FieldCentric",    manualData.flags & ControlFlag::FIELD_CENTRIC);
+    frc::SmartDashboard::PutBoolean("Drive_Brick",           manualData.flags & ControlFlag::BRICK);
+    frc::SmartDashboard::PutBoolean("Drive_Recording",       manualData.flags & ControlFlag::RECORDING);
+    frc::SmartDashboard::PutBoolean("Drive_LockX",           manualData.flags & ControlFlag::LOCK_X);
+    frc::SmartDashboard::PutBoolean("Drive_LockY",           manualData.flags & ControlFlag::LOCK_Y);
+    frc::SmartDashboard::PutBoolean("Drive_LockRot",         manualData.flags & ControlFlag::LOCK_ROT);
 
     // ThunderDashboard things.
     frc::SmartDashboard::PutNumber("thunderdashboard_drive_x_pos",        pose.X().value());

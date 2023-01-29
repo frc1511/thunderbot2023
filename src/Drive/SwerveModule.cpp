@@ -234,15 +234,17 @@ units::meter_t SwerveModule::getDrivePosition() {
 }
 
 void SwerveModule::sendFeedback(std::size_t moduleIndex) {
-    frc::SmartDashboard::PutNumber(fmt::format("Module_{}_relative_rot", moduleIndex),         getRelativeRotation());
-    frc::SmartDashboard::PutNumber(fmt::format("Module_{}_raw_rot_deg", moduleIndex),          units::degree_t(getRawRotation()).value());
-    frc::SmartDashboard::PutNumber(fmt::format("Module_{}_rot_deg", moduleIndex),              getAbsoluteRotation().Degrees().value());
-    frc::SmartDashboard::PutNumber(fmt::format("Module_{}_encoder_offset_deg", moduleIndex),   units::degree_t(absEncoderOffset).value());
-    frc::SmartDashboard::PutNumber(fmt::format("Module_{}_target_rot_deg", moduleIndex),       units::degree_t(targetRotation).value());
-    frc::SmartDashboard::PutNumber(fmt::format("Module_{}_drive_encoder", moduleIndex),        getRawDriveEncoder());
-    frc::SmartDashboard::PutNumber(fmt::format("Module_{}_velocity_mps", moduleIndex),         getDriveVelocity().value());
-    frc::SmartDashboard::PutNumber(fmt::format("Module_{}_turning_motor_temp_F", moduleIndex), turningMotor.getTemperature().value());
-    frc::SmartDashboard::PutNumber(fmt::format("Module_{}_drive_motor_temp_F", moduleIndex),   driveMotor.getTemperature().value());
+    frc::SmartDashboard::PutNumber(fmt::format("Module_{}_RawRotation_deg",    moduleIndex), units::degree_t(getRawRotation()).value());
+    frc::SmartDashboard::PutNumber(fmt::format("Module_{}_Rotation_deg",       moduleIndex), getAbsoluteRotation().Degrees().value());
+    frc::SmartDashboard::PutNumber(fmt::format("Module_{}_EncoderOffset_deg",  moduleIndex), units::degree_t(absEncoderOffset).value());
+    frc::SmartDashboard::PutNumber(fmt::format("Module_{}_TargetRotation_deg", moduleIndex), units::degree_t(targetRotation).value());
+
+    frc::SmartDashboard::PutNumber(fmt::format("Module_{}_EncoderRotation",    moduleIndex), getRelativeRotation());
+    frc::SmartDashboard::PutNumber(fmt::format("Module_{}_EncoderDrive",       moduleIndex), getRawDriveEncoder());
+
+    frc::SmartDashboard::PutNumber(fmt::format("Module_{}_Velocity_mps",       moduleIndex), getDriveVelocity().value());
+    frc::SmartDashboard::PutNumber(fmt::format("Module_{}_TempRotation_F",     moduleIndex), turningMotor.getTemperature().value());
+    frc::SmartDashboard::PutNumber(fmt::format("Module_{}_TempDrive_F",        moduleIndex), driveMotor.getTemperature().value());
 
     // hi jeff
 }

@@ -24,13 +24,13 @@
 #define EXTENSION_MAX_AMPERAGE 40_A
 
 // --- PID Values ---
-#define PIVOT_P 0
+#define PIVOT_P 0.1
 #define PIVOT_I 0
 #define PIVOT_D 0
 #define PIVOT_I_ZONE 0
 #define PIVOT_FF 0
 
-#define EXTENSION_P 0
+#define EXTENSION_P 0.1
 #define EXTENSION_I 0
 #define EXTENSION_D 0
 #define EXTENSION_I_ZONE 0 
@@ -64,26 +64,43 @@ void Lift::doPersistentConfiguration() {
 }
 
 void Lift::process() {
-    if (controlType == ControlType::MANUAL){
+    if (controlType == ControlType::MANUAL) {
+        // Limits for the manual control of the lift.
         if (extensionSensor.Get() && manualExtensionSpeed > 0) {
             manualExtensionSpeed = 0;
         }
         if (homeSensor.Get() && manualExtensionSpeed < 0) {
             manualExtensionSpeed = 0;
         }
+
+        // Set the motor speeds.
         extensionMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, manualExtensionSpeed);
         pivotMotorLeft.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, manualPivotSpeed);
         pivotMotorRight.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, manualPivotSpeed);
     }
-    else{
+    else {
+        // --- Pivot ---
+
+        // Convert the positional angle to a percent of the range of motion.
         double pivotPercent = positionalAngle / (MAX_PIVOT_ANGLE - MIN_PIVOT_ANGLE);
+        // Convert the percent to an encoder position.
         double pivotPosition = pivotPercent * MAX_PIVOT_ENCODER;
+
+        // Set the PID reference of the pivot motors to the encoder position.
         pivotMotorLeft.set(ThunderCANMotorController::ControlMode::POSITION, pivotPosition);
         pivotMotorRight.set(ThunderCANMotorController::ControlMode::POSITION, pivotPosition);
 
+        // --- Extension ---
+
+        // Convert the positional extension length to a percent of the range of motion.
         double extensionPercent = positionalExtensionLength / MAX_EXTENSION_LENGTH;
+        // Convert the percent to an encoder position.
         double extensionPosition = extensionPercent * MAX_EXTENSION_ENCODER;
+
+        // Set the PID reference of the extension motor to the encoder position.
         extensionMotor.set(ThunderCANMotorController::ControlMode::POSITION, extensionPosition);
+
+        // --- Check if at position ---
 
         double currentAnglePosition = pivotMotorLeft.getEncoderPosition();
         double currentExtensionPosition = extensionMotor.getEncoderPosition();
@@ -100,12 +117,22 @@ void Lift::setManualPivotSpeed(double speed) {
     speed *= MANUAL_PIVOT_SPEED_COEFF;
     manualPivotSpeed = speed;
     controlType = ControlType::MANUAL;
+
+    positionalY = -1_m;
+    positionalZ = -1_m;
+    positionalAngle = -1_deg;
+    positionalExtensionLength = -1_m;
 }
 
 void Lift::setManualExtensionSpeed(double speed) {
     speed *= MANUAL_EXTENSION_SPEED_COEFF;
     manualExtensionSpeed = speed;
     controlType = ControlType::MANUAL;
+
+    positionalY = -1_m;
+    positionalZ = -1_m;
+    positionalAngle = -1_deg;
+    positionalExtensionLength = -1_m;
 }
 
 void Lift::setEndPosition(units::meter_t y, units::meter_t z) {
@@ -113,6 +140,9 @@ void Lift::setEndPosition(units::meter_t y, units::meter_t z) {
     controlType = ControlType::POSITION;
     positionalAngle = units::math::atan2(z, y);
     positionalExtensionLength = z / units::math::sin(positionalAngle);
+
+    positionalY = y;
+    positionalZ = z;
 }
 
 bool Lift::isAtPosition(){
@@ -163,14 +193,57 @@ void Lift::configureMotors() {
 }
 
 void Lift::sendFeedback() {
-    // Lift Feedback
-    frc::SmartDashboard::PutNumber("Lift_Positional_Extension_Length", positionalExtensionLength.value());
-    frc::SmartDashboard::PutNumber("Lift_Positional_Angle", positionalAngle.value());
-    frc::SmartDashboard::PutBoolean("Lift_At_Position", atPosition);
-    frc::SmartDashboard::PutNumber("Lift_Extension_Motor_Encoder", extensionMotor.getEncoderPosition());
-    frc::SmartDashboard::PutNumber("Lift_Pivot_Left_Motor_Encoder", pivotMotorLeft.getEncoderPosition());
-    frc::SmartDashboard::PutNumber("Lift_Pivot_Motor_Right_Encoder", pivotMotorRight.getEncoderPosition());
-    frc::SmartDashboard::PutBoolean("Lift_Home_Sensor", homeSensor.Get());
-    frc::SmartDashboard::PutBoolean("Lift_Extension_Sensor", extensionSensor.Get());
+    std::string controlTypeString;
+    switch (controlType) {
+        case ControlType::MANUAL:
+            controlTypeString = "Manual";
+            break;
+        case ControlType::POSITION:
+            controlTypeString = "Position";
+            break;
+    }
+    frc::SmartDashboard::PutString("Lift_ControlType", controlTypeString);
 
+    // Target Positions
+    frc::SmartDashboard::PutNumber("Lift_TargetExtension_m", positionalExtensionLength.value());
+    frc::SmartDashboard::PutNumber("Lift_TargetAngle_deg", positionalAngle.value());
+    frc::SmartDashboard::PutBoolean("Lift_TargetReached", atPosition);
+    frc::SmartDashboard::PutNumber("Lift_TargetY_m", positionalY.value());
+    frc::SmartDashboard::PutNumber("Lift_TargetZ_m", positionalZ.value());
+
+    // Encoder Positions
+    double extensionPosition = extensionMotor.getEncoderPosition();
+    double pivotLeftPosition = pivotMotorLeft.getEncoderPosition();
+    double pivotRightPosition = pivotMotorRight.getEncoderPosition();
+
+    frc::SmartDashboard::PutNumber("Lift_EncoderExtension", extensionPosition);
+    frc::SmartDashboard::PutNumber("Lift_EncoderPivotLeft", pivotLeftPosition);
+    frc::SmartDashboard::PutNumber("Lift_EncoderPivotRight", pivotRightPosition);
+
+    // End Effector Position
+    double extensionPercent = extensionPosition / MAX_EXTENSION_ENCODER;
+    units::meter_t currentExtensionLength = extensionPercent * MAX_EXTENSION_LENGTH;
+
+    double pivotPercent = pivotLeftPosition / MAX_PIVOT_ENCODER;
+    units::radian_t currentAngle = pivotPercent * (MAX_PIVOT_ANGLE - MIN_PIVOT_ANGLE);
+
+    units::meter_t currentY = currentExtensionLength * units::math::cos(currentAngle);
+    units::meter_t currentZ = currentExtensionLength * units::math::sin(currentAngle) + PIVOT_POINT_HEIGHT;
+
+    frc::SmartDashboard::PutNumber("Lift_Y_m", currentY.value());
+    frc::SmartDashboard::PutNumber("Lift_Z_m", currentZ.value());
+
+    // Digital Inputs
+    frc::SmartDashboard::PutBoolean("Lift_SensorHome", homeSensor.Get());
+    frc::SmartDashboard::PutBoolean("Lift_SensorExtension", extensionSensor.Get());
+
+    // Temperature
+    frc::SmartDashboard::PutNumber("Lift_TempRightPivot_F", pivotMotorRight.getTemperature().value());
+    frc::SmartDashboard::PutNumber("Lift_TempLeftPivot_F", pivotMotorLeft.getTemperature().value());
+    frc::SmartDashboard::PutNumber("Lift_TempExtension_F", extensionMotor.getTemperature().value());
+
+    // Current
+    frc::SmartDashboard::PutNumber("Lift_CurrentRightPivot_A", pivotMotorRight.getOutputCurrent().value());
+    frc::SmartDashboard::PutNumber("Lift_CurrentLeftPivot_A", pivotMotorLeft.getOutputCurrent().value());
+    frc::SmartDashboard::PutNumber("Lift_CurrentExtension_A", extensionMotor.getOutputCurrent().value());
 }

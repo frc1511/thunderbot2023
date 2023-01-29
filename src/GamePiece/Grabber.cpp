@@ -1,20 +1,8 @@
 #include <GamePiece/Grabber.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 
-
 // The max amperage of the intake motors.
 #define INTAKE_MAX_AMPERAGE 20_A
-
-
-// --- PID Values ---
-
-#define INTAKE_P 0.00001
-#define INTAKE_I 0
-#define INTAKE_D 0
-#define INTAKE_I_ZONE 0
-#define INTAKE_FF 0.000187
-
-
 
 Grabber::Grabber() 
 : leftIntakeMotor(HardwareManager::IOMap::CAN_GRABBER_INTAKE_LEFT),
@@ -73,7 +61,6 @@ void Grabber::process() {
         }
     }
 
-
     if (currentAction == Action::INTAKE) {
         leftIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, 1);
         rightIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, -1);
@@ -84,7 +71,6 @@ void Grabber::process() {
             else {
                 gamePieceType = GamePieceType::CONE;
             }
-                
         }
     } 
     else if (currentAction == Action::OUTTAKE) {
@@ -96,7 +82,6 @@ void Grabber::process() {
         leftIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, 0);
         rightIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, 0);
     }
-
 
     if (currentPosition == Position::OPEN) {
         //Both pistons are extended and the grabber is able to fit a cube.
@@ -141,28 +126,17 @@ void Grabber::placeGamePiece() {
     placingGamePieceTimer.Reset();
     placingGamePieceTimer.Start();
 }
+
 void Grabber::configureMotors() {
     leftIntakeMotor.configFactoryDefault();
     leftIntakeMotor.setIdleMode(ThunderCANMotorController::IdleMode::COAST);
     leftIntakeMotor.configSmartCurrentLimit(INTAKE_MAX_AMPERAGE);
     leftIntakeMotor.setInverted(false);
-
-    leftIntakeMotor.configP(INTAKE_P);
-    leftIntakeMotor.configI(INTAKE_I);
-    leftIntakeMotor.configD(INTAKE_D);
-    leftIntakeMotor.configIZone(INTAKE_I_ZONE);
-    leftIntakeMotor.configFF(INTAKE_FF);
     
     rightIntakeMotor.configFactoryDefault();
     rightIntakeMotor.setIdleMode(ThunderCANMotorController::IdleMode::COAST);
     rightIntakeMotor.configSmartCurrentLimit(INTAKE_MAX_AMPERAGE);
     rightIntakeMotor.setInverted(true);
-
-    rightIntakeMotor.configP(INTAKE_P);
-    rightIntakeMotor.configI(INTAKE_I);
-    rightIntakeMotor.configD(INTAKE_D);
-    rightIntakeMotor.configIZone(INTAKE_I_ZONE);
-    rightIntakeMotor.configFF(INTAKE_FF);
 }
 
 void Grabber::sendFeedback() {
@@ -184,13 +158,13 @@ void Grabber::sendFeedback() {
     std::string grabberPosition = "";
     switch (currentPosition) {
         case Position::OPEN:
-            grabberPosition = "Open";
+            grabberPosition = "Open (Cube)";
             break;
         case Position::AGAPE:
-            grabberPosition = "Agape";
+            grabberPosition = "Agape (Cone intake)";
             break;
         case Position::AJAR:
-            grabberPosition = "Ajar";
+            grabberPosition = "Ajar (Cone transport)";
             break;
     }
 
@@ -212,11 +186,12 @@ void Grabber::sendFeedback() {
     frc::SmartDashboard::PutString("Grabber_GamePieceType", typeGamePiece.c_str());
 
     frc::SmartDashboard::PutBoolean("Grabber_PlacingGamePiece", placingGamePiece);
-    frc::SmartDashboard::PutNumber("Grabber_PlacingGamePieceTimer", placingGamePieceTimer.Get().value());
-    frc::SmartDashboard::PutBoolean("Grabber_Sensor", intakeSensor.Get());
-    frc::SmartDashboard::PutNumber("Grabber_RightMotorTemp", rightIntakeMotor.getTemperature().value());
-    frc::SmartDashboard::PutNumber("Grabber_LeftMotorTemp", leftIntakeMotor.getTemperature().value());
-    frc::SmartDashboard::PutNumber("Grabber_RightMotorCurrent", rightIntakeMotor.getOutputCurrent().value());
-    frc::SmartDashboard::PutNumber("Grabber_LeftMotorCurrent", leftIntakeMotor.getOutputCurrent().value());
-}
+    frc::SmartDashboard::PutNumber("Grabber_PlacingGamePieceTimer_s", placingGamePieceTimer.Get().value());
+    
+    frc::SmartDashboard::PutBoolean("Grabber_SensorIntake", intakeSensor.Get());
 
+    frc::SmartDashboard::PutNumber("Grabber_TempRightIntake_F", rightIntakeMotor.getTemperature().value());
+    frc::SmartDashboard::PutNumber("Grabber_TempLeftIntake_F", leftIntakeMotor.getTemperature().value());
+    frc::SmartDashboard::PutNumber("Grabber_CurrentRightIntake_A", rightIntakeMotor.getOutputCurrent().value());
+    frc::SmartDashboard::PutNumber("Grabber_CurrentLeftIntake_A", leftIntakeMotor.getOutputCurrent().value());
+}
