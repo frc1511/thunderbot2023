@@ -18,25 +18,26 @@ void Autonomous::resetToMode(MatchMode mode) {
 }
 
 void Autonomous::process() {
-    // The starting location of the robot.
-    startingLocation = static_cast<StartingLocation>(frc::SmartDashboard::GetNumber("thunderdashboard_auto_starting_location", -1.0));
-
-    // Whether we are actually running an auto mode.
-    if (frc::SmartDashboard::GetNumber("thunderdashboard_auto_do_nothing", 0.0)) {
-        startingLocation = StartingLocation::MARS;
-    }
-
-    // Starting GamePiece (Cube = 0, Cone = 1).
-    startingGamePiece = frc::SmartDashboard::GetNumber("thunderdashboard_auto_starting_gamepiece", -1.0);
-    // The GamePiece to be collecting on the field (Cube = 0, Cone = 1).
-    fieldGamePiece = frc::SmartDashboard::GetNumber("thunderdashboard_auto_field_gamepiece", -1.0);
-
-    // The final action of the autonomous mode (dependant on starting location).
-    finalAction = frc::SmartDashboard::GetNumber("thunderdashboard_auto_final_action", -1.0);
+    doing_auto = frc::SmartDashboard::GetBoolean("thunderdashboard_auto_doing_auto", false);
 
     // Autonomous delay.
     if (delayTimer.Get().value() <= frc::SmartDashboard::GetNumber("thunderdashboard_auto_start_delay", 0.0)) {
         return;
+    }
+
+    // The starting location of the robot (0 = Barrier, 1 = Center, 2 = Edge).
+    startingLocation = static_cast<StartingLocation>(frc::SmartDashboard::GetNumber("thunderdashboard_auto_starting_location", -1.0));
+    // The GamePiece that the robot is starting with (0 = Cube, 1 = Cone).
+    startingGamePiece = frc::SmartDashboard::GetNumber("thunderdashboard_auto_starting_gamepiece", -1.0);
+    // The starting action (If center start, 0 = preload & balance, 1 = preload & traverse).
+    startingAction = frc::SmartDashboard::GetNumber("thunderdashboard_auto_starting_action", -1.0);
+    // The field GamePiece to collect (0 = Cube, 1 = Cone).
+    fieldGamePiece = frc::SmartDashboard::GetNumber("thunderdashboard_auto_field_gamepiece", -1.0);
+    // The final action (If center start, 0 = do nothing, 1 = balance. If edge or barrier start, 0 = do nothing, 1 = score, 2 = balance).
+    finalAction = frc::SmartDashboard::GetNumber("thunderdashboard_auto_final_action", -1.0);
+
+    if (!doing_auto) {
+        startingLocation = StartingLocation::MARS;
     }
 
     switch (startingLocation) {
@@ -68,45 +69,371 @@ void Autonomous::doNothing() {
 }
 
 void Autonomous::barrierSideAuto() {
-    /**
-     * Auto mode for starting at side of the community closest to barrier.
-     * 1. Score preloaded GamePiece on grid.
-     * 2. Drive around the Charge Station and collect GamePiece 1.
-     * 3. Configurable final action:
-     *    a. Do nothing
-     *    b. Score collected GamePiece 1
-     *    c. Balance on Charge Station
-     */
+    // 0: Set start pose and raise lift.
+    if (step == 0) {
+        // Cube
+        if (startingGamePiece == 0) {
+            // Start at Grid 1.
+            drive->resetOdometry(grid1_to_gp1_traj.getInitialPose());
+        }
+        // Cone
+        else {
+            // Start at Grid 2.
+            drive->resetOdometry(grid2_to_gp1_traj.getInitialPose());
+        }
 
-    // Code ...
+        // TODO: Begin raising lift.
+
+        step++;
+    }
+    // 1: Score preloaded GamePiece.
+    else if (step == 1 /* && gamePiece->liftAtPosition() */) {
+        // TODO: Score.
+
+        step++;
+    }
+    // 2: Drive to GamePiece 1 and begin lowering lift.
+    else if (step == 2 /* && gamePiece->isFinishedScoring() */) {
+        // Cube
+        if (startingGamePiece == 0) {
+            // Drive from Grid 1 to GP 1.
+            drive->runTrajectory(&grid1_to_gp1_traj, actions);
+        }
+        // Cone
+        else {
+            // Drive from Grid 2 to GP 1.
+            drive->runTrajectory(&grid2_to_gp1_traj, actions);
+        }
+
+        // TODO: Begin lowering lift.
+
+        step++;
+    }
+    // 3: Intake GamePiece 1.
+    else if (step == 3 && drive->isFinished() /* && gamePiece->liftAtPosition() */) {
+        // Intake GamePiece.
+
+        // Cube
+        if (fieldGamePiece == 0) {
+            // TODO: Intake Cube
+        }
+        // Cone
+        else {
+            // TODO: Intake Cone
+        }
+    }
+    // 4: Wait for intake to finish.
+    else if (step == 4 /* && gamePiece->isFinishedIntaking() */) {
+        step++;
+    }
+    // 5: Delegate the final action.
+    else if (step >= 5) {
+        // Delegate the final action.
+        switch (finalAction) {
+            case 1:
+                barrierSideAuto_finalScore();
+                break;
+            case 2:
+                barrierSideAuto_finalBalance();
+                break;
+            case 0:
+            default:
+                doNothing();
+                break;
+        }
+    }
+}
+
+void Autonomous::barrierSideAuto_finalScore() {
+    auto get_step = [&]() { return step - BARRIER_SIDE_AUTO_END_STEP; };
+
+    // 0: Drive to grid depending on current GamePiece in possession.
+    if (get_step() == 0) {
+        // Cube
+        if (fieldGamePiece == 0) {
+            drive->runTrajectory(&gp1_to_grid1_traj, actions);
+        }
+        // Cone
+        else {
+            drive->runTrajectory(&gp1_to_grid2_traj, actions);
+        }
+
+        // TODO: Begin raising lift.
+
+        step++;
+    }
+    // 1: Score current GamePiece.
+    else if (get_step() == 1 && drive->isFinished() /* && gamePiece->liftAtPosition() */) {
+        // TODO: Score GamePiece
+
+        step++;
+    }
+    // 2: Lower lift.
+    else if (get_step() == 2 /* && gamePiece->isFinishedScoring() */) {
+        // TODO: Lower lift
+
+        step++;
+    }
+}
+
+void Autonomous::barrierSideAuto_finalBalance() {
+    auto get_step = [&]() { return step - BARRIER_SIDE_AUTO_END_STEP; };
+
+    // 0: Drive to Charge Station.
+    if (get_step() == 0) {
+        drive->runTrajectory(&gp1_to_cs_traj, actions);
+        step++;
+    }
+    // 1: Wait for drive.
+    else if (get_step() == 1 && drive->isFinished()) {
+        step++;
+    }
+    // 2: Balance on the charge station.
+    else if (get_step() == 2) {
+        balanceOnChargeStation();
+    }
 }
 
 void Autonomous::middleAuto() {
-    /**
-     * Auto mode for starting in the middle of the community behind the charging station.
-     * 1. Score preloaded GamePiece on grid.
-     * 2. Configurable final action:
-     *    a. Do nothing
-     *    b. Balance on Charge Station
-     *    c. Go over Charge Station and collect GamePiece 2/3
-     *    d. Go over Charge Station, collect GamePiece 2/3, then balance on Charge Station
-     */
+    // 0: Set start pose and raise lift.
+    if (step == 0) {
+        // Cube
+        if (startingGamePiece == 0) {
+            // Start at Grid 4.
+            drive->resetOdometry(grid4_to_cs_traj.getInitialPose());
+        }
+        // Cone
+        else {
+            // Start at Grid 5.
+            drive->resetOdometry(grid5_to_cs_traj.getInitialPose());
+        }
 
-    // Code ...
+        // TODO: Begin raising lift.
+
+        step++;
+    }
+    // 1: Score preloaded GamePiece.
+    else if (step == 1 /* && gamePiece->liftAtPosition() */) {
+        // TODO: Score.
+
+        step++;
+    }
+    // 2: Drive to Charge Station and begin lowering lift.
+    else if (step == 2 /* && gamePiece->isFinishedScoring() */) {
+        // Cube
+        if (startingGamePiece == 0) {
+            // Drive from Grid 4 to Charge Station.
+            drive->runTrajectory(&grid4_to_cs_traj, actions);
+        }
+        // Cone
+        else {
+            // Drive from Grid 5 to Charge Station.
+            drive->runTrajectory(&grid5_to_cs_traj, actions);
+        }
+
+        // TODO: Begin lowering lift.
+
+        step++;
+    }
+    // 3: Delegate the starting action.
+    else if (step == 3) {
+        // Delegate the starting action.
+        switch (startingAction) {
+            case 0: // Balance on the Charge Station.
+                balanceOnChargeStation();
+                break;
+            case 1: // Traverse the Charge Station and collect GamePiece 2.
+                step++;
+                break;
+            default: // Problems...
+                doNothing();
+                break;
+        }
+    }
+    // 4: Starting Action is 1, traverse charge station.
+    else if (step == 4) {
+        if (traverseChargeStation(cs_to_gp3_traj.getInitialPose())) {
+            step++;
+        }
+    }
+    // 5: Drive to GamePiece 3 and begin lowering lift.
+    else if (step == 5) {
+        // Drive from Charge Station to GamePiece 3.
+        drive->runTrajectory(&cs_to_gp3_traj, actions);
+
+        // TODO: Begin lowering lift.
+
+        step++;
+    }
+    // 6: Intake GamePiece 3.
+    else if (step == 6 && drive->isFinished() /* && gamePiece->liftAtPosition() */) {
+        // Intake GamePiece.
+
+        // Cube
+        if (fieldGamePiece == 0) {
+            // TODO: Intake Cube
+        }
+        // Cone
+        else {
+            // TODO: Intake Cone
+        }
+    }
+    // 7: Delegate the final action.
+    else if (step == 7 /* && gamePiece->isFinishedIntaking() */) {
+        // Delegate the final action.
+        switch (finalAction) {
+            case 1: // Balance on the Charge Station.
+                step++;
+                break;
+            case 0: // Do nothing.
+            default: // Problem...
+                doNothing();
+                break;
+        }
+    }
+    // 8: Final Action is 1, drive to the Charge Station.
+    else if (step == 8) {
+        drive->runTrajectory(&gp3_to_cs_traj, actions);
+    }
+    // 9: Balance on the Charge Station.
+    else if (step == 9 && drive->isFinished()) {
+        balanceOnChargeStation();
+    }
 }
 
 void Autonomous::edgeSideAuto() {
-    /**
-     * Auto mode for starting at the side of the community closest to wall.
-     * 1. Score preloaded GamePiece on grid.
-     * 2. Drive around the Charge Station and collect GamePiece 4.
-     * 3. Configure final action:
-     *    a. Do nothing
-     *    b. Score collected GamePiece 4
-     *    c. Balance on Charge Station
-     */
+    // 0: Set start pose and raise lift.
+    if (step == 0) {
+        // Cube
+        if (startingGamePiece == 0) {
+            // Start at Grid 7.
+        }
+        // Cone
+        else {
+            // Start at Grid 6.
+        }
 
-    // Code ...
+        // TODO: Begin raising lift.
+    
+        step++;
+    }
+    // 1: Score preloaded GamePiece.
+    else if (step == 1 /* && gamePiece->liftAtPosition() */) {
+        // TODO: Score
+
+        step++;
+    }
+    // 2: Drive to GamePiece 4 and begin lowering lift.
+    else if (step == 2 /* && gamePiece->isFinishedScoring() */) {
+        // Cube
+        if (startingGamePiece == 0) {
+            // Drive from Grid 7 to GP 4.
+            drive->runTrajectory(&grid7_to_gp4_traj, actions);
+        }
+        // Cone
+        else {
+            // Drive from Grid 6 to GP 4.
+            drive->runTrajectory(&grid6_to_gp4_traj, actions);
+        }
+
+        // TODO: Begin lowering lift.
+
+        step++;
+    }
+    // 3: Intake GamePiece 4.
+    else if (step == 3 && drive->isFinished() /* && gamePiece->liftAtPosition() */) {
+        // Intake GamePiece.
+
+        // Cube
+        if (fieldGamePiece == 0) {
+            // TODO: Intake Cube
+        }
+        // Cone
+        else {
+            // TODO: Intake Cone
+        }
+    }
+    // 4: Wait for intake to finish.
+    else if (step == 4 /* && gamePiece->isFinishedIntaking() */) {
+        step++;
+    }
+    // 5: Delegate the final action.
+    else if (step >= 5) {
+        // Delegate the final action.
+        switch (finalAction) {
+            case 1:
+                edgeSideAuto_finalScore();
+                break;
+            case 2:
+                edgeSideAuto_finalBalance();
+                break;
+            case 0:
+            default:
+                doNothing();
+                break;
+        }
+    }
+}
+
+void Autonomous::edgeSideAuto_finalScore() {
+    auto get_step = [&]() { return step - EDGE_SIDE_AUTO_END_STEP; };
+
+    // 0: Drive to grid depending on current GamePiece in possession.
+    if (get_step() == 0) {
+        // Cube
+        if (fieldGamePiece == 0) {
+            drive->runTrajectory(&gp4_to_grid7_traj, actions);
+        }
+        // Cone
+        else {
+            drive->runTrajectory(&gp4_to_grid6_traj, actions);
+        }
+
+        // TODO: Begin raising lift.
+
+        step++;
+    }
+    // 1: Score current GamePiece.
+    else if (get_step() == 1 && drive->isFinished() /* && gamePiece->liftAtPosition() */) {
+        // TODO: Score GamePiece
+
+        step++;
+    }
+    // 2: Lower lift.
+    else if (get_step() == 2 /* && gamePiece->isFinishedScoring() */) {
+        // TODO: Lower lift
+
+        step++;
+    }
+
+}
+
+void Autonomous::edgeSideAuto_finalBalance() {
+    auto get_step = [&]() { return step - EDGE_SIDE_AUTO_END_STEP; };
+
+    // 0: Drive to Charge Station.
+    if (get_step() == 0) {
+        drive->runTrajectory(&gp4_to_cs_traj, actions);
+        step++;
+    }
+    // 1: Wait for drive.
+    else if (get_step() == 1 && drive->isFinished()) {
+        step++;
+    }
+    // 2: Balance on the charge station.
+    else if (get_step() == 2) {
+        balanceOnChargeStation();
+    }
+}
+
+bool Autonomous::traverseChargeStation(frc::Pose2d resetPose) {
+    // TODO: Traverse Charge Station.
+
+    return true;
+}
+
+void Autonomous::balanceOnChargeStation() {
+    // TODO: Balance on Charge Station.
 }
 
 void Autonomous::runTrajectory(CSVTrajectory& trajectory) {

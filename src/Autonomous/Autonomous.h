@@ -34,6 +34,20 @@ private:
      */
     void barrierSideAuto();
 
+    enum {
+        BARRIER_SIDE_AUTO_END_STEP = 5
+    };
+
+    /**
+     * Performs the final scoring action for barrier side auto.
+     */
+    void barrierSideAuto_finalScore();
+
+    /**
+     * Performs the final balancing action for the barrier side auto.
+     */
+    void barrierSideAuto_finalBalance();
+
     /**
      * Auto mode for starting in the middle of the community behind the charging station.
      * 1. Score preloaded GamePiece on grid.
@@ -56,6 +70,35 @@ private:
      */
     void edgeSideAuto();
 
+    enum {
+        EDGE_SIDE_AUTO_END_STEP = 5
+    };
+
+    /**
+     * Performs the final scoring action for edge side auto.
+     */
+    void edgeSideAuto_finalScore();
+
+    /**
+     * Performs the final balancing action for the edge side auto.
+     */
+    void edgeSideAuto_finalBalance();
+
+    /**
+     * Drive over the Charge Station.
+     * resetPose: The pose to reset once charge station cleared.
+     * Returns true once finished.
+     */
+    bool traverseChargeStation(frc::Pose2d resetPose);
+
+    /**
+     * Balances the robot on the Charge Station.
+     */
+    void balanceOnChargeStation();
+
+    /**
+     * Runs a trajectory from start to finish.
+     */
     void runTrajectory(CSVTrajectory& trajectory);
 
     enum class StartingLocation {
@@ -65,10 +108,12 @@ private:
         EDGE_SIDE = 2,
     };
 
-    StartingLocation startingLocation;
-    int startingGamePiece,
-        fieldGamePiece,
-        finalAction;
+    bool doing_auto = false;
+    StartingLocation startingLocation = StartingLocation::MARS;
+    int startingGamePiece = -1,
+        startingAction = -1,
+        fieldGamePiece = -1,
+        finalAction = -1;
 
     frc::Timer delayTimer,
                autoTimer;
@@ -76,6 +121,21 @@ private:
     std::size_t step = 0;
 
     Drive* drive;
+
+    CSVTrajectory grid1_to_gp1_traj { DEPLOY_DIR "ThunderAuto/grid1_to_gp1.csv" };
+    CSVTrajectory grid2_to_gp1_traj { DEPLOY_DIR "ThunderAuto/grid2_to_gp1.csv" };
+    CSVTrajectory gp1_to_grid1_traj { DEPLOY_DIR "ThunderAuto/gp1_to_grid1.csv" };
+    CSVTrajectory gp1_to_grid2_traj { DEPLOY_DIR "ThunderAuto/gp1_to_grid2.csv" };
+    CSVTrajectory gp1_to_cs_traj    { DEPLOY_DIR "ThunderAuto/gp1_to_cs.csv"    };
+    CSVTrajectory grid4_to_cs_traj  { DEPLOY_DIR "ThunderAuto/grid4_to_cs.csv"  };
+    CSVTrajectory grid5_to_cs_traj  { DEPLOY_DIR "ThunderAuto/grid5_to_cs.csv"  };
+    CSVTrajectory cs_to_gp3_traj    { DEPLOY_DIR "ThunderAuto/cs_to_gp3.csv"    };
+    CSVTrajectory gp3_to_cs_traj    { DEPLOY_DIR "ThunderAuto/gp3_to_cs.csv"    };
+    CSVTrajectory grid6_to_gp4_traj { DEPLOY_DIR "ThunderAuto/grid6_to_gp4.csv" };
+    CSVTrajectory grid7_to_gp4_traj { DEPLOY_DIR "ThunderAuto/grid7_to_gp4.csv" };
+    CSVTrajectory gp4_to_grid6_traj { DEPLOY_DIR "ThunderAuto/gp4_to_grid6.csv" };
+    CSVTrajectory gp4_to_grid7_traj { DEPLOY_DIR "ThunderAuto/gp4_to_grid7.csv" };
+    CSVTrajectory gp4_to_cs_traj    { DEPLOY_DIR "ThunderAuto/gp4_to_cs.csv"    };
 
     /**
      * An action that pauses the path for a specified number of seconds.
