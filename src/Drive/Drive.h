@@ -120,6 +120,11 @@ public:
     void runTrajectory(Trajectory* trajectory, const std::map<u_int32_t, Action*>& actionMap);
 
     /**
+     * Drives the robot to a specified target pose.
+     */
+    void goToPose(frc::Pose2d targetPose);
+
+    /**
      * Returns whether the current process is finished or not.
      */
     bool isFinished() const;
@@ -180,6 +185,11 @@ private:
      * Executes the instructions for when the robot is running a trajectory.
      */
     void execTrajectory();
+
+    /**
+     * Executes the instructions for when the robot is targeting a specific pose.
+     */
+    void execGoToPose();
 
     /**
      * Records a state.
@@ -294,6 +304,7 @@ private:
         STOPPED,
         MANUAL,
         TRAJECTORY,
+        POSE,
     };
 
     // The current drive mode.

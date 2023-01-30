@@ -429,11 +429,20 @@ void Autonomous::edgeSideAuto_finalBalance() {
 bool Autonomous::traverseChargeStation(frc::Pose2d resetPose) {
     // TODO: Traverse Charge Station.
 
+    if (traverseChargeStationStep == 0) {
+
+    }
+
     return true;
 }
 
 void Autonomous::balanceOnChargeStation() {
     // TODO: Balance on Charge Station.
+
+    // 0: Drive forwards until angle ~11 deg.
+    if (balanceChargeStationStep == 0) {
+        
+    }
 }
 
 void Autonomous::runTrajectory(CSVTrajectory& trajectory) {

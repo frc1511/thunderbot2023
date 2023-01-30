@@ -118,7 +118,9 @@ private:
     frc::Timer delayTimer,
                autoTimer;
 
-    std::size_t step = 0;
+    int step = 0;
+    int traverseChargeStationStep = 0;
+    int balanceChargeStationStep = 0;
 
     Drive* drive;
 
