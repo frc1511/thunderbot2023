@@ -33,7 +33,7 @@ public:
     };
 
     void setPosition(Position position);
-
+    void setWristPosition(bool tipped);
     enum class GamePieceType {
         CONE,
         CUBE,
@@ -55,5 +55,7 @@ private:
     frc::DigitalInput intakeSensor;
     frc::DoubleSolenoid grabberPiston1;
     frc::DoubleSolenoid grabberPiston2;
+    frc::DoubleSolenoid wristPiston;
     void configureMotors();
+    bool tipped;
 };

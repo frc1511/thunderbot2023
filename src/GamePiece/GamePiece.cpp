@@ -33,6 +33,20 @@ void GamePiece::setLiftPreset(LiftPreset preset) {
     const auto& [y, z] = presetMap.at(preset);
     lift->setEndPosition(y, z);
     liftPreset = preset;
+    if (preset==LiftPreset::INTAKE_FUNKY_CONE){
+        grabber->setWristPosition(true);
+    }
+    else{
+        grabber->setWristPosition(false);
+    }
+}
+
+void GamePiece::setWrist(bool tipped) {
+    grabber->setWristPosition(tipped);
+}
+
+GamePiece::LiftPreset GamePiece::getLiftPreset() {
+    return liftPreset;
 }
 
 void GamePiece::setManualPivotSpeed(double speed) {
@@ -76,8 +90,11 @@ void GamePiece::sendFeedback() {
         case LiftPreset::HIGH:
             liftPresetString = "High";
             break;
-        case LiftPreset::INTAKE:
-            liftPresetString = "Intake";
+        case LiftPreset::INTAKE_C:
+            liftPresetString = "Intake Cone or Cube";
+            break;
+        case LiftPreset::INTAKE_FUNKY_CONE:
+            liftPresetString = "Intake Funky Cone";
             break;
         case LiftPreset::MID:
             liftPresetString = "Mid";

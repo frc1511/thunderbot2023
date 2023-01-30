@@ -17,16 +17,22 @@ public:
     void sendFeedback() override;
 
     enum class LiftPreset {
-        INTAKE,
-        GROUND,
+        INTAKE_C,//Starting Config
+        INTAKE_FUNKY_CONE,
+        GROUND, //Hybrid Node
         MID,
         HIGH,
-        BALCONY,
-        TRAVEL,
+        BALCONY, //I dont like the balcony
+        TRAVEL, //Just a bit different than intake
     };
 
     // Sets the pivot and extension of the lift to a preset.
     void setLiftPreset(LiftPreset preset);
+
+    // Returns the current lift preset.
+    LiftPreset getLiftPreset();
+
+    void setWrist(bool tipped);
 
     // Sets the state of the grabber rollers to INTAKE, OUTTAKE, or IDLE.
     void setGrabberAction(Grabber::Action action);
@@ -53,8 +59,9 @@ private:
     Grabber* grabber;
     Lift* lift;
 
-    const std::map<LiftPreset, std::pair<units::meter_t, units::meter_t>> presetMap {
-        { LiftPreset::INTAKE, std::make_pair(1_m, 1_m) },
+    const std::map<LiftPreset, std::pair<units::meter_t, units::meter_t>> presetMap {//ALL TBD!!!!
+        { LiftPreset::INTAKE_C, std::make_pair(1_m, 1_m) },
+        { LiftPreset::INTAKE_FUNKY_CONE, std::make_pair(1_m, 1_m) },
         { LiftPreset::GROUND, std::make_pair(1_m, 1_m) },
         { LiftPreset::MID, std::make_pair(1_m, 1_m) },
         { LiftPreset::HIGH, std::make_pair(1_m, 1_m) },
@@ -63,4 +70,7 @@ private:
     };
 
     LiftPreset liftPreset;
-};
+    
+
+    };
+    

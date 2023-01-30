@@ -13,7 +13,10 @@ Grabber::Grabber()
         HardwareManager::IOMap::PCM_GRABBER_PISTON_1_RETRACT),
    grabberPiston2(frc::PneumaticsModuleType::CTREPCM,
         HardwareManager::IOMap::PCM_GRABBER_PISTON_2_EXTEND,
-        HardwareManager::IOMap::PCM_GRABBER_PISTON_2_RETRACT)
+        HardwareManager::IOMap::PCM_GRABBER_PISTON_2_RETRACT),
+    wristPiston(frc::PneumaticsModuleType::CTREPCM,
+        HardwareManager::IOMap::PCM_GRABBER_WRIST_EXTEND,
+        HardwareManager::IOMap::PCM_GRABBER_WRIST_RETRACT)
    {
   
 }
@@ -32,6 +35,7 @@ void Grabber::resetToMode(MatchMode mode) {
     if (!(mode == Mechanism::MatchMode::DISABLED && getLastMode() == Mechanism::MatchMode::AUTO)
      && !(mode == Mechanism::MatchMode::TELEOP && getLastMode() == Mechanism::MatchMode::DISABLED)) {
         gamePieceType = GamePieceType::NONE;
+        tipped = false;
     }
 }
 
@@ -98,8 +102,16 @@ void Grabber::process() {
         grabberPiston1.Set(frc::DoubleSolenoid::Value::kReverse); 
         grabberPiston2.Set(frc::DoubleSolenoid::Value::kReverse);     
     }
+    if (tipped == true){
+        wristPiston.Set(frc::DoubleSolenoid::Value::kForward);//Extend piston 
+    }
+    else{
+        wristPiston.Set(frc::DoubleSolenoid::Value::kReverse);
+    }
 }
-
+void Grabber::setWristPosition(bool _tipped){
+    tipped = _tipped;
+}
 void Grabber::setAction(Action action) {
     currentAction = action;
 }

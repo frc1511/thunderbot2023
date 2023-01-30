@@ -190,6 +190,7 @@ void Controls::doAux() {
 
     bool prepareCone = auxController.GetRawButtonPressed(AuxButton::TRIANGLE);
     bool prepareCube = auxController.GetRawButtonPressed(AuxButton::SQUARE);
+    bool prepareTippedCone = auxController.GetRawButtonPressed(AuxButton::CIRCLE);
     bool liftHigh = auxController.GetPOV() == 0;
     bool liftMid = auxController.GetPOV() == 90;
     bool liftLow = auxController.GetPOV() == 180;
@@ -199,7 +200,7 @@ void Controls::doAux() {
     bool overrideGamePiece = auxController.GetRawButton(AuxButton::SHARE);
 
     //Sets the grabber to the AGAPE position to fit a cone.
-    if(prepareCone) {
+    if(prepareCone || prepareTippedCone) {
         if(gamePiece->getGamePieceType() == Grabber::GamePieceType::NONE) {
             gamePiece->setGrabberPosition(Grabber::Position::AGAPE);
         }
@@ -210,6 +211,18 @@ void Controls::doAux() {
             gamePiece->setGrabberPosition(Grabber::Position::OPEN);
         }
     }
+
+    if (prepareTippedCone) {
+        coneTipped = true;
+    }
+    else if (prepareCube || prepareCone) {
+        coneTipped = false;
+    }
+
+    if (gamePiece->getLiftPreset() == GamePiece::LiftPreset::INTAKE_C) {
+        gamePiece->setLiftPreset(GamePiece::LiftPreset::INTAKE_FUNKY_CONE);
+    }
+
     //Moves the lift to the high grid position if it has a game piece, and moves it to the balcony position if it has no game piece.
     if(liftHigh) {
         if(gamePiece->getGamePieceType() == Grabber::GamePieceType::NONE) {
@@ -226,7 +239,14 @@ void Controls::doAux() {
     //Moves the lift to the hybrid grid position if it has a game piece, and moves it to the intaking position if it has no game piece.
     if(liftLow) {
         if(gamePiece->getGamePieceType() == Grabber::GamePieceType::NONE) {
-            gamePiece->setLiftPreset(GamePiece::LiftPreset::INTAKE);
+            if (coneTipped) {
+                // Tipped cone lift preset.
+                gamePiece->setLiftPreset(GamePiece::LiftPreset::INTAKE_FUNKY_CONE);
+            }
+            else {
+                // Upright cone/cube lift preset.
+                gamePiece->setLiftPreset(GamePiece::LiftPreset::INTAKE_C);
+            }
         }
         else {
             gamePiece->setLiftPreset(GamePiece::LiftPreset::GROUND);
@@ -267,6 +287,7 @@ void Controls::doAuxManual() {
     bool open = auxController.GetRawButtonPressed(AuxButton::SQUARE);
     bool outake = auxController.GetRawButton(AuxButton::RIGHT_BUMPER);
     bool intake = auxController.GetRawAxis(AuxAxis::RIGHT_TRIGGER) > AXIS_DEADZONE;
+    bool wristTipped = auxController.GetRawButtonPressed(AuxButton::CROSS);
 
     double pivotLift = -auxController.GetRawAxis(AuxAxis::RIGHT_Y);
     double extendLift = -auxController.GetRawAxis(AuxAxis::LEFT_Y);
@@ -278,6 +299,8 @@ void Controls::doAuxManual() {
     } else if (open) {
         gamePiece->setGrabberPosition(Grabber::Position::OPEN);
     }
+
+    gamePiece->setWrist(wristTipped);
 
     if (intake) {
         gamePiece->setGrabberAction(Grabber::Action::INTAKE);
