@@ -4,6 +4,7 @@
 #include <Hardware/HardwareManager.h>
 #include <Drive/SwerveModule.h>
 #include <Trajectory/CSVTrajectory.h>
+#include <Trajectory/LinearTrajectory.h>
 #include <Trajectory/TrajectoryRecorder.h>
 #include <Autonomous/Action.h>
 
@@ -28,6 +29,7 @@
 #include <units/angular_acceleration.h>
 #include <units/math.h>
 #include <wpi/array.h>
+#include <memory>
 #include <numbers>
 #include <fstream>
 #include <map>
@@ -42,6 +44,8 @@
 #    define ROBOT_LENGTH 0.67_m
 #endif
 
+#define DRIVE_AUTO_MAX_VEL         1.5_mps
+#define DRIVE_AUTO_MAX_ACCEL       3_mps_sq
 #define DRIVE_AUTO_MAX_ANG_VEL     3.14_rad_per_s
 #define DRIVE_AUTO_MAX_ANG_ACCEL   3.14_rad_per_s_sq
 
@@ -187,11 +191,6 @@ private:
     void execTrajectory();
 
     /**
-     * Executes the instructions for when the robot is targeting a specific pose.
-     */
-    void execGoToPose();
-
-    /**
      * Records a state.
      */
     void record_state();
@@ -304,7 +303,6 @@ private:
         STOPPED,
         MANUAL,
         TRAJECTORY,
-        POSE,
     };
 
     // The current drive mode.
@@ -326,6 +324,9 @@ private:
     frc::Timer teleopTimer;
 
     units::second_t lastTeleopTime;
+
+    // The trajectory that is used to go to a pose.
+    std::unique_ptr<Trajectory> goToPoseTrajectory;
 
     // The recorded trajectory.
     CSVTrajectory recordedTrajectory { RECORDED_TRAJ_PATH };

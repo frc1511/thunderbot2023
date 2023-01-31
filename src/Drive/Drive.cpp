@@ -140,9 +140,6 @@ void Drive::process() {
         case DriveMode::TRAJECTORY:
             execTrajectory();
             break;
-        case DriveMode::POSE:
-            execGoToPose();
-            break;
     }
 }
 
@@ -215,10 +212,12 @@ void Drive::runTrajectory(Trajectory* _trajectory, const std::map<u_int32_t, Act
     resetOdometry(initialPose);
 }
 
-void Drive::goToPose(frc::Pose2d _targetPose) {
-    driveMode = DriveMode::POSE;
+void Drive::goToPose(frc::Pose2d pose) {
+    goToPoseTrajectory = std::make_unique<LinearTrajectory>(
+        getEstimatedPose(), pose, DRIVE_AUTO_MAX_VEL, DRIVE_AUTO_MAX_ACCEL
+    );
 
-    targetPose = _targetPose;
+    runTrajectory(goToPoseTrajectory.get(), *trajectoryActions);
 }
 
 bool Drive::isFinished() const {
@@ -464,33 +463,6 @@ void Drive::execTrajectory() {
                          << velocities.omega.value() << ','
                          << currentPose.Rotation().Radians().value() << ','
                          << targetPose.Rotation().Radians().value() << '\n';
-
-    // Make the robot go vroom :D
-    setModuleStates(velocities);
-}
-
-void Drive::execGoToPose() {
-    // The current pose of the robot.
-    frc::Pose2d currentPose(getEstimatedPose());
-
-    frc::Pose2d pose = targetPose;
-
-    // The desired change in position.
-    frc::Twist2d twist(currentPose.Log(targetPose));
-
-    // TODO: Target Velocity
-
-    // The angle at which the robot should be driving at.
-    frc::Rotation2d heading = units::math::atan2(twist.dy, twist.dx);
-
-    frc::ChassisSpeeds velocities(
-        driveController.Calculate(
-            currentPose,
-            frc::Pose2d(targetPose.X(), targetPose.Y(), heading),
-            0_mps,
-            targetPose.Rotation()
-        )
-    );
 
     // Make the robot go vroom :D
     setModuleStates(velocities);

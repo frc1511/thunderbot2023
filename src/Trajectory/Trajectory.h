@@ -43,8 +43,11 @@ public:
     /**
      * Returns the actions with their attributed timestamps.
      */
-    virtual const std::map<units::second_t, u_int32_t>& getActions() = 0;
+    virtual const std::map<units::second_t, u_int32_t>& getActions() { return defaultActions; }
 
 protected:
     Trajectory() = default;
+
+private:
+    std::map<units::second_t, u_int32_t> defaultActions;
 };
