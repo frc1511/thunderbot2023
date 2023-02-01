@@ -77,6 +77,9 @@ void Controls::doDrive() {
 
     bool resetOdometry = driveController.GetRawButtonPressed(DriveButton::OPTIONS);
     bool calIMU = driveController.GetRawButtonPressed(DriveButton::SHARE);
+
+    int dpad = driveController.GetPOV();
+
     if (driveController.GetRawButtonPressed(DriveButton::LEFT_STICK)) {
         driveLockX = !driveLockX;
     }
@@ -121,6 +124,27 @@ void Controls::doDrive() {
         driveAbsAngle = drive->getEstimatedPose().Rotation().Radians();
     }
 
+    switch (dpad) {
+        case 0:
+        case 180:
+            // Align center.
+            driveAligning = true;
+            drive->alignToGrid(Drive::AlignmentDirection::CENTER);
+            break;
+        case 90:
+            // Align right.
+            driveAligning = true;
+            drive->alignToGrid(Drive::AlignmentDirection::RIGHT);
+            break;
+        case 270:
+            // Align left.
+            driveAligning = true;
+            drive->alignToGrid(Drive::AlignmentDirection::LEFT);
+            break;
+        default:
+            break;
+    }
+
     double finalXVel = 0.0,
            finalYVel = 0.0,
            finalAngVel = 0.0,
@@ -151,7 +175,7 @@ void Controls::doDrive() {
     // Returns whether the robot should be moving.
     auto isMoving = [&]() -> bool {
         bool r = driveAbsRotation ? finalXAng || finalYAng : finalAngVel;
-        return finalXVel || finalYVel || r;
+        return finalXVel || finalYVel || r || driveAligning;
     };
 
     // Stay in brick drive mode if the robot isn't moving.
@@ -166,6 +190,10 @@ void Controls::doDrive() {
     if(angSlowMode){
         finalAngVel *= .5;
     }
+
+    auto isManualControl = [&]() -> bool {
+        return finalXVel || finalYVel || finalAngVel || finalXAng || finalYAng;
+    };
 
     // Control the drivetrain.    
     if (driveAbsRotation) {
@@ -198,29 +226,29 @@ void Controls::doAux() {
     bool intake = auxController.GetRawAxis(AuxAxis::RIGHT_TRIGGER) > AXIS_DEADZONE;
     bool outtake = auxController.GetRawButton(AuxButton::RIGHT_BUMPER);
     bool overrideGamePiece = auxController.GetRawButton(AuxButton::SHARE);
+        
+    if(gamePiece->getGamePieceType() == Grabber::GamePieceType::NONE) {
+        prepareCone = false;
+        prepareCube = false;
+        prepareTippedCone = false;
+    }
 
     //Sets the grabber to the AGAPE position to fit a cone.
     if(prepareCone || prepareTippedCone) {
-        if(gamePiece->getGamePieceType() == Grabber::GamePieceType::NONE) {
-            gamePiece->setGrabberPosition(Grabber::Position::AGAPE);
-        }
+        gamePiece->setGrabberPosition(Grabber::Position::AGAPE);
     }
     //Sets the grabber to the OPEN position to fit a cube.
     if(prepareCube) {
-        if(gamePiece->getGamePieceType() == Grabber::GamePieceType::NONE) {
-            gamePiece->setGrabberPosition(Grabber::Position::OPEN);
-        }
+        gamePiece->setGrabberPosition(Grabber::Position::OPEN);
     }
 
+    //Sets the wrist to the TIPPED position to fit a tipped cone.
     if (prepareTippedCone) {
-        coneTipped = true;
+        gamePiece->setWrist(true);
     }
-    else if (prepareCube || prepareCone) {
-        coneTipped = false;
-    }
-
-    if (gamePiece->getLiftPreset() == GamePiece::LiftPreset::INTAKE_C) {
-        gamePiece->setLiftPreset(GamePiece::LiftPreset::INTAKE_FUNKY_CONE);
+    //Sets the wrist to the UPRIGHT position to fit a cone or cube.
+    else if (prepareCone || prepareCube) {
+        gamePiece->setWrist(false);
     }
 
     //Moves the lift to the high grid position if it has a game piece, and moves it to the balcony position if it has no game piece.
@@ -239,14 +267,7 @@ void Controls::doAux() {
     //Moves the lift to the hybrid grid position if it has a game piece, and moves it to the intaking position if it has no game piece.
     if(liftLow) {
         if(gamePiece->getGamePieceType() == Grabber::GamePieceType::NONE) {
-            if (coneTipped) {
-                // Tipped cone lift preset.
-                gamePiece->setLiftPreset(GamePiece::LiftPreset::INTAKE_FUNKY_CONE);
-            }
-            else {
-                // Upright cone/cube lift preset.
-                gamePiece->setLiftPreset(GamePiece::LiftPreset::INTAKE_C);
-            }
+            gamePiece->setLiftPreset(GamePiece::LiftPreset::INTAKE);
         }
         else {
             gamePiece->setLiftPreset(GamePiece::LiftPreset::GROUND);

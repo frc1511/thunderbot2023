@@ -16,10 +16,11 @@ public:
     void process() override;
     void sendFeedback() override;
 
+    // The different presets for the lift.
     enum class LiftPreset {
-        INTAKE_C,//Starting Config
-        INTAKE_FUNKY_CONE,
-        GROUND, //Hybrid Node
+        INTAKE, // Starting Config / Normal intake.
+        INTAKE_FUNKY, // Intake for tipped over cone
+        GROUND, // Hybrid Node
         MID,
         HIGH,
         BALCONY, //I dont like the balcony
@@ -32,7 +33,11 @@ public:
     // Returns the current lift preset.
     LiftPreset getLiftPreset();
 
+    // Sets the wrist position (safe - will not break things).
     void setWrist(bool tipped);
+
+    // Sets the wrist position (manual control - is not safe).
+    void setWristManual(bool tipped);
 
     // Sets the state of the grabber rollers to INTAKE, OUTTAKE, or IDLE.
     void setGrabberAction(Grabber::Action action);
@@ -60,8 +65,8 @@ private:
     Lift* lift;
 
     const std::map<LiftPreset, std::pair<units::meter_t, units::meter_t>> presetMap {//ALL TBD!!!!
-        { LiftPreset::INTAKE_C, std::make_pair(1_m, 1_m) },
-        { LiftPreset::INTAKE_FUNKY_CONE, std::make_pair(1_m, 1_m) },
+        { LiftPreset::INTAKE, std::make_pair(1_m, 1_m) },
+        { LiftPreset::INTAKE_FUNKY, std::make_pair(1_m, 1_m) },
         { LiftPreset::GROUND, std::make_pair(1_m, 1_m) },
         { LiftPreset::MID, std::make_pair(1_m, 1_m) },
         { LiftPreset::HIGH, std::make_pair(1_m, 1_m) },
@@ -69,8 +74,7 @@ private:
         { LiftPreset::TRAVEL, std::make_pair(1_m, 1_m) },
     };
 
-    LiftPreset liftPreset;
-    
-
-    };
-    
+    LiftPreset liftPreset = LiftPreset::INTAKE;
+    bool manualWrist = false;
+    bool wristTipped = false;
+};

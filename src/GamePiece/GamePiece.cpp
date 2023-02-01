@@ -27,22 +27,41 @@ void GamePiece::process() {
             }
         }
     }
+
+    if (!manualWrist) {
+        if (wristTipped) {
+            if (liftPreset == LiftPreset::INTAKE) {
+                setLiftPreset(LiftPreset::INTAKE_FUNKY);
+            }
+
+            if (lift->isAtPosition()) {
+                grabber->setWristPosition(true);
+            }
+            else {
+                grabber->setWristPosition(false);
+            }
+        }
+        else {
+            grabber->setWristPosition(false);
+        }
+    }
 }
 
 void GamePiece::setLiftPreset(LiftPreset preset) {
     const auto& [y, z] = presetMap.at(preset);
     lift->setEndPosition(y, z);
     liftPreset = preset;
-    if (preset==LiftPreset::INTAKE_FUNKY_CONE){
-        grabber->setWristPosition(true);
-    }
-    else{
-        grabber->setWristPosition(false);
-    }
 }
 
 void GamePiece::setWrist(bool tipped) {
+    wristTipped = tipped;
+    manualWrist = false;
+}
+
+void GamePiece::setWristManual(bool tipped) {
     grabber->setWristPosition(tipped);
+    wristTipped = tipped;
+    manualWrist = true;
 }
 
 GamePiece::LiftPreset GamePiece::getLiftPreset() {
@@ -90,10 +109,10 @@ void GamePiece::sendFeedback() {
         case LiftPreset::HIGH:
             liftPresetString = "High";
             break;
-        case LiftPreset::INTAKE_C:
+        case LiftPreset::INTAKE:
             liftPresetString = "Intake Cone or Cube";
             break;
-        case LiftPreset::INTAKE_FUNKY_CONE:
+        case LiftPreset::INTAKE_FUNKY:
             liftPresetString = "Intake Funky Cone";
             break;
         case LiftPreset::MID:

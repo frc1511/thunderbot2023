@@ -128,6 +128,22 @@ public:
      */
     void goToPose(frc::Pose2d targetPose);
 
+    enum class AlignmentDirection {
+        LEFT,
+        CENTER,
+        RIGHT,
+    };
+
+    /**
+     * Aligns the robot to the specified grid node in front of the robot.
+     * 
+     * Selects the closest group of 3 nodes and uses 'direcction' to determine
+     * which node to align to.
+     * 
+     * Returns whether the robot is within an acceptable range of the target.
+    */
+    bool alignToGrid(AlignmentDirection direction);
+
     /**
      * Returns whether the current process is finished or not.
      */

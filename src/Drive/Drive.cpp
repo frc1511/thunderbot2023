@@ -220,9 +220,13 @@ void Drive::goToPose(frc::Pose2d pose) {
     runTrajectory(goToPoseTrajectory.get(), *trajectoryActions);
 }
 
+bool Drive::alignToGrid(AlignmentDirection direction) {
+    // TODO: Implement.
+}
+
 bool Drive::isFinished() const {
     // Stopped is as 'finished' as it gets I guess.
-    return driveMode == DriveMode::STOPPED;
+    return driveMode == DriveMode::STOPPED || driveMode == DriveMode::MANUAL;
 }
 
 void Drive::calibrateIMU() {

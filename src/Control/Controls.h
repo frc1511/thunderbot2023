@@ -30,8 +30,9 @@ private:
     void doAuxManual();
     void doSwitchPanel();
     bool driveLockX = false;
-    bool coneTipped = false;
     bool manualAux = false;
+
+    bool driveAligning = false;
 
     bool driveRobotCentric = false;
     unsigned driveCtrlFlags = 0;
