@@ -195,18 +195,24 @@ void Controls::doDrive() {
         return finalXVel || finalYVel || finalAngVel || finalXAng || finalYAng;
     };
 
-    // Control the drivetrain.    
-    if (driveAbsRotation) {
-        // If changed rotation.
-        if (finalYAng || finalXAng) {
-            // Calculate the new absolute rotation for the robot.
-            driveAbsAngle = units::radian_t(std::atan2(-finalYAng, finalXAng)) - 90_deg;
-        }
-
-        drive->manualControlAbsRotation(finalXVel, -finalYVel, driveAbsAngle, driveCtrlFlags);
+    if (isManualControl() || driveAligning) {
+        driveAligning = false;
     }
-    else {
-        drive->manualControlRelRotation(finalXVel, -finalYVel, -finalAngVel, driveCtrlFlags);
+
+    if (!driveAligning) {
+        // Control the drivetrain.    
+        if (driveAbsRotation) {
+            // If changed rotation.
+            if (finalYAng || finalXAng) {
+                // Calculate the new absolute rotation for the robot.
+                driveAbsAngle = units::radian_t(std::atan2(-finalYAng, finalXAng)) - 90_deg;
+            }
+
+            drive->manualControlAbsRotation(finalXVel, -finalYVel, driveAbsAngle, driveCtrlFlags);
+        }
+        else {
+            drive->manualControlRelRotation(finalXVel, -finalYVel, -finalAngVel, driveCtrlFlags);
+        }
     }
 }
 

@@ -129,9 +129,9 @@ public:
     void goToPose(frc::Pose2d targetPose);
 
     enum class AlignmentDirection {
-        LEFT,
-        CENTER,
-        RIGHT,
+        LEFT   = -1,
+        CENTER =  0,
+        RIGHT  = +1,
     };
 
     /**

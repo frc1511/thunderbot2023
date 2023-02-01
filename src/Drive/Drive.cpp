@@ -1,12 +1,48 @@
 #include <Drive/Drive.h>
 #include <RollingRaspberry/RollingRaspberry.h>
 #include <frc/geometry/Twist2d.h>
+#include <frc/DriverStation.h>
 #include <Util/Parser.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <fmt/core.h>
+#include <map>
 
 // The file which magnetic encoder offsets are stored on the RoboRIO.
 #define ENCODER_OFFSETS_PATH std::filesystem::path("/home/lvuser/drive_encoder_offsets.txt")
+
+#define FIELD_X 16.54175_m
+#define FIELD_Y 8.0137_m
+
+static const std::map<int, frc::Pose2d> BLUE_ALIGNMENT_POSES = {
+    { 0, frc::Pose2d(1.86_m, 5.09_m, 180_deg) },
+    { 1, frc::Pose2d(1.86_m, 4.46_m, 180_deg) },
+    { 2, frc::Pose2d(1.86_m, 3.88_m, 180_deg) },
+    { 3, frc::Pose2d(1.86_m, 3.3_m,  180_deg) },
+    { 4, frc::Pose2d(1.86_m, 2.77_m, 180_deg) },
+    { 5, frc::Pose2d(1.86_m, 2.17_m, 180_deg) },
+    { 6, frc::Pose2d(1.86_m, 1.58_m, 180_deg) },
+    { 7, frc::Pose2d(1.86_m, 1.02_m, 180_deg) },
+    { 8, frc::Pose2d(1.86_m, 0.4_m,  180_deg) }
+};
+
+static const std::map<int, frc::Pose2d> RED_ALIGNMENT_POSES = {
+    { 0, frc::Pose2d(FIELD_X - 1.86_m, 5.09_m, 0_deg) },
+    { 1, frc::Pose2d(FIELD_X - 1.86_m, 4.46_m, 0_deg) },
+    { 2, frc::Pose2d(FIELD_X - 1.86_m, 3.88_m, 0_deg) },
+    { 3, frc::Pose2d(FIELD_X - 1.86_m, 3.3_m,  0_deg) },
+    { 4, frc::Pose2d(FIELD_X - 1.86_m, 2.77_m, 0_deg) },
+    { 5, frc::Pose2d(FIELD_X - 1.86_m, 2.17_m, 0_deg) },
+    { 6, frc::Pose2d(FIELD_X - 1.86_m, 1.58_m, 0_deg) },
+    { 7, frc::Pose2d(FIELD_X - 1.86_m, 1.02_m, 0_deg) },
+    { 8, frc::Pose2d(FIELD_X - 1.86_m, 0.4_m,  0_deg) }
+};
+
+static const std::map<int, units::meter_t> GRID_ZONES = {
+    { 0, 5.47_m },
+    { 1, 3.58_m },
+    { 2, 1.87_m },
+    { 3, 0.00_m },
+}; 
 
 Drive::Drive(RollingRaspberry* rollingRaspberry)
 : rollingRaspberry(rollingRaspberry), driveController(
@@ -221,7 +257,40 @@ void Drive::goToPose(frc::Pose2d pose) {
 }
 
 bool Drive::alignToGrid(AlignmentDirection direction) {
-    // TODO: Implement.
+    frc::Pose2d pose = getEstimatedPose();
+
+    // Get the alliance color.
+    int isBlue = frc::DriverStation::GetAlliance() == frc::DriverStation::kBlue ? 1 : -1;
+
+    // The index of the alignment position (0-8).
+    int position = -1;
+
+    // Determine which grid the robot is in front of.
+    if (pose.Y() < GRID_ZONES.at(0) && pose.Y() >= GRID_ZONES.at(1)) {
+        // Positions 0-2.
+        position = 1 + static_cast<int>(direction) * isBlue;
+    }
+    else if (pose.Y() < GRID_ZONES.at(1) && pose.Y() >= GRID_ZONES.at(2)) {
+        // Positions 3-5.
+        position = 4 + static_cast<int>(direction) * isBlue;
+    }
+    else if (pose.Y() < GRID_ZONES.at(2) && pose.Y() >= GRID_ZONES.at(3)) {
+        // Positions 6-8.
+        position = 7 + static_cast<int>(direction) * isBlue;
+    }
+
+    if (position == -1) {
+        // No alignment for you.
+        return false;
+    }
+
+    // Which poses to use.
+    const auto& alignment_poses = isBlue == 1 ? BLUE_ALIGNMENT_POSES : RED_ALIGNMENT_POSES;
+
+    // Go to the alignment pose.
+    goToPose(alignment_poses.at(position));
+
+    return true;
 }
 
 bool Drive::isFinished() const {
