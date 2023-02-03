@@ -64,14 +64,14 @@ private:
     Grabber* grabber;
     Lift* lift;
 
-    const std::map<LiftPreset, std::pair<units::meter_t, units::meter_t>> presetMap {//ALL TBD!!!!
-        { LiftPreset::INTAKE, std::make_pair(1_m, 1_m) },
-        { LiftPreset::INTAKE_FUNKY, std::make_pair(1_m, 1_m) },
-        { LiftPreset::GROUND, std::make_pair(1_m, 1_m) },
-        { LiftPreset::MID, std::make_pair(1_m, 1_m) },
-        { LiftPreset::HIGH, std::make_pair(1_m, 1_m) },
-        { LiftPreset::BALCONY, std::make_pair(1_m, 1_m) },
-        { LiftPreset::TRAVEL, std::make_pair(1_m, 1_m) },
+    const std::map<LiftPreset, std::pair<units::degree_t, units::meter_t>> presetMap {//ALL TBD!!!!
+        { LiftPreset::INTAKE, std::make_pair(0_deg, 1_m) },
+        { LiftPreset::INTAKE_FUNKY, std::make_pair(0_deg, 1_m) },
+        { LiftPreset::GROUND, std::make_pair(0_deg, 1_m) },
+        { LiftPreset::MID, std::make_pair(0_deg, 1_m) },
+        { LiftPreset::HIGH, std::make_pair(0_deg, 1_m) },
+        { LiftPreset::BALCONY, std::make_pair(0_deg, 1_m) },
+        { LiftPreset::TRAVEL, std::make_pair(0_deg, 1_m) },
     };
 
     LiftPreset liftPreset = LiftPreset::INTAKE;

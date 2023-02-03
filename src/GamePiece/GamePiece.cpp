@@ -48,8 +48,8 @@ void GamePiece::process() {
 }
 
 void GamePiece::setLiftPreset(LiftPreset preset) {
-    const auto& [y, z] = presetMap.at(preset);
-    lift->setEndPosition(y, z);
+    const auto& [angle, extension] = presetMap.at(preset);
+    lift->setPosition(angle, extension);
     liftPreset = preset;
 }
 

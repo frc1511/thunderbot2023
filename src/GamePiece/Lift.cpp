@@ -83,6 +83,8 @@ void Lift::process() {
 
         // Convert the positional angle to a percent of the range of motion.
         double pivotPercent = positionalAngle / (MAX_PIVOT_ANGLE - MIN_PIVOT_ANGLE);
+        pivotPercent = std::clamp(pivotPercent, 0.0, 1.0);
+
         // Convert the percent to an encoder position.
         double pivotPosition = pivotPercent * MAX_PIVOT_ENCODER;
 
@@ -94,6 +96,8 @@ void Lift::process() {
 
         // Convert the positional extension length to a percent of the range of motion.
         double extensionPercent = positionalExtensionLength / MAX_EXTENSION_LENGTH;
+        extensionPercent = std::clamp(extensionPercent, 0.0, 1.0);
+
         // Convert the percent to an encoder position.
         double extensionPosition = extensionPercent * MAX_EXTENSION_ENCODER;
 
@@ -118,8 +122,6 @@ void Lift::setManualPivotSpeed(double speed) {
     manualPivotSpeed = speed;
     controlType = ControlType::MANUAL;
 
-    positionalY = -1_m;
-    positionalZ = -1_m;
     positionalAngle = -1_deg;
     positionalExtensionLength = -1_m;
 }
@@ -129,20 +131,14 @@ void Lift::setManualExtensionSpeed(double speed) {
     manualExtensionSpeed = speed;
     controlType = ControlType::MANUAL;
 
-    positionalY = -1_m;
-    positionalZ = -1_m;
     positionalAngle = -1_deg;
     positionalExtensionLength = -1_m;
 }
 
-void Lift::setEndPosition(units::meter_t y, units::meter_t z) {
-    z -= PIVOT_POINT_HEIGHT;
+void Lift::setPosition(units::degree_t angle, units::meter_t extension) {
     controlType = ControlType::POSITION;
-    positionalAngle = units::math::atan2(z, y);
-    positionalExtensionLength = z / units::math::sin(positionalAngle);
-
-    positionalY = y;
-    positionalZ = z;
+    positionalAngle = angle;
+    positionalExtensionLength = extension;
 }
 
 bool Lift::isAtPosition(){
@@ -208,8 +204,6 @@ void Lift::sendFeedback() {
     frc::SmartDashboard::PutNumber("Lift_TargetExtension_m", positionalExtensionLength.value());
     frc::SmartDashboard::PutNumber("Lift_TargetAngle_deg", positionalAngle.value());
     frc::SmartDashboard::PutBoolean("Lift_TargetReached", atPosition);
-    frc::SmartDashboard::PutNumber("Lift_TargetY_m", positionalY.value());
-    frc::SmartDashboard::PutNumber("Lift_TargetZ_m", positionalZ.value());
 
     // Encoder Positions
     double extensionPosition = extensionMotor.getEncoderPosition();

@@ -23,8 +23,8 @@ public:
     // Manually set the speed of the motor to control the extension distance of the lift.
     void setManualExtensionSpeed(double speed);
 
-    // Set the coordinate position of where the end effector should be.
-    void setEndPosition(units::meter_t y, units::meter_t z);
+    // Set the arm angle (from horizontal) and extension length.
+    void setPosition(units::degree_t angle, units::meter_t extensionLength);
 
 private:
     double manualPivotSpeed;
@@ -40,10 +40,6 @@ private:
     units::meter_t positionalExtensionLength;
     // Target angle of the lift arm.
     units::degree_t positionalAngle;
-
-    // Positional coordinates of the end effector (For feedback use only).
-    units::meter_t positionalY;
-    units::meter_t positionalZ;
 
     // Whether the lift is at it's desired position.
     bool atPosition;
