@@ -7,17 +7,11 @@
 #define AXIS_DEADZONE 0.1
 
 Controls::Controls(Drive* _drive, GamePiece* _gamePiece)
-: drive(_drive), gamePiece(_gamePiece) {
+: drive(_drive), gamePiece(_gamePiece) { }
 
-}
+Controls::~Controls() { }
 
-Controls::~Controls() {
-
-}
-
-void Controls::resetToMode(MatchMode mode) {
-
-}
+void Controls::resetToMode(MatchMode mode) { }
 
 void Controls::process() {
     doSwitchPanel();
@@ -187,7 +181,7 @@ void Controls::doDrive() {
         finalXVel *= .5;
         finalYVel *= .5;
     }
-    if(angSlowMode){
+    if (angSlowMode){
         finalAngVel *= .5;
     }
 
@@ -228,77 +222,99 @@ void Controls::doAux() {
     bool liftHigh = auxController.GetPOV() == 0;
     bool liftMid = auxController.GetPOV() == 90;
     bool liftLow = auxController.GetPOV() == 180;
+    bool justPivot = auxController.GetRawButton(AuxButton::LEFT_BUMPER);
     bool score = auxController.GetRawAxis(AuxAxis::LEFT_TRIGGER) > AXIS_DEADZONE;
     bool intake = auxController.GetRawAxis(AuxAxis::RIGHT_TRIGGER) > AXIS_DEADZONE;
     bool outtake = auxController.GetRawButton(AuxButton::RIGHT_BUMPER);
-    bool overrideGamePiece = auxController.GetRawButton(AuxButton::SHARE);
-        
-    if(gamePiece->getGamePieceType() == Grabber::GamePieceType::NONE) {
+    bool overrideGamePiece = auxController.GetRawButtonPressed(AuxButton::SHARE);
+    
+    // If we have a GamePiece, we don't want to prepare to grab another one.
+    if (gamePiece->getGamePieceType() != Grabber::GamePieceType::NONE) {
         prepareCone = false;
         prepareCube = false;
         prepareTippedCone = false;
     }
 
-    //Sets the grabber to the AGAPE position to fit a cone.
-    if(prepareCone || prepareTippedCone) {
+    // Sets the grabber to the AGAPE position to fit a cone.
+    if (prepareCone || prepareTippedCone) {
         gamePiece->setGrabberPosition(Grabber::Position::AGAPE);
     }
-    //Sets the grabber to the OPEN position to fit a cube.
-    if(prepareCube) {
+    // Sets the grabber to the OPEN position to fit a cube.
+    else if (prepareCube) {
         gamePiece->setGrabberPosition(Grabber::Position::OPEN);
     }
 
-    //Sets the wrist to the TIPPED position to fit a tipped cone.
+    // Sets the wrist to the tipped position.
     if (prepareTippedCone) {
         gamePiece->setWrist(true);
     }
-    //Sets the wrist to the UPRIGHT position to fit a cone or cube.
+    // Sets the wrist to the upright position.
     else if (prepareCone || prepareCube) {
         gamePiece->setWrist(false);
     }
 
-    //Moves the lift to the high grid position if it has a game piece, and moves it to the balcony position if it has no game piece.
-    if(liftHigh) {
-        if(gamePiece->getGamePieceType() == Grabber::GamePieceType::NONE) {
-            gamePiece->setLiftPreset(GamePiece::LiftPreset::BALCONY);
+    if (liftHigh) {
+        // If we don't have a GamePiece, go to the balcony position.
+        if (gamePiece->getGamePieceType() == Grabber::GamePieceType::NONE) {
+            if (justPivot) {
+                gamePiece->setLiftPreset(GamePiece::LiftPreset::BALCONY_PIVOT);
+            }
+            else {
+                gamePiece->setLiftPreset(GamePiece::LiftPreset::BALCONY);
+            }
+        }
+        // If we do, go to the high position.
+        else {
+            if (justPivot) {
+                gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH_PIVOT);
+            }
+            else {
+                gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH);
+            }
+        }
+    }
+    // Moves the lift to the mid grid position.
+    if (liftMid) {
+        if (justPivot) {
+            gamePiece->setLiftPreset(GamePiece::LiftPreset::MID_PIVOT);
         }
         else {
-            gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH);
+            gamePiece->setLiftPreset(GamePiece::LiftPreset::MID);
         }
     }
-    //Moves the lift to the mid grid position.
-    if(liftMid) {
-        gamePiece->setLiftPreset(GamePiece::LiftPreset::MID);
-    }
-    //Moves the lift to the hybrid grid position if it has a game piece, and moves it to the intaking position if it has no game piece.
-    if(liftLow) {
-        if(gamePiece->getGamePieceType() == Grabber::GamePieceType::NONE) {
+    if (liftLow) {
+        // If we don't have a GamePiece, go to the intake position.
+        if (gamePiece->getGamePieceType() == Grabber::GamePieceType::NONE) {
             gamePiece->setLiftPreset(GamePiece::LiftPreset::INTAKE);
         }
+        // If we do, go to the low scoring position.
         else {
             gamePiece->setLiftPreset(GamePiece::LiftPreset::GROUND);
         }        
     }
-    //Initiates the automated scoring process of the grabber.
-    if(score) {
-        if(gamePiece->getGamePieceType() != Grabber::GamePieceType::NONE) {
+
+    // Initiates the automated scoring process of the grabber.
+    if (score) {
+        if (gamePiece->getGamePieceType() != Grabber::GamePieceType::NONE) {
             gamePiece->placeGamePiece();
         }
     }
-    //Spins the wheels on the grabber inward to intake a gamepiece.
-    if(intake) {
+
+    // Spins the wheels on the grabber inward to intake a gamepiece.
+    if (intake && gamePiece->getGamePieceType() == Grabber::GamePieceType::NONE) {
         gamePiece->setGrabberAction(Grabber::Action::INTAKE);
     }
-    //Spins the wheels on the grabber outward to outtake a gamepiece.
-    else if(outtake) {
+    // Spins the wheels on the grabber outward to outtake a gamepiece.
+    else if (outtake) {
         gamePiece->setGrabberAction(Grabber::Action::OUTTAKE);
     }
-    //If the grabber is neither intaking or outtaking the action is set to idle.
+    //If the grabber is neither intaking nor outtaking, the action is set to idle.
     else {
         gamePiece->setGrabberAction(Grabber::Action::IDLE);
     }
-    //Overrides the current game piece count.
-    if(overrideGamePiece) {
+
+    // Overrides the current game piece count.
+    if (overrideGamePiece) {
         gamePiece->overrideHasGamePiece();
     }
 }

@@ -4,6 +4,8 @@
 // The max amperage of the intake motors.
 #define INTAKE_MAX_AMPERAGE 20_A
 
+#define INTAKE_SPEED 0.2
+
 Grabber::Grabber() 
 : leftIntakeMotor(HardwareManager::IOMap::CAN_GRABBER_INTAKE_LEFT),
   rightIntakeMotor(HardwareManager::IOMap::CAN_GRABBER_INTAKE_RIGHT),
@@ -44,7 +46,9 @@ void Grabber::doPersistentConfiguration() {
 }
 
 void Grabber::process() {
+    // If we are going through the actions of placing a GamePiece.
     if (placingGamePiece) {
+        // Cube: Outake for 0.5 seconds, then stop.
         if (gamePieceType == GamePieceType::CUBE) {
             if (placingGamePieceTimer.Get() >= 0.5_s) {
                 placingGamePiece = false;
@@ -55,19 +59,22 @@ void Grabber::process() {
                 setAction(Action::OUTTAKE);
             }
         }
+        // Cone: Open the grabber completely.
         else if (gamePieceType == GamePieceType::CONE) {
             setPosition(Position::OPEN);
             gamePieceType = GamePieceType::NONE;
             placingGamePiece = false;
         }
+        // How do we place a GamePiece that doesn't exist?
         else if (gamePieceType == GamePieceType::NONE) {
             placingGamePiece = false;
         }
     }
 
     if (currentAction == Action::INTAKE) {
-        leftIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, 1);
-        rightIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, -1);
+        leftIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, INTAKE_SPEED;
+        rightIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, -INTAKE_SPEED);
+        // If the intake sensor is triggered, we have intaked a GamePiece.
         if (intakeSensor.Get()) {
             if (currentPosition == Position::OPEN) {
                 gamePieceType = GamePieceType::CUBE;
@@ -78,32 +85,36 @@ void Grabber::process() {
         }
     } 
     else if (currentAction == Action::OUTTAKE) {
-        leftIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, -1);
-        rightIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, 1);
+        leftIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, -INTAKE_SPEED);
+        rightIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, INTAKE_SPEED);
+        // No more GamePiece.
         gamePieceType = GamePieceType::NONE;
     } 
     else if (currentAction == Action::IDLE) {
+        // Stop the motors.
         leftIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, 0);
         rightIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, 0);
     }
 
     if (currentPosition == Position::OPEN) {
-        //Both pistons are extended and the grabber is able to fit a cube.
+        // Both pistons are extended to intake a cube.
         grabberPiston1.Set(frc::DoubleSolenoid::Value::kForward); 
         grabberPiston2.Set(frc::DoubleSolenoid::Value::kForward);   
     } 
     else if (currentPosition == Position::AGAPE) {
-        //Only the shorter piston is extended and the grabber is able to fit a cone.
+        // Only one piston is extended to intake a cone.
         grabberPiston1.Set(frc::DoubleSolenoid::Value::kReverse); 
         grabberPiston2.Set(frc::DoubleSolenoid::Value::kForward);
     } 
     else if (currentPosition == Position::AJAR) {
-        //Both pistons are retracted and the grabber is able to squish and transport the cone after intaking it.
+        // Both pistons are retracted to hold a cone.
         grabberPiston1.Set(frc::DoubleSolenoid::Value::kReverse); 
         grabberPiston2.Set(frc::DoubleSolenoid::Value::kReverse);     
     }
+
+    // Set the wrist piston.
     if (tipped == true){
-        wristPiston.Set(frc::DoubleSolenoid::Value::kForward);//Extend piston 
+        wristPiston.Set(frc::DoubleSolenoid::Value::kForward);
     }
     else{
         wristPiston.Set(frc::DoubleSolenoid::Value::kReverse);

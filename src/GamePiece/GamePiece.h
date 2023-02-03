@@ -18,12 +18,15 @@ public:
 
     // The different presets for the lift.
     enum class LiftPreset {
-        INTAKE, // Starting Config / Normal intake.
+        INTAKE,       // Starting Config / Normal intake.
         INTAKE_FUNKY, // Intake for tipped over cone
         GROUND, // Hybrid Node
         MID,
+        MID_PIVOT,
         HIGH,
+        HIGH_PIVOT,
         BALCONY, //I dont like the balcony
+        BALCONY_PIVOT,
         TRAVEL, //Just a bit different than intake
     };
 
@@ -64,15 +67,20 @@ private:
     Grabber* grabber;
     Lift* lift;
 
-    const std::map<LiftPreset, std::pair<units::degree_t, units::meter_t>> presetMap {//ALL TBD!!!!
-        { LiftPreset::INTAKE, std::make_pair(0_deg, 1_m) },
-        { LiftPreset::INTAKE_FUNKY, std::make_pair(0_deg, 1_m) },
-        { LiftPreset::GROUND, std::make_pair(0_deg, 1_m) },
-        { LiftPreset::MID, std::make_pair(0_deg, 1_m) },
-        { LiftPreset::HIGH, std::make_pair(0_deg, 1_m) },
-        { LiftPreset::BALCONY, std::make_pair(0_deg, 1_m) },
-        { LiftPreset::TRAVEL, std::make_pair(0_deg, 1_m) },
+    const std::map<LiftPreset, std::pair<units::degree_t, units::meter_t>> presetMap {
+        { LiftPreset::INTAKE,       std::make_pair(0_deg, 1_m) }, // Starting config & cone/cube intake.
+        { LiftPreset::INTAKE_FUNKY, std::make_pair(0_deg, 1_m) }, // Tipped over cone intake.
+        { LiftPreset::GROUND,       std::make_pair(0_deg, 1_m) }, // Low scoring position.
+        { LiftPreset::MID,          std::make_pair(0_deg, 1_m) }, // Mid scoring position.
+        { LiftPreset::MID_PIVOT,    std::make_pair(0_deg, 0_m) }, // Mid scoring position - only pivot.
+        { LiftPreset::HIGH,         std::make_pair(0_deg, 1_m) }, // High scoring position.
+        { LiftPreset::HIGH_PIVOT,   std::make_pair(0_deg, 0_m) }, // High scoring position - only pivot.
+        { LiftPreset::BALCONY,      std::make_pair(0_deg, 1_m) }, // Balcony scoring position.
+        { LiftPreset::BALCONY_PIVOT,std::make_pair(0_deg, 0_m) }, // Balcony scoring position - only pivot.
+        { LiftPreset::TRAVEL,       std::make_pair(0_deg, 1_m) }, // Travel position.
     };
+
+    // hi jeff
 
     LiftPreset liftPreset = LiftPreset::INTAKE;
     bool manualWrist = false;

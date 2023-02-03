@@ -3,7 +3,7 @@
 
 
 GamePiece::GamePiece(Grabber* _grabber, Lift* _lift) 
-: grabber(_grabber), lift(_lift){
+: grabber(_grabber), lift(_lift) {
 
 }
 
@@ -30,16 +30,13 @@ void GamePiece::process() {
 
     if (!manualWrist) {
         if (wristTipped) {
+            // We don't want the grabber to hit the ground, so when the wrist is tipped the lowest preset is the 'INTAKE_FUNKY' preset.
             if (liftPreset == LiftPreset::INTAKE) {
                 setLiftPreset(LiftPreset::INTAKE_FUNKY);
             }
 
-            if (lift->isAtPosition()) {
-                grabber->setWristPosition(true);
-            }
-            else {
-                grabber->setWristPosition(false);
-            }
+            // Only move the wrist if the lift is at the correct position.
+            grabber->setWristPosition(lift->isAtPosition());
         }
         else {
             grabber->setWristPosition(false);
