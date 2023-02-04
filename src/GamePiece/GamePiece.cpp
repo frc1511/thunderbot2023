@@ -100,11 +100,17 @@ void GamePiece::sendFeedback() {
         case LiftPreset::BALCONY:
             liftPresetString = "Balcony";
             break;
+        case LiftPreset::BALCONY_PIVOT:
+            liftPresetString = "Balcony Pivot";
+            break;
         case LiftPreset::GROUND:
             liftPresetString = "Ground";
             break;
         case LiftPreset::HIGH:
             liftPresetString = "High";
+            break;
+        case LiftPreset::HIGH_PIVOT:
+            liftPresetString = "High Pivot";
             break;
         case LiftPreset::INTAKE:
             liftPresetString = "Intake Cone or Cube";
@@ -114,6 +120,9 @@ void GamePiece::sendFeedback() {
             break;
         case LiftPreset::MID:
             liftPresetString = "Mid";
+            break;
+        case LiftPreset::MID_PIVOT:
+            liftPresetString = "Mid Pivot";
             break;
         case LiftPreset::TRAVEL:
             liftPresetString = "Travel";

@@ -72,7 +72,7 @@ void Grabber::process() {
     }
 
     if (currentAction == Action::INTAKE) {
-        leftIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, INTAKE_SPEED;
+        leftIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, INTAKE_SPEED);
         rightIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, -INTAKE_SPEED);
         // If the intake sensor is triggered, we have intaked a GamePiece.
         if (intakeSensor.Get()) {
