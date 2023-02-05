@@ -20,7 +20,8 @@ Grabber::Grabber()
         HardwareManager::IOMap::PCM_GRABBER_WRIST_EXTEND,
         HardwareManager::IOMap::PCM_GRABBER_WRIST_RETRACT)
    {
-  
+
+    configureMotors();
 }
 
 Grabber::~Grabber() {
@@ -50,7 +51,7 @@ void Grabber::process() {
     if (placingGamePiece) {
         // Cube: Outake for 0.5 seconds, then stop.
         if (gamePieceType == GamePieceType::CUBE) {
-            if (placingGamePieceTimer.Get() >= 0.5_s) {
+            if (placingGamePieceTimer.Get() >= 2_s) {
                 placingGamePiece = false;
                 setAction(Action::IDLE);
                 gamePieceType = GamePieceType::NONE;
@@ -81,14 +82,13 @@ void Grabber::process() {
             }
             else {
                 gamePieceType = GamePieceType::CONE;
+                currentPosition = Position::AJAR;
             }
         }
     } 
     else if (currentAction == Action::OUTTAKE) {
         leftIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, -INTAKE_SPEED);
         rightIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, INTAKE_SPEED);
-        // No more GamePiece.
-        gamePieceType = GamePieceType::NONE;
     } 
     else if (currentAction == Action::IDLE) {
         // Stop the motors.

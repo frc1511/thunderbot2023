@@ -1,11 +1,13 @@
 #pragma once
 
 #include <Wrappers/GameController/PS4Controller.h>
+#include <Wrappers/GameController/PS5Controller.h>
 #include <Wrappers/GameController/XboxController.h>
 
 #include <Wrappers/MotorController/CANMotorController.h>
 #include <Wrappers/MotorController/Rev/CANSparkMax.h>
 #include <Wrappers/MotorController/CTRE/CANTalonFX.h>
+#include <Wrappers/MotorController/CTRE/CANTalonSRX.h>
 
 #include <Wrappers/MagneticEncoder/CANMagneticEncoder.h>
 #include <Wrappers/MagneticEncoder/CTRE/CANCoder.h>
@@ -42,13 +44,14 @@ public:
     using SwerveTurningMotor = ThunderCANMotorController;
     using SwerveTurningEncoder = ThunderCANMagneticEncoder;
     using DriveIMU = ThunderIMU;
-    using GrabberIntakeMotor = ThunderCANMotorController;
-    using LiftExtensionMotor = ThunderCANMotorController;
-    using LiftPivotMotor = ThunderCANMotorController;
+    using GrabberIntakeMotor = ThunderCANTalonSRX;
+    using LiftExtensionMotor = ThunderCANSparkMax;
+    using LiftLeftPivotMotor = ThunderCANSparkMax;
+    using LiftRightPivotMotor = ThunderCANMotorController;
 
 #endif
 
     // Game controller types.
-    using DriveGameController = ThunderPS4Controller;
-    using AuxGameController = ThunderPS4Controller;
+    using DriveGameController = ThunderPS5Controller;
+    using AuxGameController = ThunderPS5Controller;
 };

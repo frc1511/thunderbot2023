@@ -223,7 +223,14 @@ void Controls::doAux() {
     bool liftMid = auxController.GetPOV() == 90;
     bool liftLow = auxController.GetPOV() == 180;
     bool justPivot = auxController.GetRawButton(AuxButton::LEFT_BUMPER);
-    bool score = auxController.GetRawAxis(AuxAxis::LEFT_TRIGGER) > AXIS_DEADZONE;
+    bool score = false;
+    bool shouldScore = auxController.GetRawAxis(AuxAxis::LEFT_TRIGGER) > AXIS_DEADZONE;
+
+    if (shouldScore) {
+        score = !wasScoring;
+    }
+    wasScoring = shouldScore;
+
     bool intake = auxController.GetRawAxis(AuxAxis::RIGHT_TRIGGER) > AXIS_DEADZONE;
     bool outtake = auxController.GetRawButton(AuxButton::RIGHT_BUMPER);
     bool overrideGamePiece = auxController.GetRawButtonPressed(AuxButton::SHARE);
@@ -343,7 +350,11 @@ void Controls::doAuxManual() {
         gamePiece->setGrabberPosition(Grabber::Position::OPEN);
     }
 
-    gamePiece->setWrist(wristTipped);
+    if (wristTipped){
+        manualWrist = !manualWrist;
+    }
+
+    gamePiece->setWrist(manualWrist);
 
     if (intake) {
         gamePiece->setGrabberAction(Grabber::Action::INTAKE);
@@ -353,10 +364,10 @@ void Controls::doAuxManual() {
         gamePiece->setGrabberAction(Grabber::Action::IDLE);
     }
 
-    if (pivotLift < AXIS_DEADZONE) {
+    if (std::fabs(pivotLift) < AXIS_DEADZONE) {
         pivotLift = 0;
     }
-    if (extendLift < AXIS_DEADZONE) {
+    if (std::fabs(extendLift) < AXIS_DEADZONE) {
         extendLift = 0;
     }
 

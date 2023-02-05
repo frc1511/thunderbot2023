@@ -32,6 +32,8 @@ private:
     bool driveLockX = false;
     bool manualAux = false;
 
+    bool wasScoring = false;
+
     bool driveAligning = false;
 
     bool driveRobotCentric = false;
@@ -40,6 +42,8 @@ private:
     bool driveRecording = false;
     bool driveAbsRotation = false;
     units::radian_t driveAbsAngle = 0_deg;
+
+    bool manualWrist = false;
 
 
 };

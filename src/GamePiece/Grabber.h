@@ -5,6 +5,7 @@
 #include <Hardware/HardwareManager.h>
 #include <frc/DigitalInput.h>
 #include <frc/DoubleSolenoid.h>
+#include <frc/Solenoid.h>
 
 class Grabber : public Mechanism {
 public:

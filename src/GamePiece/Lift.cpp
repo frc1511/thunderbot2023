@@ -10,14 +10,14 @@
 #define ENCODER_TOLERANCE 0.1
 #define PIVOT_POINT_HEIGHT 0.5_m
 
-#define MIN_PIVOT_ANGLE -20_deg
-#define MAX_PIVOT_ANGLE 45_deg
+#define MIN_PIVOT_ANGLE -30_deg
+#define MAX_PIVOT_ANGLE 40_deg
 #define MAX_PIVOT_ENCODER 100
-#define MAX_EXTENSION_LENGTH 4_ft
+#define MAX_EXTENSION_LENGTH 42_in
 #define MAX_EXTENSION_ENCODER 100
 
 #define MANUAL_PIVOT_SPEED_COEFF 0.5
-#define MANUAL_EXTENSION_SPEED_COEFF 0.
+#define MANUAL_EXTENSION_SPEED_COEFF 0.5
 
 // The max amperage of the pivot and extension motors.
 #define PIVOT_MAX_AMPERAGE 40_A
@@ -43,6 +43,7 @@ Lift::Lift()
   homeSensor(HardwareManager::IOMap::DIO_LIFT_HOME),
   extensionSensor(HardwareManager::IOMap::DIO_LIFT_EXTENSION) {
 
+    configureMotors();
 }
 
 Lift::~Lift() {
@@ -57,6 +58,14 @@ void Lift::resetToMode(MatchMode mode) {
     extensionMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, 0);
     pivotMotorLeft.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, 0);
     pivotMotorRight.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, 0);
+
+    if (!(mode == Mechanism::MatchMode::DISABLED && getLastMode() == Mechanism::MatchMode::AUTO)
+     && !(mode == Mechanism::MatchMode::TELEOP && getLastMode() == Mechanism::MatchMode::DISABLED)) {
+        // Stuff to reset normally.
+        extensionMotor.setEncoderPosition(0);
+        pivotMotorLeft.setEncoderPosition(0);
+        pivotMotorRight.setEncoderPosition(0);
+    }
 }
 
 void Lift::doPersistentConfiguration() {
@@ -118,8 +127,7 @@ void Lift::process() {
 }
 
 void Lift::setManualPivotSpeed(double speed) {
-    speed *= MANUAL_PIVOT_SPEED_COEFF;
-    manualPivotSpeed = speed;
+    manualPivotSpeed = speed * MANUAL_PIVOT_SPEED_COEFF;
     controlType = ControlType::MANUAL;
 
     positionalAngle = -1_deg;
@@ -127,8 +135,7 @@ void Lift::setManualPivotSpeed(double speed) {
 }
 
 void Lift::setManualExtensionSpeed(double speed) {
-    speed *= MANUAL_EXTENSION_SPEED_COEFF;
-    manualExtensionSpeed = speed;
+    manualExtensionSpeed = speed * MANUAL_EXTENSION_SPEED_COEFF;
     controlType = ControlType::MANUAL;
 
     positionalAngle = -1_deg;
@@ -213,6 +220,9 @@ void Lift::sendFeedback() {
     frc::SmartDashboard::PutNumber("Lift_EncoderExtension", extensionPosition);
     frc::SmartDashboard::PutNumber("Lift_EncoderPivotLeft", pivotLeftPosition);
     frc::SmartDashboard::PutNumber("Lift_EncoderPivotRight", pivotRightPosition);
+
+    frc::SmartDashboard::PutNumber("Lift_ManualPivotSpeed", manualPivotSpeed);
+    frc::SmartDashboard::PutNumber("Lift_ManualExtensionSpeed", manualExtensionSpeed);
 
     // End Effector Position
     double extensionPercent = extensionPosition / MAX_EXTENSION_ENCODER;

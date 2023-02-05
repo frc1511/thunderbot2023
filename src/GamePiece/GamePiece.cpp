@@ -20,11 +20,9 @@ void GamePiece::doPersistentConfiguration() {
 }
 
 void GamePiece::process() {
-    if (grabber->getAction() == Grabber::Action::INTAKE) {
-        if (getGamePieceType() != Grabber::GamePieceType::NONE) {
-            if (liftPreset == LiftPreset::GROUND) {
-                setLiftPreset(LiftPreset::TRAVEL);
-            }
+    if (getGamePieceType() != Grabber::GamePieceType::NONE) {
+        if (liftPreset == LiftPreset::INTAKE || liftPreset == LiftPreset::INTAKE_FUNKY) {
+            setLiftPreset(LiftPreset::TRAVEL);
         }
     }
 
@@ -33,10 +31,12 @@ void GamePiece::process() {
             // We don't want the grabber to hit the ground, so when the wrist is tipped the lowest preset is the 'INTAKE_FUNKY' preset.
             if (liftPreset == LiftPreset::INTAKE) {
                 setLiftPreset(LiftPreset::INTAKE_FUNKY);
+                grabber->setWristPosition(false);
             }
-
-            // Only move the wrist if the lift is at the correct position.
-            grabber->setWristPosition(lift->isAtPosition());
+            else {
+                // Only move the wrist if the lift is at the correct position.
+                grabber->setWristPosition(lift->isAtPosition() && liftPreset == LiftPreset::INTAKE_FUNKY);
+            }
         }
         else {
             grabber->setWristPosition(false);
@@ -75,6 +75,10 @@ void GamePiece::setManualExtensionSpeed(double speed) {
 
 void GamePiece::setGrabberAction(Grabber::Action action) {
     grabber->setAction(action);
+
+    if (action == Grabber::Action::OUTTAKE) {
+        grabber->overrideHasGamePiece();
+    }
 }
 
 void GamePiece::setGrabberPosition(Grabber::Position position) {

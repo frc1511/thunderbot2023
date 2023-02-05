@@ -48,8 +48,8 @@ private:
     HardwareManager::LiftExtensionMotor extensionMotor;
 
     // Motors for pivoting the lift arm (lead screw).
-    HardwareManager::LiftPivotMotor pivotMotorLeft;
-    HardwareManager::LiftPivotMotor pivotMotorRight;
+    HardwareManager::LiftLeftPivotMotor pivotMotorLeft;
+    HardwareManager::LiftRightPivotMotor pivotMotorRight;
 
     // Sensor detecting if the lift is at the home position.
     frc::DigitalInput homeSensor;
