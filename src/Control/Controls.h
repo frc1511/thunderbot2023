@@ -22,8 +22,8 @@ public:
 private:
     Drive* drive;
     GamePiece* gamePiece;
-    frc::GenericHID driveController {0};
-    frc::GenericHID auxController {1};
+    HardwareManager::DriveGameController driveController { ThunderGameController::Controller::DRIVER };
+    HardwareManager::AuxGameController auxController { ThunderGameController::Controller::AUX };
     frc::GenericHID switchPanel {2};
     void doDrive();
     void doAux();

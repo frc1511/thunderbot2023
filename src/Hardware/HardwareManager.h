@@ -37,7 +37,8 @@ public:
     using DriveIMU = ThunderADIS16470IMU;
     using GrabberIntakeMotor = ThunderCANSparkMax;
     using LiftExtensionMotor = ThunderCANSparkMax;
-    using LiftPivotMotor = ThunderCANSparkMax;
+    using LiftLeftPivotMotor = ThunderCANSparkMax;
+    using LiftRightPivotMotor = ThunderCANSparkMax;
 
 #elif WHICH_ROBOT == TEST_BOARD
     using SwerveDriveMotor = ThunderCANMotorController;

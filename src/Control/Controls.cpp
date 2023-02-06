@@ -30,8 +30,8 @@ void Controls::processInDisabled() {
 
     using DriveButton = HardwareManager::DriveGameController::Button;
 
-    bool resetOdometry = driveController.GetRawButtonPressed(DriveButton::OPTIONS);
-    bool calIMU = driveController.GetRawButtonPressed(DriveButton::SHARE);
+    bool resetOdometry = driveController.getButton(DriveButton::OPTIONS, ThunderGameController::ButtonState::PRESSED);
+    bool calIMU = driveController.getButton(DriveButton::SHARE, ThunderGameController::ButtonState::PRESSED);
 
     if (resetOdometry) {
         drive->resetOdometry();
@@ -49,32 +49,32 @@ bool Controls::getShouldPersistConfig() {
     using AuxButton = HardwareManager::AuxGameController::Button;
 
     return settings.isCraterMode
-        && driveController.GetRawButton(DriveButton::TRIANGLE) && driveController.GetPOV() == 180
-        && auxController.GetRawButton(AuxButton::CROSS) && auxController.GetPOV() == 0;
+        && driveController.getButton(DriveButton::TRIANGLE) && driveController.getDPad() == ThunderGameController::DPad::DOWN
+        && auxController.getButton(AuxButton::CROSS) && auxController.getDPad() == ThunderGameController::DPad::UP;
 }
 
 void Controls::doDrive() {
     using DriveButton = HardwareManager::DriveGameController::Button;
     using DriveAxis = HardwareManager::DriveGameController::Axis;
 
-    bool brickDrive = driveController.GetRawButton(DriveButton::CROSS);
+    bool brickDrive = driveController.getButton(DriveButton::CROSS);
     
-    bool toggleRotation = driveController.GetRawButtonPressed(DriveButton::TRIANGLE);
-    double xVel = driveController.GetRawAxis(DriveAxis::LEFT_X);
-    double yVel = driveController.GetRawAxis(DriveAxis::LEFT_Y);
-    double angVel = driveController.GetRawAxis(DriveAxis::RIGHT_X);
-    bool xySlowMode = driveController.GetRawButton(DriveButton::LEFT_BUMPER);
-    bool angSlowMode = driveController.GetRawButton(DriveButton::RIGHT_BUMPER);
+    bool toggleRotation = driveController.getButton(DriveButton::TRIANGLE, ThunderGameController::ButtonState::PRESSED);
+    double xVel = driveController.getAxis(DriveAxis::LEFT_X);
+    double yVel = driveController.getAxis(DriveAxis::LEFT_Y);
+    double angVel = driveController.getAxis(DriveAxis::RIGHT_X);
+    bool xySlowMode = driveController.getButton(DriveButton::LEFT_BUMPER);
+    bool angSlowMode = driveController.getButton(DriveButton::RIGHT_BUMPER);
 
-    double xAng = driveController.GetRawAxis(DriveAxis::RIGHT_X);
-    double yAng = driveController.GetRawAxis(DriveAxis::RIGHT_Y);
+    double xAng = driveController.getAxis(DriveAxis::RIGHT_X);
+    double yAng = driveController.getAxis(DriveAxis::RIGHT_Y);
 
-    bool resetOdometry = driveController.GetRawButtonPressed(DriveButton::OPTIONS);
-    bool calIMU = driveController.GetRawButtonPressed(DriveButton::SHARE);
+    bool resetOdometry = driveController.getButton(DriveButton::OPTIONS, ThunderGameController::ButtonState::PRESSED);
+    bool calIMU = driveController.getButton(DriveButton::SHARE, ThunderGameController::ButtonState::PRESSED);
 
-    int dpad = driveController.GetPOV();
+    ThunderGameController::DPad dpad = driveController.getDPad();
 
-    if (driveController.GetRawButtonPressed(DriveButton::LEFT_STICK)) {
+    if (driveController.getButton(DriveButton::LEFT_STICK, ThunderGameController::ButtonState::PRESSED)) {
         driveLockX = !driveLockX;
     }
 
@@ -119,18 +119,18 @@ void Controls::doDrive() {
     }
 
     switch (dpad) {
-        case 0:
-        case 180:
+        case ThunderGameController::DPad::NONE:
+        case ThunderGameController::DPad::DOWN:
             // Align center.
             driveAligning = true;
             drive->alignToGrid(Drive::AlignmentDirection::CENTER);
             break;
-        case 90:
+        case ThunderGameController::DPad::RIGHT:
             // Align right.
             driveAligning = true;
             drive->alignToGrid(Drive::AlignmentDirection::RIGHT);
             break;
-        case 270:
+        case ThunderGameController::DPad::LEFT:
             // Align left.
             driveAligning = true;
             drive->alignToGrid(Drive::AlignmentDirection::LEFT);
@@ -216,24 +216,24 @@ void Controls::doAux() {
 
     // Regular Aux controls.
 
-    bool prepareCone = auxController.GetRawButtonPressed(AuxButton::TRIANGLE);
-    bool prepareCube = auxController.GetRawButtonPressed(AuxButton::SQUARE);
-    bool prepareTippedCone = auxController.GetRawButtonPressed(AuxButton::CIRCLE);
-    bool liftHigh = auxController.GetPOV() == 0;
-    bool liftMid = auxController.GetPOV() == 90;
-    bool liftLow = auxController.GetPOV() == 180;
-    bool justPivot = auxController.GetRawButton(AuxButton::LEFT_BUMPER);
+    bool prepareCone = auxController.getButton(AuxButton::TRIANGLE, ThunderGameController::ButtonState::PRESSED);
+    bool prepareCube = auxController.getButton(AuxButton::SQUARE, ThunderGameController::ButtonState::PRESSED);
+    bool prepareTippedCone = auxController.getButton(AuxButton::CIRCLE, ThunderGameController::ButtonState::PRESSED);
+    bool liftHigh = auxController.getDPad() == ThunderGameController::DPad::UP;
+    bool liftMid = auxController.getDPad() == ThunderGameController::DPad::RIGHT;
+    bool liftLow = auxController.getDPad() == ThunderGameController::DPad::LEFT;
+    bool justPivot = auxController.getButton(AuxButton::LEFT_BUMPER);
     bool score = false;
-    bool shouldScore = auxController.GetRawAxis(AuxAxis::LEFT_TRIGGER) > AXIS_DEADZONE;
+    bool shouldScore = auxController.getAxis(AuxAxis::LEFT_TRIGGER) > AXIS_DEADZONE;
 
     if (shouldScore) {
         score = !wasScoring;
     }
     wasScoring = shouldScore;
 
-    bool intake = auxController.GetRawAxis(AuxAxis::RIGHT_TRIGGER) > AXIS_DEADZONE;
-    bool outtake = auxController.GetRawButton(AuxButton::RIGHT_BUMPER);
-    bool overrideGamePiece = auxController.GetRawButtonPressed(AuxButton::SHARE);
+    bool intake = auxController.getAxis(AuxAxis::RIGHT_TRIGGER) > AXIS_DEADZONE;
+    bool outtake = auxController.getButton(AuxButton::RIGHT_BUMPER);
+    bool overrideGamePiece = auxController.getButton(AuxButton::SHARE, ThunderGameController::ButtonState::PRESSED);
     
     // If we have a GamePiece, we don't want to prepare to grab another one.
     if (gamePiece->getGamePieceType() != Grabber::GamePieceType::NONE) {
@@ -332,15 +332,15 @@ void Controls::doAuxManual() {
 
     // Manual Aux controls.
 
-    bool agape = auxController.GetRawButtonPressed(AuxButton::TRIANGLE);
-    bool ajar = auxController.GetRawButtonPressed(AuxButton::CIRCLE);
-    bool open = auxController.GetRawButtonPressed(AuxButton::SQUARE);
-    bool outake = auxController.GetRawButton(AuxButton::RIGHT_BUMPER);
-    bool intake = auxController.GetRawAxis(AuxAxis::RIGHT_TRIGGER) > AXIS_DEADZONE;
-    bool wristTipped = auxController.GetRawButtonPressed(AuxButton::CROSS);
+    bool agape = auxController.getButton(AuxButton::TRIANGLE, ThunderGameController::ButtonState::PRESSED);
+    bool ajar = auxController.getButton(AuxButton::CIRCLE, ThunderGameController::ButtonState::PRESSED);
+    bool open = auxController.getButton(AuxButton::SQUARE, ThunderGameController::ButtonState::PRESSED);
+    bool outake = auxController.getButton(AuxButton::RIGHT_BUMPER);
+    bool intake = auxController.getAxis(AuxAxis::RIGHT_TRIGGER) > AXIS_DEADZONE;
+    bool wristTipped = auxController.getButton(AuxButton::CROSS, ThunderGameController::ButtonState::PRESSED);
 
-    double pivotLift = -auxController.GetRawAxis(AuxAxis::RIGHT_Y);
-    double extendLift = -auxController.GetRawAxis(AuxAxis::LEFT_Y);
+    double pivotLift = -auxController.getAxis(AuxAxis::RIGHT_Y);
+    double extendLift = -auxController.getAxis(AuxAxis::LEFT_Y);
 
     if (agape) {
         gamePiece->setGrabberPosition(Grabber::Position::AGAPE);
