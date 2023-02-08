@@ -97,6 +97,26 @@ void GamePiece::placeGamePiece() {
     grabber->placeGamePiece();
 }
 
+void GamePiece::setGamePiece(Grabber::GamePieceType type) {
+    grabber->setGamePiece(type);
+}
+
+bool GamePiece::liftAtPosition() {
+    return lift->isAtPosition();
+}
+
+bool GamePiece::isFinishedScoring() {
+    return grabber->isPlacingGamePiece();
+}
+
+bool GamePiece::isFinishedIntaking() {
+    return grabber->isFinishedIntaking();
+}
+
+void GamePiece::intakeGamePiece() {
+    grabber->intakeGamePiece();
+}
+
 void GamePiece::sendFeedback() {
     std::string liftPresetString = "";
 

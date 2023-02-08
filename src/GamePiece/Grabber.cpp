@@ -55,8 +55,7 @@ void Grabber::process() {
                 placingGamePiece = false;
                 setAction(Action::IDLE);
                 gamePieceType = GamePieceType::NONE;
-            }
-            else {
+            } else {
                 setAction(Action::OUTTAKE);
             }
         }
@@ -71,7 +70,18 @@ void Grabber::process() {
             placingGamePiece = false;
         }
     }
+   //is it finishing intake, check the timer and then stop when the timer runs out
+    else if (intaking) {
+        if (intakingTimer.Get() >= 2_s) {
+            intaking = false;
+            setAction(Action::IDLE);   
+        } else {
+            //continues to run motors during the timer
+            setAction(Action::INTAKE);
+        }
+    }
 
+    //if it is intaking, check sensors and set motors and things
     if (currentAction == Action::INTAKE) {
         leftIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, INTAKE_SPEED);
         rightIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, -INTAKE_SPEED);
@@ -120,9 +130,11 @@ void Grabber::process() {
         wristPiston.Set(frc::DoubleSolenoid::Value::kReverse);
     }
 }
+
 void Grabber::setWristPosition(bool _tipped){
     tipped = _tipped;
 }
+
 void Grabber::setAction(Action action) {
     currentAction = action;
 }
@@ -139,6 +151,12 @@ Grabber::GamePieceType Grabber::getGamePieceType() {
     return gamePieceType;
 }
 
+void Grabber::intakeGamePiece() {
+    intaking = true;
+    intakingTimer.Reset();
+    intakingTimer.Start();
+}
+
 void Grabber::overrideHasGamePiece() {
     gamePieceType = GamePieceType::NONE;
     placingGamePiece = false;
@@ -148,6 +166,18 @@ void Grabber::placeGamePiece() {
     placingGamePiece = true;
     placingGamePieceTimer.Reset();
     placingGamePieceTimer.Start();
+}
+
+bool Grabber::isPlacingGamePiece() {
+    return placingGamePiece;
+}
+
+void Grabber::setGamePiece(Grabber::GamePieceType type) {
+    gamePieceType = type;
+}
+
+bool Grabber::isFinishedIntaking() {
+    return !intaking;
 }
 
 void Grabber::configureMotors() {

@@ -44,13 +44,22 @@ public:
     GamePieceType getGamePieceType();
     void overrideHasGamePiece();
     void placeGamePiece();
+    void setGamePiece(Grabber::GamePieceType gamePieceType);
+    bool isPlacingGamePiece();
+    void startIntaking();
+    bool isFinishedIntaking();
+    void intakeGamePiece();
+
 
 private:
     Action currentAction;
     Position currentPosition;
     GamePieceType gamePieceType;
     bool placingGamePiece;
+    bool intaking;
+   // void intakingGamePiece;
     frc::Timer placingGamePieceTimer;
+    frc::Timer intakingTimer;
     HardwareManager::GrabberIntakeMotor leftIntakeMotor;
     HardwareManager::GrabberIntakeMotor rightIntakeMotor;
     frc::DigitalInput intakeSensor;

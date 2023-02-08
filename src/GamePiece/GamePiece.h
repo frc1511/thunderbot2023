@@ -63,6 +63,16 @@ public:
     // Performs the actions to place a GamePiece on the aligned grid node.
     void placeGamePiece();
 
+    bool liftAtPosition();
+
+    void setGamePiece(Grabber::GamePieceType gamePieceType);
+
+    bool isFinishedScoring();
+
+    void intakeGamePiece();
+
+    bool isFinishedIntaking();
+
 private:
     Grabber* grabber;
     Lift* lift;
