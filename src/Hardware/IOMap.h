@@ -23,8 +23,18 @@
 // I/O ID for missing devices.
 #define IO_MISSING -1
 
+class IOMap {
+public:
+    enum {
+        // Network Ports
+        NET_PS5_DRIVER = 5809,
+        NET_PS5_AUX = 5810,
+        NET_ROLLING_RASPBERRY = 5800,
+    };
+};
+
 // I/O Map for the 2023 robot.
-class IOMap2023 {
+class IOMap2023 : public IOMap {
 public:
     enum {
         // CAN
@@ -72,7 +82,7 @@ public:
 };
 
 // I/O Map for the 2022 robot (select devices for testing).
-class IOMap2022 {
+class IOMap2022 : public IOMap {
 public:
     enum {
         // CAN
@@ -120,7 +130,7 @@ public:
 };
 
 // I/O Map for the test board (select devices for testing).
-class IOMapTestBoard {
+class IOMapTestBoard : public IOMap {
 public:
     enum {
         // CAN
