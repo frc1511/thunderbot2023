@@ -4,7 +4,7 @@
 // The max amperage of the intake motors.
 #define INTAKE_MAX_AMPERAGE 20_A
 
-#define INTAKE_SPEED 0.2
+#define INTAKE_SPEED 0.4
 
 Grabber::Grabber() 
 : leftIntakeMotor(HardwareManager::IOMap::CAN_GRABBER_INTAKE_LEFT),
@@ -84,9 +84,9 @@ void Grabber::process() {
     //if it is intaking, check sensors and set motors and things
     if (currentAction == Action::INTAKE) {
         leftIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, INTAKE_SPEED);
-        rightIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, -INTAKE_SPEED);
+        rightIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, INTAKE_SPEED);
         // If the intake sensor is triggered, we have intaked a GamePiece.
-        if (intakeSensor.Get()) {
+        if (!intakeSensor.Get()) {
             if (currentPosition == Position::OPEN) {
                 gamePieceType = GamePieceType::CUBE;
             }
@@ -98,7 +98,7 @@ void Grabber::process() {
     } 
     else if (currentAction == Action::OUTTAKE) {
         leftIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, -INTAKE_SPEED);
-        rightIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, INTAKE_SPEED);
+        rightIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, -INTAKE_SPEED);
     } 
     else if (currentAction == Action::IDLE) {
         // Stop the motors.

@@ -12,9 +12,9 @@
 #define TEST_BOARD 1
 
 // Which robot to build the robot code for.
-#define WHICH_ROBOT 2023 // 2023 Robot.
+// #define WHICH_ROBOT 2023 // 2023 Robot.
 // #define WHICH_ROBOT 2022 // 2022 Robot.
-// #define WHICH_ROBOT TEST_BOARD // Test board
+#define WHICH_ROBOT TEST_BOARD // Test board
 
 #ifndef WHICH_ROBOT
 # error No Robot Specified
@@ -28,7 +28,7 @@ public:
     enum {
         // Network Ports
         NET_PS5_DRIVER = 5809,
-        NET_PS5_AUX = 5810,
+        NET_PS5_AUX = 5808,
         NET_ROLLING_RASPBERRY = 5800,
     };
 };
@@ -149,28 +149,28 @@ public:
         CAN_SWERVE_ROT_CAN_CODER_BR = IO_MISSING,
         CAN_SWERVE_ROT_CAN_CODER_FR = IO_MISSING,
 
-        CAN_GRABBER_INTAKE_LEFT  = 2,
-        CAN_GRABBER_INTAKE_RIGHT = 8,
+        CAN_GRABBER_INTAKE_LEFT  = 9,
+        CAN_GRABBER_INTAKE_RIGHT = 10,
 
-        CAN_LIFT_EXTENSION   = 9,
-        CAN_LIFT_PIVOT_LEFT  = 10,
+        CAN_LIFT_EXTENSION   = 2,
+        CAN_LIFT_PIVOT_LEFT  = 8,
         CAN_LIFT_PIVOT_RIGHT = IO_MISSING,
 
         // PWM
         PWM_BLINKY_BLINKY = IO_MISSING,
 
         // DIO
-        DIO_GRABBER_INTAKE = 5,
+        DIO_GRABBER_INTAKE = 4,
         DIO_LIFT_HOME      = 1,
         DIO_LIFT_EXTENSION = 0,
 
         // SPI
 
         // PCM
-        PCM_GRABBER_PISTON_1_EXTEND  = 2,
-        PCM_GRABBER_PISTON_1_RETRACT = 5,
-        PCM_GRABBER_PISTON_2_EXTEND  = 3,
-        PCM_GRABBER_PISTON_2_RETRACT = 4,
+        PCM_GRABBER_PISTON_1_EXTEND  = 5,
+        PCM_GRABBER_PISTON_1_RETRACT = 2,
+        PCM_GRABBER_PISTON_2_EXTEND  = 4,
+        PCM_GRABBER_PISTON_2_RETRACT = 3,
         
         PCM_GRABBER_WRIST_EXTEND  = 6,
         PCM_GRABBER_WRIST_RETRACT = 1,

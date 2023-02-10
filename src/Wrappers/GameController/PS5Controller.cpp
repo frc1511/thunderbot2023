@@ -99,17 +99,17 @@ double ThunderPS5Controller::getAxis(int _axis) {
 
     switch (axis) {
         case LEFT_X:
-            return inputState.axisLeftX;
+            return static_cast<double>(inputState.axisLeftX) / 0xFF - 0x80;
         case LEFT_Y:
-            return inputState.axisLeftY;
+            return static_cast<double>(inputState.axisLeftY) / 0xFF - 0x80;
         case RIGHT_X:
-            return inputState.axisRightX;
+            return static_cast<double>(inputState.axisRightX) / 0xFF - 0x80;
         case RIGHT_Y:
-            return inputState.axisRightY;
+            return static_cast<double>(inputState.axisRightY) / 0xFF - 0x80;
         case LEFT_TRIGGER:
-            return inputState.axisLeftTrigger;
+            return static_cast<double>(inputState.axisLeftTrigger) / 0xFF;
         case RIGHT_TRIGGER:
-            return inputState.axisRightTrigger;
+            return static_cast<double>(inputState.axisRightTrigger) / 0xFF;
     }
 
     return 0.0;
@@ -239,7 +239,7 @@ SOCKET_CREATE:
 SOCKET_BIND:
     // Bind the address to the socket.
     if (bind(serverFD, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
-        fmt::print("BIG PROBLEM: Failed to bind socket: {}\n", strerror(errno));
+        fmt::print("BIG PROBLEM: Failed to bind socket to port {}: {}\n", (int)(controller == Controller::DRIVER ? HardwareManager::IOMap::NET_PS5_DRIVER : HardwareManager::IOMap::NET_PS5_AUX), strerror(errno));
         std::this_thread::sleep_for(0.1s);
         goto SOCKET_BIND;
     }

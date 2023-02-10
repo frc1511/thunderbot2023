@@ -12,19 +12,19 @@ D:
 
     if (is2023) {
         #if WHICH_ROBOT != 2023
-            fmt::print("Boom! 2023 Build not running on 2023 robot\n");
+            fmt::print("Boom! 2023 robot is not running 2023 code!! D:\n");
             exit(-1);
         #endif
     }
     if (is2022) {
         #if WHICH_ROBOT != 2022
-            fmt::print("Boom! 2022 Build not running on 2022 robot\n");
+            fmt::print("Boom! 2022 robot is not running 2022 code!! D:\n");
             exit(-1);
         #endif
     }
     if (isTest) {
         #if WHICH_ROBOT != TEST_BOARD
-            fmt::print("Boom! Test Build not running on test board\n");
+            fmt::print("Boom! Test board is not running Test Board code!! D:\n");
             exit(-1);
         #endif
     }
