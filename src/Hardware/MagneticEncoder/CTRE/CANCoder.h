@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Wrappers/MagneticEncoder/CANMagneticEncoder.h>
+#include <Hardware/MagneticEncoder/CANMagneticEncoder.h>
 #include <ctre/phoenix/sensors/CANCoder.h>
 
 class ThunderCANCoder : public ThunderCANMagneticEncoder {

@@ -1,4 +1,4 @@
-#include <Wrappers/GameController/GenericHIDGameController.h>
+#include <Hardware/GameController/GenericHIDGameController.h>
 
 ThunderGenericHIDGameController::ThunderGenericHIDGameController(Controller whichController)
 : ThunderGameController(whichController), controller(whichController == Controller::AUX) { }

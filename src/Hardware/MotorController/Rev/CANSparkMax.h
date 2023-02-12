@@ -1,12 +1,13 @@
 #pragma once
 
-#include <Wrappers/MotorController/CANMotorController.h>
-#include <ctre/Phoenix.h>
+#include <Hardware/MotorController/CANMotorController.h>
+#include <Rev/CANSparkMax.h>
+#include <optional>
 
-class ThunderCANTalonFX : public ThunderCANMotorController {
+class ThunderCANSparkMax : public ThunderCANMotorController {
 public:
-    ThunderCANTalonFX(int canID);
-    ~ThunderCANTalonFX();
+    ThunderCANSparkMax(int canID);
+    ~ThunderCANSparkMax();
 
     Vendor getVendor() const;
     int set(ControlMode mode, double value);
@@ -38,5 +39,8 @@ public:
     void* getRawMotorController();
 
 private:
-    mutable ctre::phoenix::motorcontrol::can::TalonFX talon;
+    mutable rev::CANSparkMax sparkMax;
+    rev::SparkMaxRelativeEncoder encoder;
+    std::optional<rev::SparkMaxAlternateEncoder> alternateEncoder;
+    rev::SparkMaxPIDController pidController;
 };

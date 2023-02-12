@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Wrappers/GameController/GameController.h>
+#include <Hardware/GameController/GameController.h>
 #include <frc/GenericHID.h>
 
 class ThunderGenericHIDGameController : public ThunderGameController {

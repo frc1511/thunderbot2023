@@ -1,12 +1,12 @@
 #pragma once
 
-#include <Wrappers/MotorController/CANMotorController.h>
+#include <Hardware/MotorController/CANMotorController.h>
 #include <ctre/Phoenix.h>
 
-class ThunderCANTalonSRX : public ThunderCANMotorController {
+class ThunderCANTalonFX : public ThunderCANMotorController {
 public:
-    ThunderCANTalonSRX(int canID);
-    ~ThunderCANTalonSRX();
+    ThunderCANTalonFX(int canID);
+    ~ThunderCANTalonFX();
 
     Vendor getVendor() const;
     int set(ControlMode mode, double value);
@@ -38,5 +38,5 @@ public:
     void* getRawMotorController();
 
 private:
-    mutable ctre::phoenix::motorcontrol::can::TalonSRX talon;
+    mutable ctre::phoenix::motorcontrol::can::TalonFX talon;
 };

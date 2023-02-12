@@ -26,10 +26,9 @@
 class IOMap {
 public:
     enum {
-        // Network Ports
-        NET_PS5_DRIVER = 5809,
-        NET_PS5_AUX = 5808,
-        NET_ROLLING_RASPBERRY = 5800,
+        // TCP Network Ports
+        TCP_PS5_CONTROL = 5804,
+        TCP_ROLLING_RASPBERRY = 5802,
     };
 };
 

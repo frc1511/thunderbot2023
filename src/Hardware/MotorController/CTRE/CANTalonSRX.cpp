@@ -1,4 +1,4 @@
-#include <Wrappers/MotorController/CTRE/CANTalonSRX.h>
+#include <Hardware/MotorController/CTRE/CANTalonSRX.h>
 
 ThunderCANTalonSRX::ThunderCANTalonSRX(int canID)
 : ThunderCANMotorController(canID), talon(canID) { }

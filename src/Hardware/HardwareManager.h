@@ -1,19 +1,19 @@
 #pragma once
 
-#include <Wrappers/GameController/PS5Controller.h>
-#include <Wrappers/GameController/PS4Controller.h>
-#include <Wrappers/GameController/XboxController.h>
+#include <Hardware/GameController/PS5Controller.h>
+#include <Hardware/GameController/PS4Controller.h>
+#include <Hardware/GameController/XboxController.h>
 
-#include <Wrappers/MotorController/CANMotorController.h>
-#include <Wrappers/MotorController/Rev/CANSparkMax.h>
-#include <Wrappers/MotorController/CTRE/CANTalonFX.h>
-#include <Wrappers/MotorController/CTRE/CANTalonSRX.h>
+#include <Hardware/MotorController/CANMotorController.h>
+#include <Hardware/MotorController/Rev/CANSparkMax.h>
+#include <Hardware/MotorController/CTRE/CANTalonFX.h>
+#include <Hardware/MotorController/CTRE/CANTalonSRX.h>
 
-#include <Wrappers/MagneticEncoder/CANMagneticEncoder.h>
-#include <Wrappers/MagneticEncoder/CTRE/CANCoder.h>
+#include <Hardware/MagneticEncoder/CANMagneticEncoder.h>
+#include <Hardware/MagneticEncoder/CTRE/CANCoder.h>
 
-#include <Wrappers/IMU/IMU.h>
-#include <Wrappers/IMU/ADIS16470IMU.h>
+#include <Hardware/IMU/IMU.h>
+#include <Hardware/IMU/ADIS16470IMU.h>
 
 #include <Hardware/IOMap.h>
 

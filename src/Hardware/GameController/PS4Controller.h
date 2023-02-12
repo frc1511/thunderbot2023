@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Wrappers/GameController/GenericHIDGameController.h>
+#include <Hardware/GameController/GenericHIDGameController.h>
 
 class ThunderPS4Controller : public ThunderGenericHIDGameController {
 public:

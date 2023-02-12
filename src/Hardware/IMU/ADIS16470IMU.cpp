@@ -1,4 +1,4 @@
-#include <Wrappers/IMU/ADIS16470IMU.h>
+#include <Hardware/IMU/ADIS16470IMU.h>
 
 ThunderADIS16470IMU::ThunderADIS16470IMU()
 : imu() { }

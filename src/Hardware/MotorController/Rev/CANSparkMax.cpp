@@ -1,4 +1,4 @@
-#include <Wrappers/MotorController/Rev/CANSparkMax.h>
+#include <Hardware/MotorController/Rev/CANSparkMax.h>
 #include <cassert>
 
 ThunderCANSparkMax::ThunderCANSparkMax(int canID)

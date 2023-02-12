@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Wrappers/IMU/IMU.h>
+#include <Hardware/IMU/IMU.h>
 #include <frc/ADIS16470_IMU.h>
 
 class ThunderADIS16470IMU : public ThunderIMU {

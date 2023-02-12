@@ -4,6 +4,8 @@ class ThunderGameController {
 public:
     virtual ~ThunderGameController() { }
 
+    virtual void process() { }
+
     enum class Controller {
         DRIVER = 0,
         AUX = 1,
