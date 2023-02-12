@@ -218,50 +218,52 @@ void ThunderPS5Controller::threadMain() {
 
 SOCKET_CREATE:
     // Create server socket.
-    int serverFD = socket(AF_INET, SOCK_STREAM, 0);
-    if (!serverFD) {
+    int server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (!server_fd) {
         fmt::print("BIG PROBLEM: Failed to create socket: {}\n", strerror(errno));
         std::this_thread::sleep_for(1s);
         goto SOCKET_CREATE;
     }
 
     // Setup non-blocking I/O for the server socket.
-    int flags = fcntl(serverFD, F_GETFL, 0);
-    fcntl(serverFD, F_SETFL, flags | O_NONBLOCK);
+    int flags = fcntl(server_fd, F_GETFL, 0);
+    fcntl(server_fd, F_SETFL, flags | O_NONBLOCK);
 
     // hi jeff!
 
     // Create IP socket address.
-    struct sockaddr_in server_addr { AF_INET, htons(controller == Controller::DRIVER ? HardwareManager::IOMap::NET_PS5_DRIVER : HardwareManager::IOMap::NET_PS5_AUX), INADDR_ANY, {} };
-    // Set address zero padding.
+    struct sockaddr_in server_addr;
+    server_addr.sin_family = AF_INET,
+    server_addr.sin_port = htons(controller == Controller::DRIVER ? HardwareManager::IOMap::NET_PS5_DRIVER : HardwareManager::IOMap::NET_PS5_AUX);
+    server_addr.sin_addr = (in_addr)INADDR_ANY;
     std::memset(server_addr.sin_zero, 0, sizeof(server_addr.sin_zero));
 
 SOCKET_BIND:
     // Bind the address to the socket.
-    if (bind(serverFD, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
+    if (bind(server_fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
         fmt::print("BIG PROBLEM: Failed to bind socket to port {}: {}\n", (int)(controller == Controller::DRIVER ? HardwareManager::IOMap::NET_PS5_DRIVER : HardwareManager::IOMap::NET_PS5_AUX), strerror(errno));
-        std::this_thread::sleep_for(0.1s);
+        std::this_thread::sleep_for(0.5s);
         goto SOCKET_BIND;
     }
 
 SOCKET_LISTEN:
     // Listen for connections (backlog of 1 b/c we only need one connection).
-    if (listen(serverFD, 1) < 0) {
+    if (listen(server_fd, 1) < 0) {
         fmt::print("BIG PROBLEM: Failed to listen on socket: {}\n", strerror(errno));
-        std::this_thread::sleep_for(0.1s);
+        std::this_thread::sleep_for(0.5s);
         goto SOCKET_LISTEN;
     }
 
-    char inputBuf[sizeof(InputState)];
-    char outputBuf[sizeof(OutputState)];
+    char input_buf[sizeof(InputState)];
+    char output_buf[sizeof(OutputState)];
 
     struct sockaddr_in client_addr;
     socklen_t client_addr_len = sizeof(struct sockaddr_in);
 
 RETRY_CONNECTION:
     // Accept connection.
-    int clientFD = accept(serverFD, (struct sockaddr*)&client_addr, &client_addr_len);
-    if (clientFD < 0) {
+    int client_fd = accept(server_fd, (struct sockaddr*)&client_addr, &client_addr_len);
+    if (client_fd < 0) {
         if (errno == EAGAIN || errno == EWOULDBLOCK) {
             // No incoming connections.
         }
@@ -272,38 +274,37 @@ RETRY_CONNECTION:
     }
 
     // Setup non-blocking I/O for the client socket.
-    flags = fcntl(clientFD, F_GETFL, 0);
-    fcntl(clientFD, F_SETFL, flags | O_NONBLOCK);
+    flags = fcntl(client_fd, F_GETFL, 0);
+    fcntl(client_fd, F_SETFL, flags | O_NONBLOCK);
 
-    for (;;) {
+    while (true) {
         // Handle input.
-        ssize_t inputLen = read(clientFD, inputBuf, sizeof(inputBuf));
-        if (inputLen <= 0) {
-            if (errno == EAGAIN || errno == EWOULDBLOCK || !inputLen) {
+        if (read(client_fd, input_buf, sizeof(input_buf)) < 0) {
+            if (errno == EAGAIN || errno == EWOULDBLOCK) {
                 // No incoming data.
             }
             else if (errno == EBADF || errno == ECONNRESET) {
                 fmt::print("Client disconnected. Attempting to reconnect...\n");
-                close(clientFD);
+                close(client_fd);
                 goto RETRY_CONNECTION;
             }
             else {
                 fmt::print("read() failed: {}\n", strerror(errno));
-                close(clientFD);
+                close(client_fd);
                 goto RETRY_CONNECTION;
             }
         }
-
-        if (inputLen) {
-            InputState newInputState;
-            std::memcpy(&newInputState, inputBuf, sizeof(newInputState));
+        else {
+            InputState new_input_state;
+            std::memcpy(&new_input_state, input_buf, sizeof(new_input_state));
 
             {
                 std::lock_guard<std::mutex> lk(inputMutex);
                 lastInputState = inputState;
-                inputState = newInputState;
+                inputState = new_input_state;
             }
         }
+
 
         OutputState newOutputState;
         bool shouldOutput;
@@ -315,11 +316,11 @@ RETRY_CONNECTION:
         }
 
         if (shouldOutput) {
-            std::memcpy(outputBuf, &newOutputState, sizeof(newOutputState));
+            std::memcpy(output_buf, &newOutputState, sizeof(newOutputState));
 
 WRITE_OUTPUT:
             // Handle output.
-            ssize_t outputLen = write(clientFD, outputBuf, sizeof(outputBuf));
+            ssize_t outputLen = write(client_fd, output_buf, sizeof(output_buf));
             if (outputLen < 0) {
                 if (errno == EAGAIN || errno == EWOULDBLOCK) {
                     // Needs some time to write.
@@ -327,7 +328,7 @@ WRITE_OUTPUT:
                 }
                 else {
                     fmt::print("write() failed: {}\n", strerror(errno));
-                    close(clientFD);
+                    close(client_fd);
                     goto RETRY_CONNECTION;
                 }
             }

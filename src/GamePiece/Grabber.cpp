@@ -4,7 +4,7 @@
 // The max amperage of the intake motors.
 #define INTAKE_MAX_AMPERAGE 20_A
 
-#define INTAKE_SPEED 0.4
+#define INTAKE_SPEED 0.7
 
 Grabber::Grabber() 
 : leftIntakeMotor(HardwareManager::IOMap::CAN_GRABBER_INTAKE_LEFT),
@@ -51,7 +51,7 @@ void Grabber::process() {
     if (placingGamePiece) {
         // Cube: Outake for 0.5 seconds, then stop.
         if (gamePieceType == GamePieceType::CUBE) {
-            if (placingGamePieceTimer.Get() >= 2_s) {
+            if (placingGamePieceTimer.Get() >= 0.5_s) {
                 placingGamePiece = false;
                 setAction(Action::IDLE);
                 gamePieceType = GamePieceType::NONE;
@@ -70,29 +70,43 @@ void Grabber::process() {
             placingGamePiece = false;
         }
     }
-   //is it finishing intake, check the timer and then stop when the timer runs out
-    else if (intaking) {
-        if (intakingTimer.Get() >= 2_s) {
-            intaking = false;
+    else if (autoIntaking) {
+        if (autoIntakingTimer.Get() >= 0.5_s) {
+            autoIntaking = false;
             setAction(Action::IDLE);   
         } else {
             //continues to run motors during the timer
             setAction(Action::INTAKE);
         }
     }
+    else if (finishIntaking) {
+        if (finishIntakingTimer.Get() >= 0.5_s) {
+            finishIntaking = false;
+            setAction(Action::IDLE);   
 
-    //if it is intaking, check sensors and set motors and things
-    if (currentAction == Action::INTAKE) {
-        leftIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, INTAKE_SPEED);
-        rightIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, INTAKE_SPEED);
-        // If the intake sensor is triggered, we have intaked a GamePiece.
-        if (!intakeSensor.Get()) {
             if (currentPosition == Position::OPEN) {
                 gamePieceType = GamePieceType::CUBE;
             }
             else {
                 gamePieceType = GamePieceType::CONE;
-                currentPosition = Position::AJAR;
+                setPosition(Position::AJAR);
+            }
+        }
+        else {
+            setAction(Action::INTAKE);
+        }
+    }
+
+    //if it is autoIntaking, check sensors and set motors and things
+    if (currentAction == Action::INTAKE) {
+        leftIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, INTAKE_SPEED);
+        rightIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, INTAKE_SPEED);
+        // If the intake sensor is triggered, we have intaked a GamePiece.
+        if (!intakeSensor.Get()) {
+            if (!finishIntaking) {
+                finishIntakingTimer.Reset();
+                finishIntakingTimer.Start();
+                finishIntaking = true;
             }
         }
     } 
@@ -152,9 +166,9 @@ Grabber::GamePieceType Grabber::getGamePieceType() {
 }
 
 void Grabber::intakeGamePiece() {
-    intaking = true;
-    intakingTimer.Reset();
-    intakingTimer.Start();
+    autoIntaking = true;
+    autoIntakingTimer.Reset();
+    autoIntakingTimer.Start();
 }
 
 void Grabber::overrideHasGamePiece() {
@@ -177,7 +191,7 @@ void Grabber::setGamePiece(Grabber::GamePieceType type) {
 }
 
 bool Grabber::isFinishedIntaking() {
-    return !intaking;
+    return !autoIntaking;
 }
 
 void Grabber::configureMotors() {

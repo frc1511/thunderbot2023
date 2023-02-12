@@ -14,6 +14,9 @@ Controls::~Controls() { }
 void Controls::resetToMode(MatchMode mode) { }
 
 void Controls::process() {
+    driveController.setLightbarColor(255, 0, 0);
+    auxController.setLightbarColor(0, 255, 0);
+
     doSwitchPanel();
     doDrive();
 

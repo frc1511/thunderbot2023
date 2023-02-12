@@ -56,10 +56,12 @@ private:
     Position currentPosition;
     GamePieceType gamePieceType;
     bool placingGamePiece;
-    bool intaking;
+    bool autoIntaking;
    // void intakingGamePiece;
     frc::Timer placingGamePieceTimer;
-    frc::Timer intakingTimer;
+    frc::Timer autoIntakingTimer;
+    frc::Timer finishIntakingTimer;
+    bool finishIntaking;
     HardwareManager::GrabberIntakeMotor leftIntakeMotor;
     HardwareManager::GrabberIntakeMotor rightIntakeMotor;
     frc::DigitalInput intakeSensor;
