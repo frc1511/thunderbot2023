@@ -11,6 +11,8 @@
 #include <cstdint>
 #include <map>
 #include <utility>
+#include <frc/Timer.h>
+#include <units/time.h>
 
 extern "C" {
     struct InputState {
@@ -76,10 +78,11 @@ public:
     void init() {
         if (hasInit) return;
 
-        std::memset(&driverInputState, 0, sizeof(InputState));
-        std::memset(&auxInputState, 0, sizeof(InputState));
-        lastDriverInputState = driverInputState;
-        lastAuxInputState = auxInputState;
+        std::memset(&emptyInputState, 0, sizeof(InputState));
+        driverInputState = emptyInputState;
+        auxInputState = emptyInputState;
+        lastDriverInputState = emptyInputState;
+        lastAuxInputState = emptyInputState;
 
         networkingThread = std::thread([this]() { this->threadMain(); });
 
@@ -121,6 +124,10 @@ private:
     InputState lastDriverInputState;
     InputState lastAuxInputState;
 
+    InputState emptyInputState;
+
+    units::second_t lastInputFPGATimestamp = 0_s;
+
     bool newOutputState = false;
     OutputState driverOutputState;
     OutputState auxOutputState;
@@ -138,7 +145,7 @@ private:
 
 SOCKET_CREATE:
         int server_fd = socket(AF_INET, SOCK_STREAM, 0);
-        if (server_fd < 0) {
+        if (server_fd <= 0) {
             fmt::print("PS5Controller: socket() failed: {}\n", strerror(errno));
             std::this_thread::sleep_for(1s);
             goto SOCKET_CREATE;
@@ -156,7 +163,7 @@ SOCKET_CREATE:
         struct sockaddr_in server_addr;
         server_addr.sin_family = AF_INET;
         server_addr.sin_addr.s_addr = INADDR_ANY;
-        server_addr.sin_port = htons(HardwareManager::IOMap::TCP_PS5_CONTROL);
+        server_addr.sin_port = htons((int)HardwareManager::IOMap::TCP_PS5_CONTROL);
         std::memset(server_addr.sin_zero, 0, sizeof(server_addr.sin_zero));
 
         // --- Bind the server socket to the port. ---
@@ -186,11 +193,11 @@ SOCKET_LISTEN:
         socklen_t client_addr_len = sizeof(client_addr);
 SOCKET_CONNECT:
         int client_fd = accept(server_fd, (struct sockaddr*)&client_addr, &client_addr_len);
-        if (client_fd < 0) {
+        if (client_fd <= 0) {
             if (errno != EWOULDBLOCK && errno != EAGAIN) {
                 fmt::print("PS5Controller: accept() failed: {}\n", strerror(errno));
-                goto SOCKET_CONNECT;
             }
+            goto SOCKET_CONNECT;
         }
 
         fmt::print("PS5Controller: Accepted connection from {}\n", inet_ntoa(client_addr.sin_addr));
@@ -198,7 +205,7 @@ SOCKET_CONNECT:
         // --- Read/Write stuff. ---
 
         char input_buf[256];
-        char output_buf[256];
+        char output_buf[sizeof(OutputMessage)];
         while (true) {
             // --- Read input. ---
 
@@ -209,16 +216,32 @@ SOCKET_CONNECT:
                 }
                 else if (errno == ECONNRESET) {
                     fmt::print("PS5Controller: Connection reset by peer.\n");
+                    {
+                        std::lock_guard<std::mutex> lock(inputMutex);
+                        driverInputState = emptyInputState;
+                        auxInputState = emptyInputState;
+                        lastDriverInputState = emptyInputState;
+                        lastAuxInputState = emptyInputState;
+                    }
                     close(client_fd);
                     goto SOCKET_CONNECT;
                 }
                 else {
                     fmt::print("PS5Controller: read() failed: {}\n", strerror(errno));
+                    {
+                        std::lock_guard<std::mutex> lock(inputMutex);
+                        driverInputState = emptyInputState;
+                        auxInputState = emptyInputState;
+                        lastDriverInputState = emptyInputState;
+                        lastAuxInputState = emptyInputState;
+                    }
+                    close(client_fd);
+                    goto SOCKET_CONNECT;
                 }
             }   
             else if (bytes_read) {
                 // We got some data!
-                fmt::print("PS5Controller: Read {} bytes.\n", bytes_read);
+                // fmt::print("PS5Controller: Read {} bytes.\n", bytes_read);
 
                 InputMessage msg;
                 std::memcpy(&msg, input_buf, sizeof(msg));
@@ -228,6 +251,17 @@ SOCKET_CONNECT:
                 lastAuxInputState = auxInputState;
                 driverInputState = msg.driverInputState;
                 auxInputState = msg.auxInputState;
+                lastInputFPGATimestamp = frc::Timer::GetFPGATimestamp();
+            }
+
+            {
+                std::lock_guard<std::mutex> lock(inputMutex);
+                if (frc::Timer::GetFPGATimestamp() - lastInputFPGATimestamp > 0.5_s) {
+                    driverInputState = emptyInputState;
+                    auxInputState = emptyInputState;
+                    lastDriverInputState = emptyInputState;
+                    lastAuxInputState = emptyInputState;
+                }
             }
 
             // --- Write output. ---
@@ -248,7 +282,7 @@ SOCKET_CONNECT:
                 }
 
                 std::memcpy(output_buf, &msg, sizeof(msg));
-                ssize_t bytes_written = write(client_fd, output_buf, sizeof(output_buf));
+                ssize_t bytes_written = write(client_fd, output_buf, sizeof(OutputMessage));
                 if (bytes_written < 0) {
                     if (errno == ECONNRESET) {
                         fmt::print("PS5Controller: Connection reset by peer.\n");
@@ -260,7 +294,7 @@ SOCKET_CONNECT:
                     }
                 }
                 else if (bytes_written) {
-                    fmt::print("PS5Controller: Wrote {} bytes.\n", bytes_written);
+                    // fmt::print("PS5Controller: Wrote {} bytes.\n", bytes_written);
                 }
             }
         }
@@ -381,13 +415,13 @@ double ThunderPS5Controller::getAxis(int _axis) {
 
     switch (axis) {
         case LEFT_X:
-            return static_cast<double>(input.axisLeftX) / 0xFF - 0x80;
+            return (static_cast<double>(input.axisLeftX) / 0xFF) * 2.0 - 1.0;
         case LEFT_Y:
-            return static_cast<double>(input.axisLeftY) / 0xFF - 0x80;
+            return (static_cast<double>(input.axisLeftY) / 0xFF) * 2.0 - 1.0;
         case RIGHT_X:
-            return static_cast<double>(input.axisRightX) / 0xFF - 0x80;
+            return (static_cast<double>(input.axisRightX) / 0xFF) * 2.0 - 1.0;
         case RIGHT_Y:
-            return static_cast<double>(input.axisRightY) / 0xFF - 0x80;
+            return (static_cast<double>(input.axisRightY) / 0xFF) * 2.0 - 1.0;
         case LEFT_TRIGGER:
             return static_cast<double>(input.axisLeftTrigger) / 0xFF;
         case RIGHT_TRIGGER:
