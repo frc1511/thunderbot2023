@@ -170,7 +170,7 @@ SOCKET_CREATE:
 
 SOCKET_BIND:
         if (bind(server_fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
-            fmt::print("PS5Controller: bind() failed: {}\n", strerror(errno));
+            fmt::print("PS5Controller: bind() to port {} failed: {}\n", (int)HardwareManager::IOMap::TCP_PS5_CONTROL, strerror(errno));
             std::this_thread::sleep_for(1s);
             goto SOCKET_BIND;
         }

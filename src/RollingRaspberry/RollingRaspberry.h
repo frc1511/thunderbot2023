@@ -3,18 +3,13 @@
 #include <Basic/Mechanism.h>
 
 #include <frc/smartdashboard/Smartdashboard.h>
-#include <networktables/NetworkTable.h>
-#include <networktables/NetworkTableInstance.h>
-#include <networktables/NetworkTableListener.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/Timer.h>
 #include <units/time.h>
-#include <map>
 #include <mutex>
+#include <thread>
+#include <map>
 
-/**
- * Represents the Raspberry Pi Co-Processor on the Robot.
- */
 class RollingRaspberry : public Mechanism {
 public:
     RollingRaspberry();
@@ -29,19 +24,15 @@ public:
     std::map<units::second_t, frc::Pose2d> getEstimatedRobotPoses();
 
 private:
-    void poseCallback(std::string_view key, const nt::Event& event);
+    bool serverRunning = false;
+    void initServer();
 
-    // A network table used to communicate with the r-pi.
-    std::shared_ptr<nt::NetworkTable> table;
+    bool socketCreated = false;
+    bool socketBound = false;
+    bool socketListening = false;
 
-    // Subtable containing pose estimates.
-    std::shared_ptr<nt::NetworkTable> posesSubtable;
+    int server_fd = 0;
 
-    bool init = false;
-
-    std::map<units::second_t, frc::Pose2d> poses;
-
-    NT_Listener poseListener;
-
-    std::mutex posesMutex;
+    std::map<int, std::thread> connection_threads;
+    void connectionThread(int client_fd);
 };

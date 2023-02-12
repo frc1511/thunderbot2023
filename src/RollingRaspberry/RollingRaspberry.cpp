@@ -1,55 +1,144 @@
 #include <RollingRaspberry/RollingRaspberry.h>
-#include <Util/Parser.h>
+#include <Hardware/HardwareManager.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <sys/fcntl.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <unistd.h>
+#include <cerrno>
+#include <fmt/core.h>
+#include <cstdint>
 
-RollingRaspberry::RollingRaspberry()
-: table(nt::NetworkTableInstance::GetDefault().GetTable("RollingRaspberry")), // Rolling Raspberry network table.
-  posesSubtable(table->GetSubTable("Poses")), // Poses sub-table.
-  poseListener(posesSubtable->AddListener( // Pose listener.
-    nt::EventFlags::kValueAll,
-    [this](nt::NetworkTable*, std::string_view key, const nt::Event& event) {
-        if (event.GetValueEventData()->value.type() == NT_Type::NT_STRING) {
-            this->poseCallback(key, event);
+extern "C" {
+    struct VisionMessage {
+        uint32_t pose_1_translation_x : 32;
+        uint32_t pose_1_translation_y : 32;
+        uint32_t pose_1_translation_z : 32;
+        uint32_t pose_1_rotation_w : 32;
+        uint32_t pose_1_rotation_x : 32;
+        uint32_t pose_1_rotation_y : 32;
+        uint32_t pose_1_rotation_z : 32;
+        uint32_t pose_1_error : 32;
+
+        uint32_t pose_2_translation_x : 32;
+        uint32_t pose_2_translation_y : 32;
+        uint32_t pose_2_translation_z : 32;
+        uint32_t pose_2_rotation_w : 32;
+        uint32_t pose_2_rotation_x : 32;
+        uint32_t pose_2_rotation_y : 32;
+        uint32_t pose_2_rotation_z : 32;
+        uint32_t pose_2_error : 32;
+    }; // 64 bytes
+    typedef struct VisionMessage VisionMessage;
+}
+
+RollingRaspberry::RollingRaspberry() {
+    initServer();
+}
+
+RollingRaspberry::~RollingRaspberry() {
+    close(server_fd);
+}
+
+void RollingRaspberry::initServer() {
+    using namespace std::chrono_literals;
+
+    if (serverRunning) return;
+
+    if (!socketCreated) {
+        server_fd = socket(AF_INET, SOCK_STREAM, 0);
+        if (server_fd <= 0) {
+            fmt::print("RollingRaspberry: socket() failed: {}\n", strerror(errno));
+            return;
         }
+
+        socketCreated = true;
+        fmt::print("RollingRaspberry: Created socket.\n");
+
+        // Setup non-blocking I/O for the server socket.
+        int flags = fcntl(server_fd, F_GETFL, 0);
+        fcntl(server_fd, F_SETFL, flags | O_NONBLOCK);
     }
-  )) { }
 
-RollingRaspberry::~RollingRaspberry() = default;
+    if (!socketCreated) return;
 
-void RollingRaspberry::process() { }
+    if (!socketBound) {
+        // Server address.
+        struct sockaddr_in server_addr;
+        server_addr.sin_family = AF_INET;
+        server_addr.sin_addr.s_addr = INADDR_ANY;
+        server_addr.sin_port = htons((int)HardwareManager::IOMap::TCP_ROLLING_RASPBERRY);
+        std::memset(server_addr.sin_zero, 0, sizeof(server_addr.sin_zero));
 
-void RollingRaspberry::poseCallback(std::string_view key, const nt::Event& event) {
-    decltype(poses) newPoses;
-    const std::string poseStr(event.GetValueEventData()->value.GetString());
-    Parser::Iter currIt(poseStr.cbegin());
+        // --- Bind the server socket to the port. ---
 
-    // Parse each pose estimation string, format: "xPos,yPos,rotation"
-    units::second_t timestamp(std::atoi(key.data()));
+        if (bind(server_fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
+            fmt::print("RollingRaspberry: bind() to port {} failed: {}\n", (int)HardwareManager::IOMap::TCP_ROLLING_RASPBERRY, strerror(errno));
+            return;
+        }
 
-    // 0 means error, unix timestamp won't roll over until 10:14 PM on 1/7/2038 so we don't have to worry about it for a while.
-    if (!timestamp) return;
-    units::meter_t xPos(Parser::parseNumber(currIt, poseStr.cend())); ++currIt;
-    units::meter_t yPos(Parser::parseNumber(currIt, poseStr.cend())); ++currIt;
-    units::radian_t rotation(Parser::parseNumber(currIt, poseStr.cend()));
+        socketBound = true;
+        fmt::print("RollingRaspberry: Bound socket to port {}\n", (int)HardwareManager::IOMap::TCP_ROLLING_RASPBERRY);
+    }
 
-    // Add new pose.
-    newPoses.emplace(timestamp, frc::Pose2d(xPos, yPos, rotation));
+    if (!socketBound) return;
 
-    // Save the new pose estimations.
-    if (!newPoses.empty()) {
-        std::lock_guard lk(posesMutex);
+    // --- Listen for incoming connections. ---
 
-        poses.insert(newPoses.cbegin(), newPoses.cend());
+    if (!socketListening) {
+        // Backlog of 3 connections.
+        if (listen(server_fd, 3) < 0) {
+            fmt::print("RollingRaspberry: listen() failed: {}\n", strerror(errno));
+            return;
+        }
+
+        socketListening = true;
+        fmt::print("RollingRaspberry: Listening on port {}\n", (int)HardwareManager::IOMap::TCP_ROLLING_RASPBERRY);
+    }
+
+    if (!socketListening) return;
+
+    if (socketCreated && socketBound && socketListening) {
+        serverRunning = true;
+        fmt::print("RollingRaspberry: Server running.\n");
+    }
+}
+
+void RollingRaspberry::process() {
+    if (!serverRunning) initServer();
+    if (!serverRunning) return;
+
+    struct sockaddr_in client_addr;
+    socklen_t client_addr_len = sizeof(client_addr);
+
+    // --- Accept incoming connections. ---
+
+    int client_fd = accept(server_fd, (struct sockaddr*)&client_addr, &client_addr_len);
+    if (client_fd <= 0) {
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            // No incoming connections.
+        }
+        else {
+            fmt::print("RollingRaspberry: accept() failed: {}\n", strerror(errno));
+        }
+        return;
+    }
+
+    fmt::print("RollingRaspberry: Accepted connection from {}\n", inet_ntoa(client_addr.sin_addr));
+
+    connection_threads.emplace(client_fd, std::thread([this, client_fd]() { this->connectionThread(client_fd); }));
+
+    for (auto& [fd, th] : connection_threads) {
+        if (th.joinable()) {
+            connection_threads.erase(fd);
+        }
     }
 }
 
 std::map<units::second_t, frc::Pose2d> RollingRaspberry::getEstimatedRobotPoses() {
-    std::lock_guard lk(posesMutex);
+}
 
-    // Get the current pose estimations.
-    auto currPoses = poses;
-
-    // Clear the pose estimations (don't need them anymore).
-    poses.clear();
-
-    return currPoses;
+void RollingRaspberry::connectionThread(int client_fd) {
+    // TODO: Handle connection :D
 }
