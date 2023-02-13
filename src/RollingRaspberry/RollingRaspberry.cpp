@@ -1,5 +1,6 @@
 #include <RollingRaspberry/RollingRaspberry.h>
 #include <Hardware/HardwareManager.h>
+#include <frc/Timer.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/fcntl.h>
@@ -10,35 +11,14 @@
 #include <fmt/core.h>
 #include <cstdint>
 
-extern "C" {
-    struct VisionMessage {
-        uint32_t pose_1_translation_x : 32;
-        uint32_t pose_1_translation_y : 32;
-        uint32_t pose_1_translation_z : 32;
-        uint32_t pose_1_rotation_w : 32;
-        uint32_t pose_1_rotation_x : 32;
-        uint32_t pose_1_rotation_y : 32;
-        uint32_t pose_1_rotation_z : 32;
-        uint32_t pose_1_error : 32;
-
-        uint32_t pose_2_translation_x : 32;
-        uint32_t pose_2_translation_y : 32;
-        uint32_t pose_2_translation_z : 32;
-        uint32_t pose_2_rotation_w : 32;
-        uint32_t pose_2_rotation_x : 32;
-        uint32_t pose_2_rotation_y : 32;
-        uint32_t pose_2_rotation_z : 32;
-        uint32_t pose_2_error : 32;
-    }; // 64 bytes
-    typedef struct VisionMessage VisionMessage;
-}
+#define VISION_MESSAGE_SIZE (sizeof(double) * 16)
 
 RollingRaspberry::RollingRaspberry() {
     initServer();
 }
 
 RollingRaspberry::~RollingRaspberry() {
-    close(server_fd);
+    close(serverFileDesc);
 }
 
 void RollingRaspberry::initServer() {
@@ -47,8 +27,8 @@ void RollingRaspberry::initServer() {
     if (serverRunning) return;
 
     if (!socketCreated) {
-        server_fd = socket(AF_INET, SOCK_STREAM, 0);
-        if (server_fd <= 0) {
+        serverFileDesc = socket(AF_INET, SOCK_STREAM, 0);
+        if (serverFileDesc <= 0) {
             fmt::print("RollingRaspberry: socket() failed: {}\n", strerror(errno));
             return;
         }
@@ -57,23 +37,23 @@ void RollingRaspberry::initServer() {
         fmt::print("RollingRaspberry: Created socket.\n");
 
         // Setup non-blocking I/O for the server socket.
-        int flags = fcntl(server_fd, F_GETFL, 0);
-        fcntl(server_fd, F_SETFL, flags | O_NONBLOCK);
+        int flags = fcntl(serverFileDesc, F_GETFL, 0);
+        fcntl(serverFileDesc, F_SETFL, flags | O_NONBLOCK);
     }
 
     if (!socketCreated) return;
 
     if (!socketBound) {
         // Server address.
-        struct sockaddr_in server_addr;
-        server_addr.sin_family = AF_INET;
-        server_addr.sin_addr.s_addr = INADDR_ANY;
-        server_addr.sin_port = htons((int)HardwareManager::IOMap::TCP_ROLLING_RASPBERRY);
-        std::memset(server_addr.sin_zero, 0, sizeof(server_addr.sin_zero));
+        struct sockaddr_in serverAddr;
+        serverAddr.sin_family = AF_INET;
+        serverAddr.sin_addr.s_addr = INADDR_ANY;
+        serverAddr.sin_port = htons((int)HardwareManager::IOMap::TCP_ROLLING_RASPBERRY);
+        std::memset(serverAddr.sin_zero, 0, sizeof(serverAddr.sin_zero));
 
         // --- Bind the server socket to the port. ---
 
-        if (bind(server_fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
+        if (bind(serverFileDesc, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
             fmt::print("RollingRaspberry: bind() to port {} failed: {}\n", (int)HardwareManager::IOMap::TCP_ROLLING_RASPBERRY, strerror(errno));
             return;
         }
@@ -88,7 +68,7 @@ void RollingRaspberry::initServer() {
 
     if (!socketListening) {
         // Backlog of 3 connections.
-        if (listen(server_fd, 3) < 0) {
+        if (listen(serverFileDesc, 3) < 0) {
             fmt::print("RollingRaspberry: listen() failed: {}\n", strerror(errno));
             return;
         }
@@ -109,13 +89,13 @@ void RollingRaspberry::process() {
     if (!serverRunning) initServer();
     if (!serverRunning) return;
 
-    struct sockaddr_in client_addr;
-    socklen_t client_addr_len = sizeof(client_addr);
+    struct sockaddr_in clientAddr;
+    socklen_t clientAddrLen = sizeof(clientAddr);
 
     // --- Accept incoming connections. ---
 
-    int client_fd = accept(server_fd, (struct sockaddr*)&client_addr, &client_addr_len);
-    if (client_fd <= 0) {
+    int clientFileDesc = accept(serverFileDesc, (struct sockaddr*)&clientAddr, &clientAddrLen);
+    if (clientFileDesc <= 0) {
         if (errno == EAGAIN || errno == EWOULDBLOCK) {
             // No incoming connections.
         }
@@ -125,13 +105,15 @@ void RollingRaspberry::process() {
         return;
     }
 
-    fmt::print("RollingRaspberry: Accepted connection from {}\n", inet_ntoa(client_addr.sin_addr));
+    fmt::print("RollingRaspberry: Accepted connection from {}\n", inet_ntoa(clientAddr.sin_addr));
 
-    connection_threads.emplace(client_fd, std::thread([this, client_fd]() { this->connectionThread(client_fd); }));
+    std::thread th([this, clientFileDesc, &th]() { this->connectionThread(th, clientFileDesc); });
 
-    for (auto& [fd, th] : connection_threads) {
-        if (th.joinable()) {
-            connection_threads.erase(fd);
+    connectionThreads.emplace(clientFileDesc, std::move(th));
+
+    for (auto& [fd, th] : connectionThreads) {
+        if (!th.joinable()) {
+            connectionThreads.erase(fd);
         }
     }
 }
@@ -139,6 +121,57 @@ void RollingRaspberry::process() {
 std::map<units::second_t, frc::Pose2d> RollingRaspberry::getEstimatedRobotPoses() {
 }
 
-void RollingRaspberry::connectionThread(int client_fd) {
-    // TODO: Handle connection :D
+void RollingRaspberry::connectionThread(std::thread& self, int clientFileDesc) {
+
+    char buf[VISION_MESSAGE_SIZE];
+    while (true) {
+        ssize_t bytesRead = read(clientFileDesc, buf, VISION_MESSAGE_SIZE);
+        if (bytesRead <= 0) {
+            if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                // No data to read.
+            }
+            else if (errno == ECONNRESET) {
+                fmt::print("RollingRaspberry: Connection reset by peer.\n");
+                break;
+            }
+            else {
+                fmt::print("RollingRaspberry: read() failed: {}\n", strerror(errno));
+                break;
+            }
+        }
+        else if (bytesRead == VISION_MESSAGE_SIZE) {
+            char* iter = buf;
+
+            auto get_double = [&iter]() -> double {
+                double value;
+                std::memcpy(&value, iter, sizeof(double));
+                iter += sizeof(double);
+                return value;
+            };
+
+            units::meter_t pose1TranslationX = units::meter_t(get_double());
+            units::meter_t pose1TranslationY = units::meter_t(get_double());
+            units::meter_t pose1TranslationZ = units::meter_t(get_double());
+            frc::Translation3d pose1Translation(pose1TranslationX, pose1TranslationY, pose1TranslationZ);
+            frc::Rotation3d pose1Rotation(frc::Quaternion(get_double(), get_double(), get_double(), get_double()));
+            double pose1Error = get_double();
+            units::meter_t pose2TranslationX = units::meter_t(get_double());
+            units::meter_t pose2TranslationY = units::meter_t(get_double());
+            units::meter_t pose2TranslationZ = units::meter_t(get_double());
+            frc::Translation3d pose2Translation(pose2TranslationX, pose2TranslationY, pose2TranslationZ);
+            frc::Rotation3d pose2Rotation(frc::Quaternion(get_double(), get_double(), get_double(), get_double()));
+            double pose2Error = get_double();
+
+            {
+                std::scoped_lock lock(connectionMutex);
+                robotPoseEstimates.emplace_back(
+                    frc::Pose3d(pose1Translation, pose1Rotation), frc::Pose3d(pose2Translation, pose2Rotation),
+                    pose1Error, pose2Error
+                );
+            }
+        }
+    }
+
+
+    self.detach();
 }

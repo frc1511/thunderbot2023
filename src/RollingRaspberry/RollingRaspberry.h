@@ -5,10 +5,27 @@
 #include <frc/smartdashboard/Smartdashboard.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/Timer.h>
-#include <units/time.h>
+#include <units/length.h>
+#include <units/angle.h>
+#include <Util/BetterThread.h>
 #include <mutex>
-#include <thread>
 #include <map>
+#include <cstddef>
+
+#include <frc/geometry/Quaternion.h>
+#include <frc/geometry/Rotation3d.h>
+#include <frc/geometry/Transform3d.h>
+#include <frc/geometry/Pose3d.h>
+
+struct RobotPoseEstimate {
+    frc::Pose3d pose1;
+    frc::Pose3d pose2;
+
+    double error1;
+    double error2;
+
+    double GetAmbiguity() const;
+};
 
 class RollingRaspberry : public Mechanism {
 public:
@@ -31,8 +48,12 @@ private:
     bool socketBound = false;
     bool socketListening = false;
 
-    int server_fd = 0;
+    int serverFileDesc = 0;
 
-    std::map<int, std::thread> connection_threads;
-    void connectionThread(int client_fd);
+    std::mutex connectionMutex;
+
+    std::map<int, std::thread> connectionThreads;
+    void connectionThread(std::thread& self, int client_fd);
+
+    std::vector<RobotPoseEstimate> robotPoseEstimates;
 };
