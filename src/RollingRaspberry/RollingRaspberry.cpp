@@ -188,23 +188,38 @@ std::map<units::second_t, frc::Pose2d> RollingRaspberry::getEstimatedRobotPoses(
 
     for (const auto& estimate : estimates) {
         // If no ambiguity, use the pose with the lower reprojection error.
+        frc::Pose3d goodPose;
         if (!estimate.isAmbiguous()) {
-            frc::Pose3d goodPose = estimate.error1 < estimate.error2 ? estimate.pose1 : estimate.pose2;
+            goodPose = estimate.error1 < estimate.error2 ? estimate.pose1 : estimate.pose2;
+            // Make sure the pose still puts the robot on the field.
+            if (validatePose(goodPose)) {
+                finalPoses.emplace(estimate.timestamp, frc::Pose2d(goodPose.X(), goodPose.Y(), frc::Rotation2d(goodPose.Rotation().Z())));
+            }
+            continue;
+        }
+        
+        // Ambiguous D:
+
+        bool pose1Valid = validatePose(estimate.pose1);
+        bool pose2Valid = validatePose(estimate.pose2);
+
+        if (pose1Valid != pose2Valid) {
+            goodPose = pose1Valid && !pose2Valid ? estimate.pose1 : estimate.pose2;
+
             finalPoses.emplace(estimate.timestamp, frc::Pose2d(goodPose.X(), goodPose.Y(), frc::Rotation2d(goodPose.Rotation().Z())));
+        }
+        // Neither poses are good, so skip.
+        else if (!pose1Valid && !pose2Valid) {
             continue;
         }
 
         /**
-         * Ambiguous D:
-         *
-         * Some ways to resolve the ambiguity include:
-         * - Check whether the robot pose is outside of the field boundaries.
-         * - Check whether the robot pose is above the field or below the field.
-         * - Compare the pose against the previous known pose and see if it's a reasonable change.
-         * - Check to see whether other estimated poses are similar.
+         * TODO: Maybe implement solution to check poses against last known pose
+         * or other new poses within a certain time frame.
          */
     }
 
+    return finalPoses;
 }
 
 bool RollingRaspberry::validatePose(frc::Pose3d pose) const {
