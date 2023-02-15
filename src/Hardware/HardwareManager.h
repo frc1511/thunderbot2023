@@ -12,8 +12,7 @@
 #include <Hardware/MagneticEncoder/CANMagneticEncoder.h>
 #include <Hardware/MagneticEncoder/CTRE/CANCoder.h>
 
-#include <Hardware/IMU/IMU.h>
-#include <Hardware/IMU/ADIS16470IMU.h>
+#include <Hardware/IMU/ADIS16470_IMU.h>
 
 #include <Hardware/IOMap.h>
 
@@ -34,7 +33,6 @@ public:
     using SwerveDriveMotor = ThunderCANSparkMax;
     using SwerveTurningMotor = ThunderCANSparkMax;
     using SwerveTurningEncoder = ThunderCANCoder;
-    using DriveIMU = ThunderADIS16470IMU;
     using GrabberIntakeMotor = ThunderCANSparkMax;
     using LiftExtensionMotor = ThunderCANSparkMax;
     using LiftLeftPivotMotor = ThunderCANSparkMax;
@@ -44,7 +42,6 @@ public:
     using SwerveDriveMotor = ThunderCANMotorController;
     using SwerveTurningMotor = ThunderCANMotorController;
     using SwerveTurningEncoder = ThunderCANMagneticEncoder;
-    using DriveIMU = ThunderIMU;
     using GrabberIntakeMotor = ThunderCANSparkMax;
     using LiftExtensionMotor = ThunderCANTalonSRX;
     using LiftLeftPivotMotor = ThunderCANTalonSRX;

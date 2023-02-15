@@ -261,7 +261,7 @@ private:
     RollingRaspberry* rollingRaspberry;
 
     // The IMU that keeps track of the robot's rotation.
-    HardwareManager::DriveIMU imu;
+    frc1511::ADIS16470_IMU imu;
 
     bool imuCalibrated = false;
 

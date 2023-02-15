@@ -56,9 +56,9 @@ Drive::Drive(RollingRaspberry* rollingRaspberry)
     manualThetaPIDController.EnableContinuousInput(units::radian_t(-180_deg), units::radian_t(180_deg));
 
     // 4s is good?
-    imu.configCalTime(ThunderIMU::CalibrationTime::_4s);
-    imu.setYawAxis(ThunderIMU::Axis::Z);
-    imu.reset();
+    imu.ConfigCalTime(frc1511::ADIS16470_IMU::CalibrationTime::_4s);
+    // imu.SetYawAxis(ThunderIMU::Axis::Z);
+    imu.ResetAllAngles();
 
     // Apply the magnetic encoder offsets if the config file exists.
     if (readOffsetsFile()) {
@@ -299,7 +299,7 @@ bool Drive::isFinished() const {
 }
 
 void Drive::calibrateIMU() {
-    imu.calibrate();
+    imu.Calibrate();
 
     /**
      * Sleep the current thread manually because the IMU library doesn't
@@ -334,7 +334,7 @@ frc::Pose2d Drive::getEstimatedPose() {
 
 frc::Rotation2d Drive::getRotation() {
     // The raw rotation from the IMU.
-    units::degree_t imuAngle = imu.getAngle();
+    units::degree_t imuAngle = imu.GetAngle(frc1511::ADIS16470_IMU::kYaw);
 
     return frc::Rotation2d(imuAngle);
 }
