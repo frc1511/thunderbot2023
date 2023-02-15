@@ -8,6 +8,7 @@
 #include <frc/DigitalInput.h>
 #include <frc/controller/PIDController.h>
 #include <frc/filter/SlewRateLimiter.h>
+#include <units/velocity.h>
 
 class Lift : public Mechanism {
 public:
