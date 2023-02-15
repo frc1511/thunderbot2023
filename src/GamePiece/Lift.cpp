@@ -36,12 +36,23 @@
 #define EXTENSION_I_ZONE 0 
 #define EXTENSION_FF 0
 
+#define EXTENSION_MPS_P 0.1
+#define EXTENSION_MPS_I 0
+#define EXTENSION_MPS_D 0
+
+#define EXTENSION_MAX_ACCEL 8_mps_sq
+#define EXTENSION_MAX_DECEL -16_mps_sq
+
+#define EXTENSION_METER_TO_ENCODER_FACTOR 1
+
 Lift::Lift()
 : extensionMotor(HardwareManager::IOMap::CAN_LIFT_EXTENSION),
   pivotMotorLeft(HardwareManager::IOMap::CAN_LIFT_PIVOT_LEFT), 
   pivotMotorRight(HardwareManager::IOMap::CAN_LIFT_PIVOT_RIGHT),
   homeSensor(HardwareManager::IOMap::DIO_LIFT_HOME),
-  extensionSensor(HardwareManager::IOMap::DIO_LIFT_EXTENSION) {
+  extensionSensor(HardwareManager::IOMap::DIO_LIFT_EXTENSION),
+  extensionPIDController(EXTENSION_MPS_P, EXTENSION_MPS_I, EXTENSION_MPS_D),
+  extensionSlewRateLimiter(EXTENSION_MAX_ACCEL, EXTENSION_MAX_DECEL) {
 
     configureMotors();
 }
@@ -58,6 +69,8 @@ void Lift::resetToMode(MatchMode mode) {
     extensionMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, 0);
     pivotMotorLeft.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, 0);
     pivotMotorRight.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, 0);
+
+    extensionSlewRateLimiter.Reset(0_mps);
 
     if (!(mode == Mechanism::MatchMode::DISABLED && getLastMode() == Mechanism::MatchMode::AUTO)
      && !(mode == Mechanism::MatchMode::TELEOP && getLastMode() == Mechanism::MatchMode::DISABLED)) {
@@ -110,9 +123,12 @@ void Lift::process() {
         // Convert the percent to an encoder position.
         double extensionPosition = extensionPercent * MAX_EXTENSION_ENCODER;
 
-        // Set the PID reference of the extension motor to the encoder position.
-        extensionMotor.set(ThunderCANMotorController::ControlMode::POSITION, extensionPosition);
-
+        units::meters_per_second_t extensionVelocity(extensionPIDController.Calculate(extensionPosition));
+        extensionVelocity = extensionSlewRateLimiter.Calculate(extensionVelocity);
+        
+        double rpm = extensionVelocity.value() * 60 * EXTENSION_METER_TO_ENCODER_FACTOR;
+        extensionMotor.set(ThunderCANMotorController::ControlMode::VELOCITY, rpm);
+        
         // --- Check if at position ---
 
         double currentAnglePosition = pivotMotorLeft.getEncoderPosition();

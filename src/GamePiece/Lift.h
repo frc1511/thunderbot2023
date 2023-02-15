@@ -6,6 +6,8 @@
 #include <units/math.h>
 #include <Hardware/HardwareManager.h>
 #include <frc/DigitalInput.h>
+#include <frc/controller/PIDController.h>
+#include <frc/filter/SlewRateLimiter.h>
 
 class Lift : public Mechanism {
 public:
@@ -56,6 +58,9 @@ private:
 
     // Sensor detecting if the lift is at the extension limit.
     frc::DigitalInput extensionSensor;
+
+    frc::PIDController extensionPIDController;
+    frc::SlewRateLimiter<units::meters_per_second> extensionSlewRateLimiter;
 
     void configureMotors();
 };
