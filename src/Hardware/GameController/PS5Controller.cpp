@@ -291,6 +291,15 @@ SOCKET_CONNECT:
                     }
                     else {
                         fmt::print("PS5Controller: write() failed: {}\n", strerror(errno));
+                        {
+                            std::lock_guard<std::mutex> lock(inputMutex);
+                            driverInputState = emptyInputState;
+                            auxInputState = emptyInputState;
+                            lastDriverInputState = emptyInputState;
+                            lastAuxInputState = emptyInputState;
+                        }
+                        close(client_fd);
+                        goto SOCKET_CONNECT;
                     }
                 }
                 else if (bytes_written) {
@@ -413,22 +422,43 @@ double ThunderPS5Controller::getAxis(int _axis) {
 
     Axis axis = static_cast<Axis>(_axis);
 
+    double val = 0.0;
     switch (axis) {
         case LEFT_X:
-            return (static_cast<double>(input.axisLeftX) / 0xFF) * 2.0 - 1.0;
+            val = static_cast<double>((static_cast<int>(input.axisLeftX) + 0x80) % 0xFF) / 0xFF;
+            if (val == 1) val = 0;
+            else if (val == 0) val = 1;
+            val = (val * 2.0) - 1.0;
+            break;
         case LEFT_Y:
-            return (static_cast<double>(input.axisLeftY) / 0xFF) * 2.0 - 1.0;
+            val = static_cast<double>((static_cast<int>(input.axisLeftY) + 0x80) % 0xFF) / 0xFF;
+            if (val == 1) val = 0;
+            else if (val == 0) val = 1;
+            val = (val * 2.0) - 1.0;
+            val *= -1.0;
+            break;
         case RIGHT_X:
-            return (static_cast<double>(input.axisRightX) / 0xFF) * 2.0 - 1.0;
+            val = static_cast<double>((static_cast<int>(input.axisRightX) + 0x80) % 0xFF) / 0xFF;
+            if (val == 1) val = 0;
+            else if (val == 0) val = 1;
+            val = (val * 2.0) - 1.0;
+            break;
         case RIGHT_Y:
-            return (static_cast<double>(input.axisRightY) / 0xFF) * 2.0 - 1.0;
+            val = static_cast<double>((static_cast<int>(input.axisRightY) + 0x80) % 0xFF) / 0xFF;
+            if (val == 1) val = 0;
+            else if (val == 0) val = 1;
+            val = (val * 2.0) - 1.0;
+            val *= -1.0;
+            break;
         case LEFT_TRIGGER:
-            return static_cast<double>(input.axisLeftTrigger) / 0xFF;
+            val = static_cast<double>(input.axisLeftTrigger) / 0xFF;
+            break;
         case RIGHT_TRIGGER:
-            return static_cast<double>(input.axisRightTrigger) / 0xFF;
+            val = static_cast<double>(input.axisRightTrigger) / 0xFF;
+            break;
     }
 
-    return 0.0;
+    return val;
 }
 
 ThunderGameController::DPad ThunderPS5Controller::getDPad() {
