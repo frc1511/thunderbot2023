@@ -425,30 +425,20 @@ double ThunderPS5Controller::getAxis(int _axis) {
     double val = 0.0;
     switch (axis) {
         case LEFT_X:
-            val = static_cast<double>((static_cast<int>(input.axisLeftX) + 0x80) % 0xFF) / 0xFF;
-            if (val == 1) val = 0;
-            else if (val == 0) val = 1;
-            val = (val * 2.0) - 1.0;
+            val = (char)input.axisLeftX;
+            val /= 0x80;
             break;
         case LEFT_Y:
-            val = static_cast<double>((static_cast<int>(input.axisLeftY) + 0x80) % 0xFF) / 0xFF;
-            if (val == 1) val = 0;
-            else if (val == 0) val = 1;
-            val = (val * 2.0) - 1.0;
-            val *= -1.0;
+            val = (char)input.axisLeftY;
+            val /= 0x80;
             break;
         case RIGHT_X:
-            val = static_cast<double>((static_cast<int>(input.axisRightX) + 0x80) % 0xFF) / 0xFF;
-            if (val == 1) val = 0;
-            else if (val == 0) val = 1;
-            val = (val * 2.0) - 1.0;
+            val = (char)input.axisRightX;
+            val /= 0x80;
             break;
         case RIGHT_Y:
-            val = static_cast<double>((static_cast<int>(input.axisRightY) + 0x80) % 0xFF) / 0xFF;
-            if (val == 1) val = 0;
-            else if (val == 0) val = 1;
-            val = (val * 2.0) - 1.0;
-            val *= -1.0;
+            val = (char)input.axisRightY;
+            val /= 0x80;
             break;
         case LEFT_TRIGGER:
             val = static_cast<double>(input.axisLeftTrigger) / 0xFF;
