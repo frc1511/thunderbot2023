@@ -37,8 +37,8 @@
 #include <filesystem>
 
 #if WHICH_ROBOT == 2023
-#    define ROBOT_WIDTH  0.362_m
-#    define ROBOT_LENGTH 0.66_m
+#    define ROBOT_WIDTH  17.25_in //0.362_m
+#    define ROBOT_LENGTH 25.25_in //0.66_m
 #else // 2022
 #    define ROBOT_WIDTH 0.54_m
 #    define ROBOT_LENGTH 0.67_m
@@ -69,11 +69,12 @@
 #define DRIVE_THETA_I 0.0
 #define DRIVE_THETA_D 0.1
 
+class WhooshWhoosh;
 class RollingRaspberry;
 
 class Drive : public Mechanism {
 public:
-    Drive(RollingRaspberry* rollingRaspberry);
+    Drive(WhooshWhoosh* whooshWhoosh, RollingRaspberry* rollingRaspberry);
     ~Drive();
 
     void process() override;
@@ -260,8 +261,8 @@ private:
     // Raspberry Pi
     RollingRaspberry* rollingRaspberry;
 
-    // The IMU that keeps track of the robot's rotation.
-    frc1511::ADIS16470_IMU imu;
+    // Whoosh Whoosh keeps track of the robot's rotation.
+    WhooshWhoosh* whooshWhoosh;
 
     bool imuCalibrated = false;
 
@@ -296,11 +297,11 @@ private:
      */
     frc::SwerveDrivePoseEstimator<4> poseEstimator {
         kinematics,
-        frc::Rotation2d(),
+        getRotation(),
         getModulePositions(),
         frc::Pose2d(),
-        { 0.1, 0.1, 0.1 }, // Standard deviations of model states.
-        { 0.1, 0.1, 0.1 } // Standard deviations of the vision measurements.
+        { 0.0, 0.0, 0.0 }, // Standard deviations of model states.
+        { 1.0, 1.0, 1.0 } // Standard deviations of the vision measurements.
     };
 
     /**

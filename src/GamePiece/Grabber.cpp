@@ -9,16 +9,16 @@
 Grabber::Grabber() 
 : leftIntakeMotor(HardwareManager::IOMap::CAN_GRABBER_INTAKE_LEFT),
   rightIntakeMotor(HardwareManager::IOMap::CAN_GRABBER_INTAKE_RIGHT),
-  intakeSensor(HardwareManager::IOMap::DIO_GRABBER_INTAKE),
-   grabberPiston1(frc::PneumaticsModuleType::CTREPCM,
-        HardwareManager::IOMap::PCM_GRABBER_PISTON_1_EXTEND,
-        HardwareManager::IOMap::PCM_GRABBER_PISTON_1_RETRACT),
-   grabberPiston2(frc::PneumaticsModuleType::CTREPCM,
-        HardwareManager::IOMap::PCM_GRABBER_PISTON_2_EXTEND,
-        HardwareManager::IOMap::PCM_GRABBER_PISTON_2_RETRACT),
-    wristPiston(frc::PneumaticsModuleType::CTREPCM,
-        HardwareManager::IOMap::PCM_GRABBER_WRIST_EXTEND,
-        HardwareManager::IOMap::PCM_GRABBER_WRIST_RETRACT)
+  intakeSensor(HardwareManager::IOMap::DIO_GRABBER_INTAKE)
+//    grabberPiston1(frc::PneumaticsModuleType::CTREPCM,
+//         HardwareManager::IOMap::PCM_GRABBER_PISTON_1_EXTEND,
+//         HardwareManager::IOMap::PCM_GRABBER_PISTON_1_RETRACT),
+//    grabberPiston2(frc::PneumaticsModuleType::CTREPCM,
+//         HardwareManager::IOMap::PCM_GRABBER_PISTON_2_EXTEND,
+//         HardwareManager::IOMap::PCM_GRABBER_PISTON_2_RETRACT),
+//     wristPiston(frc::PneumaticsModuleType::CTREPCM,
+//         HardwareManager::IOMap::PCM_GRABBER_WRIST_EXTEND,
+//         HardwareManager::IOMap::PCM_GRABBER_WRIST_RETRACT)
    {
 
     configureMotors();
@@ -122,26 +122,26 @@ void Grabber::process() {
 
     if (currentPosition == Position::OPEN) {
         // Both pistons are extended to intake a cube.
-        grabberPiston1.Set(frc::DoubleSolenoid::Value::kForward); 
-        grabberPiston2.Set(frc::DoubleSolenoid::Value::kForward);   
+        // grabberPiston1.Set(frc::DoubleSolenoid::Value::kForward); 
+        // grabberPiston2.Set(frc::DoubleSolenoid::Value::kForward);   
     } 
     else if (currentPosition == Position::AGAPE) {
         // Only one piston is extended to intake a cone.
-        grabberPiston1.Set(frc::DoubleSolenoid::Value::kReverse); 
-        grabberPiston2.Set(frc::DoubleSolenoid::Value::kForward);
+        // grabberPiston1.Set(frc::DoubleSolenoid::Value::kReverse); 
+        // grabberPiston2.Set(frc::DoubleSolenoid::Value::kForward);
     } 
     else if (currentPosition == Position::AJAR) {
         // Both pistons are retracted to hold a cone.
-        grabberPiston1.Set(frc::DoubleSolenoid::Value::kReverse); 
-        grabberPiston2.Set(frc::DoubleSolenoid::Value::kReverse);     
+        // grabberPiston1.Set(frc::DoubleSolenoid::Value::kReverse); 
+        // grabberPiston2.Set(frc::DoubleSolenoid::Value::kReverse);     
     }
 
     // Set the wrist piston.
     if (tipped == true){
-        wristPiston.Set(frc::DoubleSolenoid::Value::kForward);
+        // wristPiston.Set(frc::DoubleSolenoid::Value::kForward);
     }
     else{
-        wristPiston.Set(frc::DoubleSolenoid::Value::kReverse);
+        // wristPiston.Set(frc::DoubleSolenoid::Value::kReverse);
     }
 }
 

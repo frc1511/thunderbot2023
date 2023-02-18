@@ -20,6 +20,9 @@ void Controls::process() {
     driveController.setLightbarColor(255, 0, 0);
     auxController.setLightbarColor(0, 255, 0);
 
+    // print out driver joystick values
+    // fmt::print("leftX: {}, leftY: {}, rightX: {}, rightY: {}\n", driveController.getLeftXAxis(), driveController.getLeftYAxis(), driveController.getRightXAxis(), driveController.getRightYAxis());
+
     doSwitchPanel();
     doDrive();
 
@@ -66,11 +69,11 @@ void Controls::doDrive() {
     bool brickDrive = driveController.getButton(DriveButton::CROSS);
     
     bool toggleRotation = driveController.getButton(DriveButton::TRIANGLE, ThunderGameController::ButtonState::PRESSED);
-    double xVel = driveController.getAxis(DriveAxis::LEFT_X);
-    double yVel = driveController.getAxis(DriveAxis::LEFT_Y);
-    double angVel = driveController.getAxis(DriveAxis::RIGHT_X);
-    bool xySlowMode = driveController.getButton(DriveButton::LEFT_BUMPER);
-    bool angSlowMode = driveController.getButton(DriveButton::RIGHT_BUMPER);
+    double xVel = driveController.getLeftXAxis();
+    double yVel = driveController.getLeftYAxis();
+    double angVel = driveController.getRightXAxis();
+    bool xySlowMode = driveController.getLeftBumper();
+    bool angSlowMode = driveController.getRightBumper();
 
     double xAng = driveController.getAxis(DriveAxis::RIGHT_X);
     double yAng = driveController.getAxis(DriveAxis::RIGHT_Y);
@@ -101,7 +104,7 @@ void Controls::doDrive() {
     }
 
     if (driveLockX) {
-        driveCtrlFlags |= Drive::ControlFlag::LOCK_X;
+        // driveCtrlFlags |= Drive::ControlFlag::LOCK_X;
     }
 
     if (toggleRotation) {
@@ -198,6 +201,7 @@ void Controls::doDrive() {
     if (isManualControl() || driveAligning) {
         driveAligning = false;
     }
+/*
 
     if (!driveAligning) {
         // Control the drivetrain.    
@@ -211,9 +215,11 @@ void Controls::doDrive() {
             drive->manualControlAbsRotation(finalXVel, -finalYVel, driveAbsAngle, driveCtrlFlags);
         }
         else {
+            */
             drive->manualControlRelRotation(finalXVel, -finalYVel, -finalAngVel, driveCtrlFlags);
+            /*
         }
-    }
+    }*/
 }
 
 void Controls::doAux() {

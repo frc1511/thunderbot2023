@@ -65,9 +65,9 @@ private:
     HardwareManager::GrabberIntakeMotor leftIntakeMotor;
     HardwareManager::GrabberIntakeMotor rightIntakeMotor;
     frc::DigitalInput intakeSensor;
-    frc::DoubleSolenoid grabberPiston1;
-    frc::DoubleSolenoid grabberPiston2;
-    frc::DoubleSolenoid wristPiston;
+    // frc::DoubleSolenoid grabberPiston1;
+    // frc::DoubleSolenoid grabberPiston2;
+    // frc::DoubleSolenoid wristPiston;
     void configureMotors();
     bool tipped;
 };

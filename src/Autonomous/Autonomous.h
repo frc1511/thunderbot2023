@@ -3,17 +3,26 @@
 #include <Basic/Mechanism.h>
 #include <frc/Timer.h>
 #include <Trajectory/CSVTrajectory.h>
+#include <Trajectory/LinearTrajectory.h>
 #include <Autonomous/Action.h>
 #include <map>
 #include <cstdint>
+#include <numbers>
 
 #define DEPLOY_DIR "/home/lvuser/deploy/"
 
+#define CS_LENGTH 80.4_in
+#define ROBOT_LENGTH 0.97_m
+#define ROBOT_WIDTH  0.777_m
+
+#define DIST_TO_CS_CENTER ((ROBOT_LENGTH / 2.0) + (CS_LENGTH / 2.0))
+
+class WhooshWhoosh;
 class Drive;
 
 class Autonomous : public Mechanism {
 public:
-    Autonomous(Drive* drive);
+    Autonomous(WhooshWhoosh* whooshWhoosh, Drive* drive);
     ~Autonomous();
 
     void process() override;
@@ -99,7 +108,7 @@ private:
     /**
      * Runs a trajectory from start to finish.
      */
-    void runTrajectory(CSVTrajectory& trajectory);
+    void runTrajectory(Trajectory* trajectory);
 
     enum class StartingLocation {
         MARS = -1, // Not really mars - signifies that we aren't running any auto.
@@ -122,6 +131,10 @@ private:
     int traverseChargeStationStep = 0;
     int balanceChargeStationStep = 0;
 
+    LinearTrajectory balanceChargeStationTrajectory { frc::Pose2d(5.35_m, 2.7_m, 0_deg), frc::Pose2d(5.35_m, 2.7_m + DIST_TO_CS_CENTER, 0_deg), 1.5_mps, 2_mps_sq };
+    LinearTrajectory traverseChargeStationTrajectory { frc::Pose2d(5.35_m, 2.7_m, 0_deg), frc::Pose2d(5.35_m, 2.7_m + (2 * DIST_TO_CS_CENTER), 0_deg), 1.5_mps, 2_mps_sq };
+
+    WhooshWhoosh* whooshWhoosh;
     Drive* drive;
 
     CSVTrajectory grid1_to_gp1_traj { DEPLOY_DIR "ThunderAuto/grid1_to_gp1.csv" };

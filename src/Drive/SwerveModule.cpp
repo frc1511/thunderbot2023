@@ -237,6 +237,7 @@ void SwerveModule::sendFeedback(std::size_t moduleIndex) {
     frc::SmartDashboard::PutNumber(fmt::format("Module_{}_RawRotation_deg",    moduleIndex), units::degree_t(getRawRotation()).value());
     frc::SmartDashboard::PutNumber(fmt::format("Module_{}_Rotation_deg",       moduleIndex), getAbsoluteRotation().Degrees().value());
     frc::SmartDashboard::PutNumber(fmt::format("Module_{}_EncoderOffset_deg",  moduleIndex), units::degree_t(absEncoderOffset).value());
+    frc::SmartDashboard::PutNumber(fmt::format("Module_{}_EncoderOffset_rad",  moduleIndex), units::radian_t(absEncoderOffset).value());
     frc::SmartDashboard::PutNumber(fmt::format("Module_{}_TargetRotation_deg", moduleIndex), units::degree_t(targetRotation).value());
 
     frc::SmartDashboard::PutNumber(fmt::format("Module_{}_EncoderRotation",    moduleIndex), getRelativeRotation());

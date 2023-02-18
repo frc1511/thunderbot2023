@@ -1,10 +1,11 @@
 #include <Autonomous/Autonomous.h>
 #include <Drive/Drive.h>
+#include <WhooshWhoosh/WhooshWhoosh.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <fmt/core.h>
 
-Autonomous::Autonomous(Drive* drive)
-: drive(drive) { }
+Autonomous::Autonomous(WhooshWhoosh* _whooshWhoosh, Drive* _drive)
+: whooshWhoosh(_whooshWhoosh), drive(_drive) { }
 
 Autonomous::~Autonomous() = default;
 
@@ -427,27 +428,36 @@ void Autonomous::edgeSideAuto_finalBalance() {
 }
 
 bool Autonomous::traverseChargeStation(frc::Pose2d resetPose) {
-    // TODO: Traverse Charge Station.
-
+    // 0: Drive forwards over the Charge Station.
     if (traverseChargeStationStep == 0) {
-
+        drive->runTrajectory(&traverseChargeStationTrajectory, actions);
+        step++;
     }
+    // 1: Wait for drive to finish, then reset the odometry to the specified pose.
+    else if (traverseChargeStationStep == 1 && drive->isFinished()) {
+        traverseChargeStationStep++;
+        drive->resetOdometry(resetPose);
+    }
+    else return true;
 
-    return true;
+    return false;
 }
 
 void Autonomous::balanceOnChargeStation() {
-    // TODO: Balance on Charge Station.
-
-    // 0: Drive forwards until angle ~11 deg.
+    // 0: Drive forwards until tilt angular velocity is non-zero.
     if (balanceChargeStationStep == 0) {
-        
+        drive->runTrajectory(&balanceChargeStationTrajectory, actions);
+    }
+    // 1: Calculate the optimal drive velocity for the current tilt angle.
+    else if (balanceChargeStationStep == 1 && drive->isFinished()) {
+        units::meters_per_second_t antiTiltVel = whooshWhoosh->calculateAntiTiltDriveVelocity();
+        // TODO: Drive!!!
     }
 }
 
-void Autonomous::runTrajectory(CSVTrajectory& trajectory) {
+void Autonomous::runTrajectory(Trajectory* trajectory) {
     if (step == 0) {
-        drive->runTrajectory(&trajectory, actions);
+        drive->runTrajectory(trajectory, actions);
         ++step;
     }
     else if (step == 1 && drive->isFinished()) {

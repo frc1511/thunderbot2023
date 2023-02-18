@@ -1,4 +1,5 @@
 #include <Drive/Drive.h>
+#include <WhooshWhoosh/WhooshWhoosh.h>
 #include <RollingRaspberry/RollingRaspberry.h>
 #include <frc/geometry/Twist2d.h>
 #include <frc/DriverStation.h>
@@ -44,8 +45,8 @@ static const std::map<int, units::meter_t> GRID_ZONES = {
     { 3, 0.00_m },
 }; 
 
-Drive::Drive(RollingRaspberry* rollingRaspberry)
-: rollingRaspberry(rollingRaspberry), driveController(
+Drive::Drive(WhooshWhoosh* _whooshWhoosh, RollingRaspberry* _rollingRaspberry)
+: rollingRaspberry(_rollingRaspberry), whooshWhoosh(_whooshWhoosh), driveController(
     [&]() -> frc::HolonomicDriveController {
         // Set the angular PID controller range from -180 to 180 degrees.
         trajectoryThetaPIDController.EnableContinuousInput(units::radian_t(-180_deg), units::radian_t(180_deg));
@@ -56,9 +57,9 @@ Drive::Drive(RollingRaspberry* rollingRaspberry)
     manualThetaPIDController.EnableContinuousInput(units::radian_t(-180_deg), units::radian_t(180_deg));
 
     // 4s is good?
-    imu.ConfigCalTime(frc1511::ADIS16470_IMU::CalibrationTime::_4s);
-    // imu.SetYawAxis(ThunderIMU::Axis::Z);
-    imu.ResetAllAngles();
+    // imu.ConfigCalTime(frc1511::ADIS16470_IMU::CalibrationTime::_4s);
+    // // imu.SetYawAxis(ThunderIMU::Axis::Z);
+    whooshWhoosh->resetHeading();
 
     // Apply the magnetic encoder offsets if the config file exists.
     if (readOffsetsFile()) {
@@ -299,13 +300,7 @@ bool Drive::isFinished() const {
 }
 
 void Drive::calibrateIMU() {
-    imu.Calibrate();
-
-    /**
-     * Sleep the current thread manually because the IMU library doesn't
-     * do it automatically for some reason D:
-     */
-    sleep(4);
+    whooshWhoosh->calibrateIMU();
     
     imuCalibrated = true;
 
@@ -334,9 +329,7 @@ frc::Pose2d Drive::getEstimatedPose() {
 
 frc::Rotation2d Drive::getRotation() {
     // The raw rotation from the IMU.
-    units::degree_t imuAngle = imu.GetAngle(frc1511::ADIS16470_IMU::kYaw);
-
-    return frc::Rotation2d(imuAngle);
+    return frc::Rotation2d(whooshWhoosh->getHeadingAngle());
 }
 
 void Drive::reloadRecordedTrajectory() {
@@ -344,11 +337,14 @@ void Drive::reloadRecordedTrajectory() {
 }
 
 void Drive::updateOdometry() {
+    frc::Rotation2d rot = getRotation();
+    fmt::print("rot: {}\n", rot.Degrees().value());
+
     /**
      * Update the pose estimator with encoder measurements from
      * the swerve modules.
      */
-    poseEstimator.Update(getRotation(), getModulePositions());
+    poseEstimator.Update(rot, getModulePositions());
 
     /**
      * Update the pose estimator with the estimated poses from
@@ -358,7 +354,7 @@ void Drive::updateOdometry() {
 
     for (const auto& [timestamp, pose] : estimatedPoses) {
         // poseEstimator.AddVisionMeasurement(pose, timestamp);
-        poseEstimator.ResetPosition(getRotation(), getModulePositions(), pose);
+        // poseEstimator.ResetPosition(getRotation(), getModulePositions(), pose);
     }
 }
 
@@ -412,7 +408,7 @@ void Drive::execManual() {
     // Generate chassis speeds depending on the control mode.
     if (manualData.flags & ControlFlag::FIELD_CENTRIC) {
         // Generate chassis speeds based on the rotation of the robot relative to the field.
-        velocities = frc::ChassisSpeeds::FromFieldRelativeSpeeds(xVel, yVel, angVel, currPose.Rotation());
+        velocities = frc::ChassisSpeeds::FromFieldRelativeSpeeds(xVel, yVel, angVel, getRotation());//currPose.Rotation());
     }
     else {
         // Chassis speeds are robot-centric.
@@ -588,6 +584,8 @@ void Drive::configMagneticEncoders() {
         // Set the current angle as the new offset angle.
         offsets.at(i) = angle;
     }
+
+    fmt::print("0: {}, 1: {}, 2: {}, 3: {}\n", offsets.at(0).value(), offsets.at(1).value(), offsets.at(2).value(), offsets.at(3).value());
 
     // Write the new offsets to the offsets file.
     writeOffsetsFile();

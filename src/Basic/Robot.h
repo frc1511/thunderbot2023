@@ -2,8 +2,11 @@
 
 #include <frc/TimedRobot.h>
 #include <Basic/Mechanism.h>
+#include <Hardware/HardwareManager.h>
 #include <vector>
 
+#include <Autonomous/Autonomous.h>
+#include <WhooshWhoosh/WhooshWhoosh.h>
 #include <Control/Controls.h>
 #include <RollingRaspberry/RollingRaspberry.h>
 #include <Drive/Drive.h>
@@ -34,8 +37,10 @@ private:
 
     RobotChess robotChess;
 
+    WhooshWhoosh whooshWhoosh;
+
     RollingRaspberry rollingRaspberry;
-    Drive drive { &rollingRaspberry };
+    Drive drive { &whooshWhoosh, &rollingRaspberry };
     Grabber grabber;
     Lift lift;
     GamePiece gamePiece { &grabber, &lift};
@@ -43,12 +48,11 @@ private:
 
     // Every mechanism on the robot.
     std::vector<Mechanism*> allMechanisms {
-        &drive, &gamePiece, &controls, &rollingRaspberry, &grabber, &lift
+        &whooshWhoosh, &drive, &gamePiece, &controls, &rollingRaspberry, &grabber, &lift
     };
-
 
     // Mechanisms that are run universally when the robot is running.
     std::vector<Mechanism*> universalMechanisms {
-        &rollingRaspberry,
+        &whooshWhoosh, &rollingRaspberry,
     };
 };
