@@ -77,6 +77,7 @@ public:
 
         PCM_GRABBER_WRIST_EXTEND  = 4,
         PCM_GRABBER_WRIST_RETRACT = 5,
+        PCM_ULTRA_BRICK_MODE = 6
     };
 };
 
