@@ -3,11 +3,13 @@
 #include <GamePiece/GamePiece.h>
 #include <cmath>
 #include <numbers>
+#include <Drive/UltraBrickMode.h>
+
 
 #define AXIS_DEADZONE 0.1
 
-Controls::Controls(Drive* _drive, GamePiece* _gamePiece)
-: drive(_drive), gamePiece(_gamePiece) { }
+Controls::Controls(Drive* _drive, GamePiece* _gamePiece, UltraBrickMode* _ultraBrickMode)
+: drive(_drive), gamePiece(_gamePiece), ultraBrickMode(_ultraBrickMode) { }
 
 Controls::~Controls() { }
 
@@ -392,6 +394,7 @@ void Controls::doSwitchPanel() {
     driveRobotCentric = switchPanel.GetRawButton(2);
     driveRecording = switchPanel.GetRawButton(3);
     manualAux = switchPanel.GetRawButton(4);
+    ultraBrickMode->setState(switchPanel.GetRawButton(5));
 }
 
 void Controls::sendFeedback() {

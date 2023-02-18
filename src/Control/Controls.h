@@ -6,10 +6,11 @@
 
 class Drive;
 class GamePiece;
+class UltraBrickMode;
 
 class Controls : public Mechanism {
 public:
-    Controls(Drive* drive, GamePiece* gamePiece);
+    Controls(Drive* drive, GamePiece* gamePiece, UltraBrickMode* ultraBrickMode);
     ~Controls();
 
     void resetToMode(MatchMode mode) override;
@@ -22,6 +23,7 @@ public:
 private:
     Drive* drive;
     GamePiece* gamePiece;
+    UltraBrickMode* ultraBrickMode;
     HardwareManager::DriveGameController driveController { ThunderGameController::Controller::DRIVER };
     HardwareManager::AuxGameController auxController { ThunderGameController::Controller::AUX };
     frc::GenericHID switchPanel {2};

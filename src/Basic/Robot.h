@@ -12,6 +12,7 @@
 #include <Drive/Drive.h>
 #include <GamePiece/GamePiece.h>
 #include <Basic/RobotChess.h>
+#include <Drive/UltraBrickMode.h>
 
 class Robot : public frc::TimedRobot {
 public:
@@ -44,11 +45,12 @@ private:
     Grabber grabber;
     Lift lift;
     GamePiece gamePiece { &grabber, &lift};
-    Controls controls { &drive, &gamePiece };
+    UltraBrickMode ultraBrickMode;
+    Controls controls { &drive, &gamePiece, &ultraBrickMode};
 
     // Every mechanism on the robot.
     std::vector<Mechanism*> allMechanisms {
-        &whooshWhoosh, &drive, &gamePiece, &controls, &rollingRaspberry, &grabber, &lift
+        &whooshWhoosh, &drive, &gamePiece, &controls, &rollingRaspberry, &grabber, &lift, &ultraBrickMode
     };
 
     // Mechanisms that are run universally when the robot is running.
