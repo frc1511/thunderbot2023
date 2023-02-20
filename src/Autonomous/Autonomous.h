@@ -11,11 +11,7 @@
 
 #define DEPLOY_DIR "/home/lvuser/deploy/"
 
-#define CS_LENGTH 80.4_in
-#define ROBOT_LENGTH 0.97_m
-#define ROBOT_WIDTH  0.777_m
-
-#define DIST_TO_CS_CENTER ((ROBOT_LENGTH / 2.0) + (CS_LENGTH / 2.0))
+#define DIST_TO_CS_CENTER ((0.97_m / 2.0) + (80.4_in / 2.0))
 
 class WhooshWhoosh;
 class Drive;

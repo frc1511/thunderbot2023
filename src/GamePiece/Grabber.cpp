@@ -10,13 +10,13 @@ Grabber::Grabber()
 : leftIntakeMotor(HardwareManager::IOMap::CAN_GRABBER_INTAKE_LEFT),
   rightIntakeMotor(HardwareManager::IOMap::CAN_GRABBER_INTAKE_RIGHT),
   intakeSensor(HardwareManager::IOMap::DIO_GRABBER_INTAKE)
-//    grabberPiston1(frc::PneumaticsModuleType::CTREPCM,
+//    grabberPiston1(HardwareManager::IOMap::CAN_PCM, frc::PneumaticsModuleType::CTREPCM,
 //         HardwareManager::IOMap::PCM_GRABBER_PISTON_1_EXTEND,
 //         HardwareManager::IOMap::PCM_GRABBER_PISTON_1_RETRACT),
-//    grabberPiston2(frc::PneumaticsModuleType::CTREPCM,
+//    grabberPiston2(HardwareManager::IOMap::CAN_PCM, frc::PneumaticsModuleType::CTREPCM,
 //         HardwareManager::IOMap::PCM_GRABBER_PISTON_2_EXTEND,
 //         HardwareManager::IOMap::PCM_GRABBER_PISTON_2_RETRACT),
-//     wristPiston(frc::PneumaticsModuleType::CTREPCM,
+//     wristPiston(HardwareManager::IOMap::CAN_PCM, frc::PneumaticsModuleType::CTREPCM,
 //         HardwareManager::IOMap::PCM_GRABBER_WRIST_EXTEND,
 //         HardwareManager::IOMap::PCM_GRABBER_WRIST_RETRACT)
    {

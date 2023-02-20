@@ -2,8 +2,8 @@
 
 #include <Basic/Mechanism.h>
 #include <Hardware/HardwareManager.h>
-#include <frc/Solenoid.h>
-
+#include <frc/DoubleSolenoid.h>
+#include <frc/Compressor.h>
 
 
 class UltraBrickMode : public Mechanism {
@@ -14,5 +14,8 @@ public:
     void setState(bool extended);
 
 private:
-    frc::Solenoid solenoid {frc::PneumaticsModuleType::CTREPCM, HardwareManager::IOMap::PCM_ULTRA_BRICK_MODE};
+    frc::DoubleSolenoid solenoid {
+        HardwareManager::IOMap::CAN_PCM, frc::PneumaticsModuleType::CTREPCM,
+        HardwareManager::IOMap::PCM_ULTRA_BRICK_MODE_EXTEND, HardwareManager::IOMap::PCM_ULTRA_BRICK_MODE_RETRACT
+    };
 };

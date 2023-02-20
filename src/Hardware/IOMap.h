@@ -59,6 +59,8 @@ public:
         CAN_LIFT_PIVOT_LEFT  = 5,
         CAN_LIFT_PIVOT_RIGHT = 6,
 
+        CAN_PCM = 7,
+
         // PWM
         PWM_BLINKY_BLINKY = 0,
 
@@ -77,7 +79,9 @@ public:
 
         PCM_GRABBER_WRIST_EXTEND  = 4,
         PCM_GRABBER_WRIST_RETRACT = 5,
-        PCM_ULTRA_BRICK_MODE = 6
+
+        PCM_ULTRA_BRICK_MODE_EXTEND = 7,
+        PCM_ULTRA_BRICK_MODE_RETRACT = 6,
     };
 };
 
@@ -108,6 +112,8 @@ public:
         CAN_LIFT_PIVOT_LEFT  = IO_MISSING,
         CAN_LIFT_PIVOT_RIGHT = IO_MISSING,
 
+        CAN_PCM = 0,
+
         // PWM
         PWM_BLINKY_BLINKY = IO_MISSING,
 
@@ -126,6 +132,9 @@ public:
         
         PCM_GRABBER_WRIST_EXTEND  = IO_MISSING,
         PCM_GRABBER_WRIST_RETRACT = IO_MISSING,
+
+        PCM_ULTRA_BRICK_MODE_EXTEND = IO_MISSING,
+        PCM_ULTRA_BRICK_MODE_RETRACT = IO_MISSING,
     };
 };
 
@@ -156,6 +165,8 @@ public:
         CAN_LIFT_PIVOT_LEFT  = 8,
         CAN_LIFT_PIVOT_RIGHT = IO_MISSING,
 
+        CAN_PCM = 0,
+
         // PWM
         PWM_BLINKY_BLINKY = IO_MISSING,
 
@@ -174,5 +185,8 @@ public:
         
         PCM_GRABBER_WRIST_EXTEND  = 6,
         PCM_GRABBER_WRIST_RETRACT = 1,
+
+        PCM_ULTRA_BRICK_MODE_EXTEND = IO_MISSING,
+        PCM_ULTRA_BRICK_MODE_RETRACT = IO_MISSING,
     };
 };

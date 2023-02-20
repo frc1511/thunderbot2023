@@ -4,8 +4,8 @@
 #include <Util/Parser.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <fmt/core.h>
-#define ENCODER_TOLERANCE 0.1
 
+#define ENCODER_TOLERANCE 0.1
 
 #define ENCODER_TOLERANCE 0.1
 #define PIVOT_POINT_HEIGHT 0.5_m
@@ -118,6 +118,8 @@ void Lift::process() {
 
         // Convert the positional extension length to a percent of the range of motion.
         double extensionPercent = positionalExtensionLength / MAX_EXTENSION_LENGTH;
+
+        // Don't under or over extend!
         extensionPercent = std::clamp(extensionPercent, 0.0, 1.0);
 
         // Convert the percent to an encoder position.
@@ -125,8 +127,33 @@ void Lift::process() {
 
         units::meters_per_second_t extensionVelocity(extensionPIDController.Calculate(extensionPosition));
         extensionVelocity = extensionSlewRateLimiter.Calculate(extensionVelocity);
+
+        if (extensionSensor.Get()) {
+            if (extensionVelocity > 0_mps) {
+                // No extension for you!
+                extensionVelocity = 0_mps;
+                extensionSlewRateLimiter.Reset(0_mps);
+            }
+
+            // Reset the encoder position to the max extension because the extension sensor has been triggered.
+            pivotMotorLeft.setEncoderPosition(MAX_EXTENSION_ENCODER);
+            pivotMotorRight.setEncoderPosition(MAX_EXTENSION_ENCODER);
+        }
+        if (homeSensor.Get()) {
+            if (extensionVelocity < 0_mps) {
+                // No extension for you!
+                extensionVelocity = 0_mps;
+                extensionSlewRateLimiter.Reset(0_mps);
+            }
+
+            // Reset the encoder position to 0 because the home sensor has been triggered.
+            pivotMotorLeft.setEncoderPosition(0);
+            pivotMotorRight.setEncoderPosition(0);
+        }
         
+        // Convert the MPS velocity to RPM.
         double rpm = extensionVelocity.value() * 60 * EXTENSION_METER_TO_ENCODER_FACTOR;
+
         extensionMotor.set(ThunderCANMotorController::ControlMode::VELOCITY, rpm);
         
         // --- Check if at position ---
