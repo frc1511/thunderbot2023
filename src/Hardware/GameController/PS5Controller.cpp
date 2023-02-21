@@ -144,8 +144,8 @@ private:
         // --- Create the server socket. ---
 
 SOCKET_CREATE:
-        int server_fd = socket(AF_INET, SOCK_STREAM, 0);
-        if (server_fd <= 0) {
+        int serverFileDesc = socket(AF_INET, SOCK_STREAM, 0);
+        if (serverFileDesc <= 0) {
             fmt::print("PS5Controller: socket() failed: {}\n", strerror(errno));
             std::this_thread::sleep_for(1s);
             goto SOCKET_CREATE;
@@ -154,22 +154,22 @@ SOCKET_CREATE:
         fmt::print("PS5Controller: Created socket.\n");
 
         // Setup non-blocking I/O for the server socket.
-        int flags = fcntl(server_fd, F_GETFL, 0);
-        fcntl(server_fd, F_SETFL, flags | O_NONBLOCK);
+        int flags = fcntl(serverFileDesc, F_GETFL, 0);
+        fcntl(serverFileDesc, F_SETFL, flags | O_NONBLOCK);
 
         // hi jeff!!
 
         // Server address.
-        struct sockaddr_in server_addr;
-        server_addr.sin_family = AF_INET;
-        server_addr.sin_addr.s_addr = INADDR_ANY;
-        server_addr.sin_port = htons((int)HardwareManager::IOMap::TCP_PS5_CONTROL);
-        std::memset(server_addr.sin_zero, 0, sizeof(server_addr.sin_zero));
+        struct sockaddr_in serverAddr;
+        serverAddr.sin_family = AF_INET;
+        serverAddr.sin_addr.s_addr = INADDR_ANY;
+        serverAddr.sin_port = htons((int)HardwareManager::IOMap::TCP_PS5_CONTROL);
+        std::memset(serverAddr.sin_zero, 0, sizeof(serverAddr.sin_zero));
 
         // --- Bind the server socket to the port. ---
 
 SOCKET_BIND:
-        if (bind(server_fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
+        if (bind(serverFileDesc, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
             fmt::print("PS5Controller: bind() to port {} failed: {}\n", (int)HardwareManager::IOMap::TCP_PS5_CONTROL, strerror(errno));
             std::this_thread::sleep_for(1s);
             goto SOCKET_BIND;
@@ -180,7 +180,7 @@ SOCKET_BIND:
         // --- Listen for incoming connections. ---
 
 SOCKET_LISTEN:
-        if (listen(server_fd, 1) < 0) {
+        if (listen(serverFileDesc, 1) < 0) {
             fmt::print("PS5Controller: listen() failed: {}\n", strerror(errno));
             goto SOCKET_LISTEN;
         }
@@ -189,28 +189,28 @@ SOCKET_LISTEN:
 
         // --- Accept incoming connections. ---
 
-        struct sockaddr_in client_addr;
-        socklen_t client_addr_len = sizeof(client_addr);
+        struct sockaddr_in clientAddr;
+        socklen_t clientAddrLen = sizeof(clientAddr);
 SOCKET_CONNECT:
-        int client_fd = accept(server_fd, (struct sockaddr*)&client_addr, &client_addr_len);
-        if (client_fd <= 0) {
+        int clientFileDesc = accept(serverFileDesc, (struct sockaddr*)&clientAddr, &clientAddrLen);
+        if (clientFileDesc <= 0) {
             if (errno != EWOULDBLOCK && errno != EAGAIN) {
                 fmt::print("PS5Controller: accept() failed: {}\n", strerror(errno));
             }
             goto SOCKET_CONNECT;
         }
 
-        fmt::print("PS5Controller: Accepted connection from {}\n", inet_ntoa(client_addr.sin_addr));
+        fmt::print("PS5Controller: Accepted connection from {}\n", inet_ntoa(clientAddr.sin_addr));
 
         // --- Read/Write stuff. ---
 
-        char input_buf[256];
-        char output_buf[sizeof(OutputMessage)];
+        char inputBuf[256];
+        char outputBuf[sizeof(OutputMessage)];
         while (true) {
             // --- Read input. ---
 
-            ssize_t bytes_read = read(client_fd, input_buf, sizeof(input_buf));
-            if (bytes_read < 0) {
+            ssize_t bytesRead = read(clientFileDesc, inputBuf, sizeof(inputBuf));
+            if (bytesRead < 0) {
                 if (errno == EWOULDBLOCK || errno == EAGAIN) {
                     // No incoming data D:
                 }
@@ -223,7 +223,7 @@ SOCKET_CONNECT:
                         lastDriverInputState = emptyInputState;
                         lastAuxInputState = emptyInputState;
                     }
-                    close(client_fd);
+                    close(clientFileDesc);
                     goto SOCKET_CONNECT;
                 }
                 else {
@@ -235,16 +235,16 @@ SOCKET_CONNECT:
                         lastDriverInputState = emptyInputState;
                         lastAuxInputState = emptyInputState;
                     }
-                    close(client_fd);
+                    close(clientFileDesc);
                     goto SOCKET_CONNECT;
                 }
             }   
-            else if (bytes_read) {
+            else if (bytesRead) {
                 // We got some data!
-                // fmt::print("PS5Controller: Read {} bytes.\n", bytes_read);
+                // fmt::print("PS5Controller: Read {} bytes.\n", bytesRead);
 
                 InputMessage msg;
-                std::memcpy(&msg, input_buf, sizeof(msg));
+                std::memcpy(&msg, inputBuf, sizeof(msg));
 
                 std::lock_guard<std::mutex> lock(inputMutex);
                 lastDriverInputState = driverInputState;
@@ -281,12 +281,12 @@ SOCKET_CONNECT:
                     msg.auxOutputState = auxOutputState;
                 }
 
-                std::memcpy(output_buf, &msg, sizeof(msg));
-                ssize_t bytes_written = write(client_fd, output_buf, sizeof(OutputMessage));
-                if (bytes_written < 0) {
+                std::memcpy(outputBuf, &msg, sizeof(msg));
+                ssize_t bytesWritten = write(clientFileDesc, outputBuf, sizeof(OutputMessage));
+                if (bytesWritten < 0) {
                     if (errno == ECONNRESET) {
                         fmt::print("PS5Controller: Connection reset by peer.\n");
-                        close(client_fd);
+                        close(clientFileDesc);
                         goto SOCKET_CONNECT;
                     }
                     else {
@@ -298,12 +298,12 @@ SOCKET_CONNECT:
                             lastDriverInputState = emptyInputState;
                             lastAuxInputState = emptyInputState;
                         }
-                        close(client_fd);
+                        close(clientFileDesc);
                         goto SOCKET_CONNECT;
                     }
                 }
-                else if (bytes_written) {
-                    // fmt::print("PS5Controller: Wrote {} bytes.\n", bytes_written);
+                else if (bytesWritten) {
+                    // fmt::print("PS5Controller: Wrote {} bytes.\n", bytesWritten);
                 }
             }
         }
