@@ -261,4 +261,8 @@ void Grabber::sendFeedback() {
     frc::SmartDashboard::PutNumber("Grabber_TempLeftIntake_F", leftIntakeMotor.getTemperature().value());
     frc::SmartDashboard::PutNumber("Grabber_CurrentRightIntake_A", rightIntakeMotor.getOutputCurrent().value());
     frc::SmartDashboard::PutNumber("Grabber_CurrentLeftIntake_A", leftIntakeMotor.getOutputCurrent().value());
+
+    // Dashboard feedback.
+    frc::SmartDashboard::PutNumber("thunderdashboard_grabber_position", static_cast<int>(currentPosition));
+    frc::SmartDashboard::PutNumber("thunderdashboard_gamepiece", static_cast<int>(gamePieceType));
 }

@@ -193,6 +193,11 @@ private:
     void updateOdometry();
 
     /**
+     * Updates the known grid alignment of the robot using the odometry.
+     */
+    void updateGridAlignment();
+
+    /**
      * Executes instructions for when the robot is stopped.
      */
     void execStopped();
@@ -344,6 +349,12 @@ private:
 
     // The trajectory that is used to go to a pose.
     std::unique_ptr<Trajectory> goToPoseTrajectory;
+
+    // The current grid that the robot is in front of.
+    int alignedGrid = -1;
+
+    // 0-8, the node that the robot is aligning to.
+    int aligningGridNode = -1;
 
     // The recorded trajectory.
     CSVTrajectory recordedTrajectory { RECORDED_TRAJ_PATH };

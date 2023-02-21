@@ -56,9 +56,6 @@ Drive::Drive(WhooshWhoosh* _whooshWhoosh, RollingRaspberry* _rollingRaspberry)
 
     manualThetaPIDController.EnableContinuousInput(units::radian_t(-180_deg), units::radian_t(180_deg));
 
-    // 4s is good?
-    // imu.ConfigCalTime(frc1511::ADIS16470_IMU::CalibrationTime::_4s);
-    // // imu.SetYawAxis(ThunderIMU::Axis::Z);
     whooshWhoosh->resetHeading();
 
     // Apply the magnetic encoder offsets if the config file exists.
@@ -258,29 +255,27 @@ void Drive::goToPose(frc::Pose2d pose) {
 }
 
 bool Drive::alignToGrid(AlignmentDirection direction) {
-    frc::Pose2d pose = getEstimatedPose();
-
     // Get the alliance color.
     int isBlue = frc::DriverStation::GetAlliance() == frc::DriverStation::kBlue ? 1 : -1;
 
     // The index of the alignment position (0-8).
-    int position = -1;
+    aligningGridNode = -1;
 
     // Determine which grid the robot is in front of.
-    if (pose.Y() < GRID_ZONES.at(0) && pose.Y() >= GRID_ZONES.at(1)) {
+    if (alignedGrid == 0) {
         // Positions 0-2.
-        position = 1 + static_cast<int>(direction) * isBlue;
+        aligningGridNode = 1 + static_cast<int>(direction) * isBlue;
     }
-    else if (pose.Y() < GRID_ZONES.at(1) && pose.Y() >= GRID_ZONES.at(2)) {
+    else if (alignedGrid == 1) {
         // Positions 3-5.
-        position = 4 + static_cast<int>(direction) * isBlue;
+        aligningGridNode = 4 + static_cast<int>(direction) * isBlue;
     }
-    else if (pose.Y() < GRID_ZONES.at(2) && pose.Y() >= GRID_ZONES.at(3)) {
+    else if (alignedGrid == 2) {
         // Positions 6-8.
-        position = 7 + static_cast<int>(direction) * isBlue;
+        aligningGridNode = 7 + static_cast<int>(direction) * isBlue;
     }
 
-    if (position == -1) {
+    if (aligningGridNode == -1) {
         // No alignment for you.
         return false;
     }
@@ -289,7 +284,7 @@ bool Drive::alignToGrid(AlignmentDirection direction) {
     const auto& alignment_poses = isBlue == 1 ? BLUE_ALIGNMENT_POSES : RED_ALIGNMENT_POSES;
 
     // Go to the alignment pose.
-    goToPose(alignment_poses.at(position));
+    goToPose(alignment_poses.at(aligningGridNode));
 
     return true;
 }
@@ -358,12 +353,34 @@ void Drive::updateOdometry() {
     }
 }
 
+void Drive::updateGridAlignment() {
+    alignedGrid = -1;
+
+    frc::Pose2d pose = getEstimatedPose();
+
+    // Determine which grid the robot is in front of.
+    if (pose.Y() < GRID_ZONES.at(0) && pose.Y() >= GRID_ZONES.at(1)) {
+        // Positions 0-2.
+        alignedGrid = 0;
+    }
+    else if (pose.Y() < GRID_ZONES.at(1) && pose.Y() >= GRID_ZONES.at(2)) {
+        // Positions 3-5.
+        alignedGrid = 1;
+    }
+    else if (pose.Y() < GRID_ZONES.at(2) && pose.Y() >= GRID_ZONES.at(3)) {
+        // Positions 6-8.
+        alignedGrid = 2;
+    }
+}
+
 void Drive::execStopped() {
     // Set the speeds to 0.
     setModuleStates({ 0_mps, 0_mps, 0_deg_per_s });
 
     // Just for feedback.
     targetPose = getEstimatedPose();
+
+    aligningGridNode = -1;
 
     // Put the drivetrain into brick mode if the flag is set.
     if (manualData.flags & ControlFlag::BRICK) {
@@ -693,4 +710,7 @@ void Drive::sendFeedback() {
     frc::SmartDashboard::PutNumber("thunderdashboard_drive_ang_vel",      chassisSpeeds.omega.value());
     frc::SmartDashboard::PutNumber("thunderdashboard_drive_ang",          pose.Rotation().Radians().value());
     frc::SmartDashboard::PutNumber("thunderdashboard_drive_target_ang",   targetPose.Rotation().Radians().value());
+
+    frc::SmartDashboard::PutNumber("thunderdashboard_score_grid",        alignedGrid);
+    frc::SmartDashboard::PutNumber("thunderdashboard_score_grid_column", aligningGridNode % 3);
 }

@@ -1,5 +1,7 @@
 #include <Basic/Robot.h>
 #include <fmt/core.h>
+#include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/DriverStation.h>
 
 void Robot::RobotInit() {
     // Send feedback every 40 ms.
@@ -7,6 +9,8 @@ void Robot::RobotInit() {
         for (Mechanism* mech : allMechanisms) {
             mech->sendFeedback();
         }
+
+        frc::SmartDashboard::PutNumber("thunderdashboard_match_remaining", frc::DriverStation::GetMatchTime());
     }, 40_ms);
 }
 

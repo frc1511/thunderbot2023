@@ -28,17 +28,17 @@ public:
     Action getAction();
 
     enum class Position {
-        OPEN, //All the way open - cube intake, placement
-        AGAPE, //Semi open - cone intake
-        AJAR, //Not open - carrying cone tightly
+        OPEN  = 0, // All the way open - cube intake, placement
+        AGAPE = 1, // Semi open - cone intake
+        AJAR  = 2, // Not open - carrying cone tightly
     };
 
     void setPosition(Position position);
     void setWristPosition(bool tipped);
     enum class GamePieceType {
-        CONE,
-        CUBE,
-        NONE,
+        NONE = -1,
+        CUBE = 0,
+        CONE = 1,
     };
 
     GamePieceType getGamePieceType();
@@ -57,7 +57,6 @@ private:
     GamePieceType gamePieceType;
     bool placingGamePiece;
     bool autoIntaking;
-   // void intakingGamePiece;
     frc::Timer placingGamePieceTimer;
     frc::Timer autoIntakingTimer;
     frc::Timer finishIntakingTimer;

@@ -293,4 +293,25 @@ void Lift::sendFeedback() {
     frc::SmartDashboard::PutNumber("Lift_CurrentRightPivot_A", pivotMotorRight.getOutputCurrent().value());
     frc::SmartDashboard::PutNumber("Lift_CurrentLeftPivot_A", pivotMotorLeft.getOutputCurrent().value());
     frc::SmartDashboard::PutNumber("Lift_CurrentExtension_A", extensionMotor.getOutputCurrent().value());
+
+    // Dashboard feedback
+    frc::SmartDashboard::PutNumber("thunderdashboard_lift_pivot_percent", pivotPercent);
+    frc::SmartDashboard::PutNumber("thunderdashboard_lift_extension_percent", extensionPercent);
+
+    if (controlType == ControlType::MANUAL) {
+        frc::SmartDashboard::PutNumber("thunderdashboard_lift_pivot_target_percent", -1.0);
+        frc::SmartDashboard::PutNumber("thunderdashboard_lift_extension_target_percent", -1.0);
+    }
+    else {
+        double targetPivotPercent = positionalAngle / (MAX_PIVOT_ANGLE - MIN_PIVOT_ANGLE);
+        double targetExtensionPercent = positionalExtensionLength / MAX_EXTENSION_LENGTH;
+
+        if (atPosition) {
+            targetPivotPercent = pivotPercent;
+            targetExtensionPercent = extensionPercent;
+        }
+
+        frc::SmartDashboard::PutNumber("thunderdashboard_lift_pivot_target_percent", targetPivotPercent);
+        frc::SmartDashboard::PutNumber("thunderdashboard_lift_extension_target_percent", targetExtensionPercent);
+    }
 }
