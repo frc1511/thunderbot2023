@@ -290,15 +290,24 @@ void Lift::sendFeedback() {
     frc::SmartDashboard::PutNumber("Lift_TargetAngle_deg", positionalAngle.value());
     frc::SmartDashboard::PutBoolean("Lift_TargetReached", atPosition);
 
+    // Raw Encoder Positions
     frc::SmartDashboard::PutNumber("Lift_EncoderRawExtension", extensionMotor.getEncoderPosition());
     frc::SmartDashboard::PutNumber("Lift_EncoderRawPivotLeft", pivotMotorLeft.getEncoderPosition());
     frc::SmartDashboard::PutNumber("Lift_EncoderRawPivotRight", pivotMotorRight.getEncoderPosition());
 
+    // Normalized Encoder Positions
     auto [currentPivotPosition, currentExtensionPosition, extensionOffset] = getCurrentPosition();
 
     frc::SmartDashboard::PutNumber("Lift_EncoderExtension",       currentExtensionPosition);
     frc::SmartDashboard::PutNumber("Lift_EncoderPivot",           currentPivotPosition);
     frc::SmartDashboard::PutNumber("Lift_EncoderExtensionOffset", extensionOffset);
+
+    // Lift length and angle
+    units::meter_t currentExtension = MAX_EXTENSION_LENGTH * (currentExtensionPosition / MAX_EXTENSION_ENCODER);
+    units::degree_t currentAngle = MAX_PIVOT_ANGLE * (currentPivotPosition / MAX_PIVOT_ENCODER);
+
+    frc::SmartDashboard::PutNumber("Lift_Length_m", currentExtension.value());
+    frc::SmartDashboard::PutNumber("Lift_Angle_deg", currentAngle.value());
 
     frc::SmartDashboard::PutNumber("Lift_ManualPivotSpeed", manualPivotSpeed);
     frc::SmartDashboard::PutNumber("Lift_ManualExtensionSpeed", manualExtensionSpeed);
