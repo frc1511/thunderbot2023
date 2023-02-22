@@ -10,27 +10,31 @@
 #define ENCODER_TOLERANCE 0.1
 #define PIVOT_POINT_HEIGHT 0.5_m
 
-#define MIN_PIVOT_ANGLE -30_deg
-#define MAX_PIVOT_ANGLE 40_deg
-#define MAX_PIVOT_ENCODER 100
-#define MAX_EXTENSION_LENGTH 42_in
-#define MAX_EXTENSION_ENCODER 100
+#define MIN_PIVOT_ANGLE -47_deg
+#define MAX_PIVOT_ANGLE 20_deg
+#define MAX_PIVOT_ENCODER 57.929295//81.360153
+#define MAX_EXTENSION_LENGTH 38.25_in
+#define MAX_EXTENSION_ENCODER 57.929295
 
-#define MANUAL_PIVOT_SPEED_COEFF 0.5
-#define MANUAL_EXTENSION_SPEED_COEFF 0.5
+#define MIN_PIVOT_EXTEND_ENCODER 3.738092
+
+#define EXTENSION_BACKDRIVE_ENCODER -2.50708256
+
+#define MANUAL_PIVOT_SPEED_COEFF 0.3
+#define MANUAL_EXTENSION_SPEED_COEFF 0.2
 
 // The max amperage of the pivot and extension motors.
 #define PIVOT_MAX_AMPERAGE 40_A
 #define EXTENSION_MAX_AMPERAGE 40_A
 
 // --- PID Values ---
-#define PIVOT_P 0.1
+#define PIVOT_P 0.0366
 #define PIVOT_I 0
 #define PIVOT_D 0
 #define PIVOT_I_ZONE 0
 #define PIVOT_FF 0
 
-#define EXTENSION_P 0.1
+#define EXTENSION_P 0.0177
 #define EXTENSION_I 0
 #define EXTENSION_D 0
 #define EXTENSION_I_ZONE 0 
@@ -66,10 +70,13 @@ void Lift::resetToMode(MatchMode mode) {
     manualPivotSpeed = 0;
     manualExtensionSpeed = 0;
 
+    atPosition = false;
+
     extensionMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, 0);
     pivotMotorLeft.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, 0);
     pivotMotorRight.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, 0);
 
+    extensionPIDController.Reset();
     extensionSlewRateLimiter.Reset(0_mps);
 
     if (!(mode == Mechanism::MatchMode::DISABLED && getLastMode() == Mechanism::MatchMode::AUTO)
@@ -101,6 +108,10 @@ void Lift::process() {
         pivotMotorRight.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, manualPivotSpeed);
     }
     else {
+        double currentPivotPosition = pivotMotorLeft.getEncoderPosition();
+        double extensionOffset = EXTENSION_BACKDRIVE_ENCODER * (currentPivotPosition / MAX_PIVOT_ENCODER);
+        double currentExtensionPosition = extensionMotor.getEncoderPosition() + extensionOffset;
+
         // --- Pivot ---
 
         // Convert the positional angle to a percent of the range of motion.
@@ -109,6 +120,19 @@ void Lift::process() {
 
         // Convert the percent to an encoder position.
         double pivotPosition = pivotPercent * MAX_PIVOT_ENCODER;
+
+        bool shouldExtend = true;
+
+        if (currentPivotPosition <= MIN_PIVOT_EXTEND_ENCODER) {
+            shouldExtend = false;
+            if (homeSensor.Get() || currentExtensionPosition < ENCODER_TOLERANCE) {
+                // We can pivot freely
+            }
+            else {
+                // We need to stop pivoting and retract fully.
+                pivotPosition = currentPivotPosition;
+            }
+        }
 
         // Set the PID reference of the pivot motors to the encoder position.
         pivotMotorLeft.set(ThunderCANMotorController::ControlMode::POSITION, pivotPosition);
@@ -123,46 +147,28 @@ void Lift::process() {
         extensionPercent = std::clamp(extensionPercent, 0.0, 1.0);
 
         // Convert the percent to an encoder position.
-        double extensionPosition = extensionPercent * MAX_EXTENSION_ENCODER;
+        double extensionPosition = extensionPercent * MAX_EXTENSION_ENCODER + extensionOffset;
 
-        units::meters_per_second_t extensionVelocity(extensionPIDController.Calculate(extensionPosition));
-        extensionVelocity = extensionSlewRateLimiter.Calculate(extensionVelocity);
+        // Override current extension position because we need to be retracted in this zone.
+        if (!shouldExtend) {
+            extensionPosition = extensionOffset;
+        }
 
         if (extensionSensor.Get()) {
-            if (extensionVelocity > 0_mps) {
-                // No extension for you!
-                extensionVelocity = 0_mps;
-                extensionSlewRateLimiter.Reset(0_mps);
-            }
-
-            // Reset the encoder position to the max extension because the extension sensor has been triggered.
-            pivotMotorLeft.setEncoderPosition(MAX_EXTENSION_ENCODER);
-            pivotMotorRight.setEncoderPosition(MAX_EXTENSION_ENCODER);
+            extensionMotor.setEncoderPosition(MAX_EXTENSION_ENCODER);
+            extensionPosition = MAX_EXTENSION_ENCODER;
         }
         if (homeSensor.Get()) {
-            if (extensionVelocity < 0_mps) {
-                // No extension for you!
-                extensionVelocity = 0_mps;
-                extensionSlewRateLimiter.Reset(0_mps);
-            }
-
-            // Reset the encoder position to 0 because the home sensor has been triggered.
-            pivotMotorLeft.setEncoderPosition(0);
-            pivotMotorRight.setEncoderPosition(0);
+            extensionMotor.setEncoderPosition(0);
+            extensionPosition = 0;
         }
-        
-        // Convert the MPS velocity to RPM.
-        double rpm = extensionVelocity.value() * 60 * EXTENSION_METER_TO_ENCODER_FACTOR;
 
-        extensionMotor.set(ThunderCANMotorController::ControlMode::VELOCITY, rpm);
+        extensionMotor.set(ThunderCANMotorController::ControlMode::POSITION, extensionPosition);
         
         // --- Check if at position ---
 
-        double currentAnglePosition = pivotMotorLeft.getEncoderPosition();
-        double currentExtensionPosition = extensionMotor.getEncoderPosition();
-
         atPosition = false;
-        if ((pivotPosition + ENCODER_TOLERANCE >= currentAnglePosition && pivotPosition - ENCODER_TOLERANCE <= currentAnglePosition) &&
+        if ((pivotPosition + ENCODER_TOLERANCE >= currentPivotPosition && pivotPosition - ENCODER_TOLERANCE <= currentPivotPosition) &&
             (extensionPosition + ENCODER_TOLERANCE >= currentExtensionPosition && extensionPosition - ENCODER_TOLERANCE <= currentExtensionPosition)) {
             atPosition = true;
         }
@@ -204,7 +210,7 @@ void Lift::configureMotors() {
     pivotMotorLeft.configFactoryDefault();
     pivotMotorLeft.setIdleMode(ThunderCANMotorController::IdleMode::BRAKE);
     pivotMotorLeft.configSmartCurrentLimit(PIVOT_MAX_AMPERAGE);
-    pivotMotorLeft.setInverted(false);
+    pivotMotorLeft.setInverted(true);
 
     pivotMotorLeft.configP(PIVOT_P);
     pivotMotorLeft.configI(PIVOT_I);
@@ -217,7 +223,7 @@ void Lift::configureMotors() {
     pivotMotorRight.configFactoryDefault();
     pivotMotorRight.setIdleMode(ThunderCANMotorController::IdleMode::BRAKE);
     pivotMotorRight.configSmartCurrentLimit(PIVOT_MAX_AMPERAGE);
-    pivotMotorRight.setInverted(false);
+    pivotMotorRight.setInverted(true);
 
     pivotMotorRight.configP(PIVOT_P);
     pivotMotorRight.configI(PIVOT_I);
@@ -229,7 +235,7 @@ void Lift::configureMotors() {
     extensionMotor.configFactoryDefault();
     extensionMotor.setIdleMode(ThunderCANMotorController::IdleMode::BRAKE);
     extensionMotor.configSmartCurrentLimit(EXTENSION_MAX_AMPERAGE);
-    extensionMotor.setInverted(false);
+    extensionMotor.setInverted(true);
 
     extensionMotor.configP(EXTENSION_P);
     extensionMotor.configI(EXTENSION_I);

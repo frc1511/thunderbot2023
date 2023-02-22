@@ -33,14 +33,10 @@ public:
     using SwerveDriveMotor = ThunderCANSparkMax;
     using SwerveTurningMotor = ThunderCANSparkMax;
     using SwerveTurningEncoder = ThunderCANCoder;
-    using GrabberIntakeMotor = ThunderCANMotorController;
-    using LiftExtensionMotor = ThunderCANMotorController;
-    using LiftLeftPivotMotor = ThunderCANMotorController;
-    using LiftRightPivotMotor = ThunderCANMotorController;
-    // using GrabberIntakeMotor = ThunderCANSparkMax;
-    // using LiftExtensionMotor = ThunderCANSparkMax;
-    // using LiftLeftPivotMotor = ThunderCANSparkMax;
-    // using LiftRightPivotMotor = ThunderCANSparkMax;
+    using GrabberIntakeMotor = ThunderCANSparkMax;
+    using LiftExtensionMotor = ThunderCANSparkMax;
+    using LiftLeftPivotMotor = ThunderCANSparkMax;
+    using LiftRightPivotMotor = ThunderCANSparkMax;
 
 #elif WHICH_ROBOT == TEST_BOARD
     using SwerveDriveMotor = ThunderCANMotorController;
@@ -54,6 +50,6 @@ public:
 #endif
 
     // Game controller types.
-    using DriveGameController = ThunderPS5Controller;
-    using AuxGameController = ThunderPS5Controller;
+    using DriveGameController = ThunderXboxController;
+    using AuxGameController = ThunderXboxController;
 };
