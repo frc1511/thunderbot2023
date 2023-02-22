@@ -44,24 +44,32 @@ private:
     // Target angle of the lift arm.
     units::degree_t positionalAngle;
 
-    // Whether the lift is at it's desired position.
+    // Whether the lift is at its desired position.
     bool atPosition;
 
     // Motor for extending the lift arm.
     HardwareManager::LiftExtensionMotor extensionMotor;
 
-    // Motors for pivoting the lift arm (lead screw).
+    // Motors for pivoting the lift arm (ball screws).
     HardwareManager::LiftLeftPivotMotor pivotMotorLeft;
     HardwareManager::LiftRightPivotMotor pivotMotorRight;
 
-    // Sensor detecting if the lift is at the home position.
+    // Sensor detecting if the lift is at the home position (fully retracted).
     frc::DigitalInput homeSensor;
 
-    // Sensor detecting if the lift is at the extension limit.
+    // Sensor detecting if the lift is at the extension limit (fully extended).
     frc::DigitalInput extensionSensor;
 
-    frc::PIDController extensionPIDController;
+    // Control the acceleration of the extension motor (we are royally misusing this class to do this).
     frc::SlewRateLimiter<units::meters_per_second> extensionSlewRateLimiter;
+
+    struct LiftPosition {
+        double pivotPosition;
+        double extensionPosition;
+        double extensionOffset;
+    };
+
+    LiftPosition getCurrentPosition();
 
     void configureMotors();
 };
