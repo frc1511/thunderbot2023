@@ -10,15 +10,15 @@
 #include <frc/trajectory/TrapezoidProfile.h>
 #include <units/velocity.h>
 
-#define EXTENSION_P 0.926354793886058
+#define EXTENSION_P (0.926354793886058 * 2)
 #define EXTENSION_I 0.0
 #define EXTENSION_D 0.0
 #define EXTENSION_I_ZONE 0 
 #define EXTENSION_FF 0
 
 // These values are made up (mean nothing in terms of actual units).
-#define EXTENSION_MAX_VEL 1_mps
-#define EXTENSION_MAX_ACCEL 2_mps_sq
+#define EXTENSION_MAX_VEL 2_mps
+#define EXTENSION_MAX_ACCEL 6_mps_sq
 
 class Lift : public Mechanism {
 public:

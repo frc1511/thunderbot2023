@@ -101,10 +101,10 @@ void Grabber::process() {
     if (currentAction == Action::INTAKE) {
         leftIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, INTAKE_SPEED);
         rightIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, INTAKE_SPEED);
-        if (leftIntakeMotor.getOutputCurrent() >= 10_A || rightIntakeMotor.getOutputCurrent() >= 10_A) {
+        if (leftIntakeMotor.getOutputCurrent() >= 12_A || rightIntakeMotor.getOutputCurrent() >= 12_A) {
             intakeCurrentTimer.Start();
             // Sustained current spike for 0.25 seconds.
-            if (intakeCurrentTimer.Get() > 0.25_s) {
+            if (intakeCurrentTimer.Get() > 0.3_s) {
                 finishIntakingTimer.Reset();
                 finishIntakingTimer.Start();
                 finishIntaking = true;

@@ -295,32 +295,32 @@ void Controls::doAux() {
         // If we don't have a GamePiece, go to the balcony position.
         if (gamePiece->getGamePieceType() == Grabber::GamePieceType::NONE) {
             // Toggle between the balcony and balcony pivot positions.
-            if (gamePiece->getLiftPreset() == GamePiece::LiftPreset::BALCONY) {
-                gamePiece->setLiftPreset(GamePiece::LiftPreset::BALCONY_PIVOT);
+            if (gamePiece->getLiftPreset() == GamePiece::LiftPreset::BALCONY_PIVOT) {
+                gamePiece->setLiftPreset(GamePiece::LiftPreset::BALCONY);
             }
             else {
-                gamePiece->setLiftPreset(GamePiece::LiftPreset::BALCONY);
+                gamePiece->setLiftPreset(GamePiece::LiftPreset::BALCONY_PIVOT);
             }
         }
         // If we do, go to the high position.
         else {
             // Toggle between the high and high pivot positions.
-            if (gamePiece->getLiftPreset() == GamePiece::LiftPreset::HIGH) {
-                gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH_PIVOT);
+            if (gamePiece->getLiftPreset() == GamePiece::LiftPreset::HIGH_PIVOT) {
+                gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH);
             }
             else {
-                gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH);
+                gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH_PIVOT);
             }
         }
     }
     // Moves the lift to the mid grid position.
     if (liftMid) {
         // Toggle between the mid and mid pivot positions.
-        if (gamePiece->getLiftPreset() == GamePiece::LiftPreset::MID) {
-            gamePiece->setLiftPreset(GamePiece::LiftPreset::MID_PIVOT);
+        if (gamePiece->getLiftPreset() == GamePiece::LiftPreset::MID_PIVOT) {
+            gamePiece->setLiftPreset(GamePiece::LiftPreset::MID);
         }
         else {
-            gamePiece->setLiftPreset(GamePiece::LiftPreset::MID);
+            gamePiece->setLiftPreset(GamePiece::LiftPreset::MID_PIVOT);
         }
     }
     if (liftLow) {
