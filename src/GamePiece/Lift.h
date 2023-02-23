@@ -60,13 +60,9 @@ private:
     // Sensor detecting if the lift is at the extension limit (fully extended).
     frc::DigitalInput extensionSensor;
 
-    frc::PIDController pivotLeftPIDController;
-    frc::PIDController pivotRightPIDController;
-    frc::PIDController extensionPIDController;
+    // frc::PIDController extensionPIDController;
     // Control the acceleration of the extension motor (we are royally misusing this class to do this).
-    frc::SlewRateLimiter<units::meters_per_second> pivotLeftSlewRateLimiter;
-    frc::SlewRateLimiter<units::meters_per_second> pivotRightSlewRateLimiter;
-    frc::SlewRateLimiter<units::meters_per_second> extensionSlewRateLimiter;
+    // frc::SlewRateLimiter<units::meters_per_second> extensionSlewRateLimiter;
 
     struct LiftPosition {
         double pivotPosition;

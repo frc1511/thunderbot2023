@@ -78,16 +78,16 @@ private:
     Lift* lift;
 
     const std::map<LiftPreset, std::pair<units::degree_t, units::meter_t>> presetMap {
-        { LiftPreset::INTAKE,       std::make_pair(-40_deg, 0_m) }, // Starting config & cone/cube intake.
-        { LiftPreset::INTAKE_FUNKY, std::make_pair(-28_deg, 0.168_m) }, // Tipped over cone intake.
-        { LiftPreset::GROUND,       std::make_pair(-40_deg, 0_m) }, // Low scoring position.
+        { LiftPreset::INTAKE,       std::make_pair(-40_deg, 0_m) },      // Starting config & cone/cube intake.
+        { LiftPreset::INTAKE_FUNKY, std::make_pair(-28_deg, 0.168_m) },  // Tipped over cone intake.
+        { LiftPreset::GROUND,       std::make_pair(-25_deg, 0.1_m) },    // Low scoring position.
         { LiftPreset::MID,          std::make_pair(0_deg,   38.25_in) }, // Mid scoring position.
-        { LiftPreset::MID_PIVOT,    std::make_pair(0_deg,   0_m) }, // Mid scoring position - only pivot.
-        { LiftPreset::HIGH,         std::make_pair(20_deg,  0_m) }, // High scoring position.
-        { LiftPreset::HIGH_PIVOT,   std::make_pair(20_deg,  0_m) }, // High scoring position - only pivot.
-        { LiftPreset::BALCONY,      std::make_pair(18_deg,  0_m) }, // Balcony scoring position.
-        { LiftPreset::BALCONY_PIVOT,std::make_pair(18_deg,  0_m) }, // Balcony scoring position - only pivot.
-        { LiftPreset::TRAVEL,       std::make_pair(-20_deg, 0_m) }, // Travel position.
+        { LiftPreset::MID_PIVOT,    std::make_pair(0_deg,   0_m) },      // Mid scoring position - only pivot.
+        { LiftPreset::HIGH,         std::make_pair(20_deg,  38.25_in) }, // High scoring position.
+        { LiftPreset::HIGH_PIVOT,   std::make_pair(20_deg,  0_m) },      // High scoring position - only pivot.
+        { LiftPreset::BALCONY,      std::make_pair(18_deg,  30_in) },    // Balcony scoring position.
+        { LiftPreset::BALCONY_PIVOT,std::make_pair(18_deg,  0_m) },      // Balcony scoring position - only pivot.
+        { LiftPreset::TRAVEL,       std::make_pair(-25_deg, 0_m) },      // Travel position.
     };
 
     // hi jeff

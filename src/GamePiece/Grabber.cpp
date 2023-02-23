@@ -80,6 +80,7 @@ void Grabber::process() {
         }
     }
     else if (finishIntaking) {
+        // Keep intaking for a little bit to make sure it's in there.
         if (finishIntakingTimer.Get() >= 0.0_s) {
             finishIntaking = false;
             setAction(Action::IDLE);   
@@ -97,33 +98,22 @@ void Grabber::process() {
         }
     }
 
-    static frc::Timer myTimer;
-
-    //if it is autoIntaking, check sensors and set motors and things
     if (currentAction == Action::INTAKE) {
         leftIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, INTAKE_SPEED);
         rightIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, INTAKE_SPEED);
         if (leftIntakeMotor.getOutputCurrent() >= 10_A || rightIntakeMotor.getOutputCurrent() >= 10_A) {
-            myTimer.Start();
-            if (myTimer.Get() > 0.25_s) {
+            intakeCurrentTimer.Start();
+            // Sustained current spike for 0.25 seconds.
+            if (intakeCurrentTimer.Get() > 0.25_s) {
                 finishIntakingTimer.Reset();
                 finishIntakingTimer.Start();
                 finishIntaking = true;
             }
         }
         else {
-            myTimer.Reset();
-            myTimer.Stop();
+            intakeCurrentTimer.Reset();
+            intakeCurrentTimer.Stop();
         }
-        // If the intake sensor is triggered, we have intaked a GamePiece.
-        // if (!intakeSensor.Get()) {
-            // if (leftIntakeMotor.getOutputCurrent() >= 32_A || rightIntakeMotor.getOutputCurrent() >= 32_A) {
-            // if (!finishIntaking) {
-            //     finishIntakingTimer.Reset();
-            //     finishIntakingTimer.Start();
-            //     finishIntaking = true;
-            // }
-        // }
     } 
     else if (currentAction == Action::OUTTAKE) {
         leftIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, -INTAKE_SPEED);

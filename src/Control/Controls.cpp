@@ -22,9 +22,6 @@ void Controls::process() {
     driveController.setLightbarColor(255, 0, 0);
     auxController.setLightbarColor(0, 255, 0);
 
-    // print out driver joystick values
-    // fmt::print("leftX: {}, leftY: {}, rightX: {}, rightY: {}\n", driveController.getLeftXAxis(), driveController.getLeftYAxis(), driveController.getRightXAxis(), driveController.getRightYAxis());
-
     doSwitchPanel();
     doDrive();
 

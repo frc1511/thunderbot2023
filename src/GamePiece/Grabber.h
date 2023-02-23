@@ -60,6 +60,7 @@ private:
     frc::Timer placingGamePieceTimer;
     frc::Timer autoIntakingTimer;
     frc::Timer finishIntakingTimer;
+    frc::Timer intakeCurrentTimer;
     bool finishIntaking;
     HardwareManager::GrabberIntakeMotor leftIntakeMotor;
     HardwareManager::GrabberIntakeMotor rightIntakeMotor;
