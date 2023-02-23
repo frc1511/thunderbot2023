@@ -1,11 +1,12 @@
 #include <Autonomous/Autonomous.h>
 #include <Drive/Drive.h>
 #include <WhooshWhoosh/WhooshWhoosh.h>
+#include <GamePiece/GamePiece.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <fmt/core.h>
 
-Autonomous::Autonomous(WhooshWhoosh* _whooshWhoosh, Drive* _drive)
-: whooshWhoosh(_whooshWhoosh), drive(_drive) { }
+Autonomous::Autonomous(WhooshWhoosh* _whooshWhoosh, Drive* _drive, GamePiece* _gamePiece)
+: whooshWhoosh(_whooshWhoosh), drive(_drive), gamePiece(_gamePiece) { }
 
 Autonomous::~Autonomous() = default;
 
@@ -70,7 +71,7 @@ void Autonomous::doNothing() {
 }
 
 void Autonomous::barrierSideAuto() {
-    // 0: Set start pose and raise lift.
+    // 0: Set start pose and starting GamePiece.
     if (step == 0) {
         // Cube
         if (startingGamePiece == 0) {
@@ -83,18 +84,19 @@ void Autonomous::barrierSideAuto() {
             drive->resetOdometry(grid2_to_gp1_traj.getInitialPose());
         }
 
-        // TODO: Begin raising lift.
+        // Set the starting GamePiece.
+        gamePiece->setGamePiece(startingGamePiece == 0 ? Grabber::GamePieceType::CUBE : Grabber::GamePieceType::CONE);
 
         step++;
     }
     // 1: Score preloaded GamePiece.
-    else if (step == 1 /* && gamePiece->liftAtPosition() */) {
-        // TODO: Score.
-
-        step++;
+    else if (step == 1) {
+        if (scoreGamePiece()) {
+            step++;
+        }
     }
     // 2: Drive to GamePiece 1 and begin lowering lift.
-    else if (step == 2 /* && gamePiece->isFinishedScoring() */) {
+    else if (step == 2) {
         // Cube
         if (startingGamePiece == 0) {
             // Drive from Grid 1 to GP 1.
@@ -106,25 +108,20 @@ void Autonomous::barrierSideAuto() {
             drive->runTrajectory(&grid2_to_gp1_traj, actions);
         }
 
-        // TODO: Begin lowering lift.
+        // Move lift down to intake.
+        gamePiece->setLiftPreset(GamePiece::LiftPreset::INTAKE);
+
+        // Prepare the grabber to intake GamePiece 1.
+        gamePiece->setGrabberPosition(fieldGamePiece == 0 ? Grabber::Position::OPEN : Grabber::Position::AGAPE);
 
         step++;
     }
     // 3: Intake GamePiece 1.
-    else if (step == 3 && drive->isFinished() /* && gamePiece->liftAtPosition() */) {
-        // Intake GamePiece.
-
-        // Cube
-        if (fieldGamePiece == 0) {
-            // TODO: Intake Cube
-        }
-        // Cone
-        else {
-            // TODO: Intake Cone
-        }
+    else if (step == 3 && drive->isFinished() && gamePiece->liftAtPosition()) {
+        gamePiece->intakeGamePiece();
     }
     // 4: Wait for intake to finish.
-    else if (step == 4 /* && gamePiece->isFinishedIntaking() */) {
+    else if (step == 4 && gamePiece->isFinishedIntaking()) {
         step++;
     }
     // 5: Delegate the final action.
@@ -159,19 +156,20 @@ void Autonomous::barrierSideAuto_finalScore() {
             drive->runTrajectory(&gp1_to_grid2_traj, actions);
         }
 
-        // TODO: Begin raising lift.
+        // Raise the lift!
+        gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH);
 
         step++;
     }
     // 1: Score current GamePiece.
-    else if (get_step() == 1 && drive->isFinished() /* && gamePiece->liftAtPosition() */) {
-        // TODO: Score GamePiece
-
-        step++;
+    else if (get_step() == 1 && drive->isFinished()) {
+        if (scoreGamePiece()) {
+            step++;
+        }
     }
-    // 2: Lower lift.
-    else if (get_step() == 2 /* && gamePiece->isFinishedScoring() */) {
-        // TODO: Lower lift
+    // 2: Retract the lift.
+    else if (get_step() == 2) {
+        gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH_PIVOT);
 
         step++;
     }
@@ -191,12 +189,13 @@ void Autonomous::barrierSideAuto_finalBalance() {
     }
     // 2: Balance on the charge station.
     else if (get_step() == 2) {
+        gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH_PIVOT);
         balanceOnChargeStation();
     }
 }
 
 void Autonomous::middleAuto() {
-    // 0: Set start pose and raise lift.
+    // 0: Set start pose and starting GamePiece.
     if (step == 0) {
         // Cube
         if (startingGamePiece == 0) {
@@ -209,18 +208,19 @@ void Autonomous::middleAuto() {
             drive->resetOdometry(grid5_to_cs_traj.getInitialPose());
         }
 
-        // TODO: Begin raising lift.
+        // Set the starting GamePiece.
+        gamePiece->setGamePiece(startingGamePiece == 0 ? Grabber::GamePieceType::CUBE : Grabber::GamePieceType::CONE);
 
         step++;
     }
     // 1: Score preloaded GamePiece.
-    else if (step == 1 /* && gamePiece->liftAtPosition() */) {
-        // TODO: Score.
-
-        step++;
+    else if (step == 1) {
+        if (scoreGamePiece()) {
+            step++;
+        }
     }
     // 2: Drive to Charge Station and begin lowering lift.
-    else if (step == 2 /* && gamePiece->isFinishedScoring() */) {
+    else if (step == 2) {
         // Cube
         if (startingGamePiece == 0) {
             // Drive from Grid 4 to Charge Station.
@@ -232,8 +232,6 @@ void Autonomous::middleAuto() {
             drive->runTrajectory(&grid5_to_cs_traj, actions);
         }
 
-        // TODO: Begin lowering lift.
-
         step++;
     }
     // 3: Delegate the starting action.
@@ -241,18 +239,23 @@ void Autonomous::middleAuto() {
         // Delegate the starting action.
         switch (startingAction) {
             case 0: // Balance on the Charge Station.
+                gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH_PIVOT);
                 balanceOnChargeStation();
                 break;
             case 1: // Traverse the Charge Station and collect GamePiece 2.
                 step++;
                 break;
             default: // Problems...
+                gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH_PIVOT);
                 doNothing();
                 break;
         }
     }
     // 4: Starting Action is 1, traverse charge station.
     else if (step == 4) {
+        // Move lift down to intake.
+        gamePiece->setLiftPreset(GamePiece::LiftPreset::INTAKE);
+
         if (traverseChargeStation(cs_to_gp3_traj.getInitialPose())) {
             step++;
         }
@@ -262,25 +265,17 @@ void Autonomous::middleAuto() {
         // Drive from Charge Station to GamePiece 3.
         drive->runTrajectory(&cs_to_gp3_traj, actions);
 
-        // TODO: Begin lowering lift.
+        // Prepare the grabber to intake GamePiece 3.
+        gamePiece->setGrabberPosition(fieldGamePiece == 0 ? Grabber::Position::OPEN : Grabber::Position::AGAPE);
 
         step++;
     }
     // 6: Intake GamePiece 3.
-    else if (step == 6 && drive->isFinished() /* && gamePiece->liftAtPosition() */) {
-        // Intake GamePiece.
-
-        // Cube
-        if (fieldGamePiece == 0) {
-            // TODO: Intake Cube
-        }
-        // Cone
-        else {
-            // TODO: Intake Cone
-        }
+    else if (step == 6 && drive->isFinished() && gamePiece->liftAtPosition()) {
+        gamePiece->intakeGamePiece();
     }
     // 7: Delegate the final action.
-    else if (step == 7 /* && gamePiece->isFinishedIntaking() */) {
+    else if (step == 7 && gamePiece->isFinishedIntaking()) {
         // Delegate the final action.
         switch (finalAction) {
             case 1: // Balance on the Charge Station.
@@ -298,34 +293,40 @@ void Autonomous::middleAuto() {
     }
     // 9: Balance on the Charge Station.
     else if (step == 9 && drive->isFinished()) {
+        // Put lift up high.
+        gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH_PIVOT);
+
         balanceOnChargeStation();
     }
 }
 
 void Autonomous::edgeSideAuto() {
-    // 0: Set start pose and raise lift.
+    // 0: Set start pose and starting GamePiece.
     if (step == 0) {
         // Cube
         if (startingGamePiece == 0) {
             // Start at Grid 7.
+            drive->resetOdometry(grid7_to_gp4_traj.getInitialPose());
         }
         // Cone
         else {
             // Start at Grid 6.
+            drive->resetOdometry(grid6_to_gp4_traj.getInitialPose());
         }
 
-        // TODO: Begin raising lift.
+        // Set the starting GamePiece.
+        gamePiece->setGamePiece(startingGamePiece == 0 ? Grabber::GamePieceType::CUBE : Grabber::GamePieceType::CONE);
     
         step++;
     }
     // 1: Score preloaded GamePiece.
-    else if (step == 1 /* && gamePiece->liftAtPosition() */) {
-        // TODO: Score
-
-        step++;
+    else if (step == 1) {
+        if (scoreGamePiece()) {
+            step++;
+        }
     }
     // 2: Drive to GamePiece 4 and begin lowering lift.
-    else if (step == 2 /* && gamePiece->isFinishedScoring() */) {
+    else if (step == 2) {
         // Cube
         if (startingGamePiece == 0) {
             // Drive from Grid 7 to GP 4.
@@ -337,25 +338,20 @@ void Autonomous::edgeSideAuto() {
             drive->runTrajectory(&grid6_to_gp4_traj, actions);
         }
 
-        // TODO: Begin lowering lift.
+        // Move lift down to intake.
+        gamePiece->setLiftPreset(GamePiece::LiftPreset::INTAKE);
+
+        // Prepare the grabber to intake GamePiece 1.
+        gamePiece->setGrabberPosition(fieldGamePiece == 0 ? Grabber::Position::OPEN : Grabber::Position::AGAPE);
 
         step++;
     }
     // 3: Intake GamePiece 4.
-    else if (step == 3 && drive->isFinished() /* && gamePiece->liftAtPosition() */) {
-        // Intake GamePiece.
-
-        // Cube
-        if (fieldGamePiece == 0) {
-            // TODO: Intake Cube
-        }
-        // Cone
-        else {
-            // TODO: Intake Cone
-        }
+    else if (step == 3 && drive->isFinished() && gamePiece->liftAtPosition()) {
+        gamePiece->intakeGamePiece();
     }
     // 4: Wait for intake to finish.
-    else if (step == 4 /* && gamePiece->isFinishedIntaking() */) {
+    else if (step == 4 && gamePiece->isFinishedIntaking()) {
         step++;
     }
     // 5: Delegate the final action.
@@ -390,23 +386,23 @@ void Autonomous::edgeSideAuto_finalScore() {
             drive->runTrajectory(&gp4_to_grid6_traj, actions);
         }
 
-        // TODO: Begin raising lift.
+        // Raise the lift!
+        gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH);
 
         step++;
     }
     // 1: Score current GamePiece.
-    else if (get_step() == 1 && drive->isFinished() /* && gamePiece->liftAtPosition() */) {
-        // TODO: Score GamePiece
+    else if (get_step() == 1 && drive->isFinished()) {
+        if (scoreGamePiece()) {
+            step++;
+        }
+    }
+    // 2: Retract the lift.
+    else if (get_step() == 2) {
+        gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH_PIVOT);
 
         step++;
     }
-    // 2: Lower lift.
-    else if (get_step() == 2 /* && gamePiece->isFinishedScoring() */) {
-        // TODO: Lower lift
-
-        step++;
-    }
-
 }
 
 void Autonomous::edgeSideAuto_finalBalance() {
@@ -423,6 +419,7 @@ void Autonomous::edgeSideAuto_finalBalance() {
     }
     // 2: Balance on the charge station.
     else if (get_step() == 2) {
+        gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH_PIVOT);
         balanceOnChargeStation();
     }
 }
@@ -463,6 +460,32 @@ void Autonomous::runTrajectory(Trajectory* trajectory) {
     else if (step == 1 && drive->isFinished()) {
         ++step;
     }
+}
+
+bool Autonomous::scoreGamePiece() {
+    // No point in moving it down to HIGH_PIVOT if it's already at high.
+    if (scoreGamePieceStep == 0 && gamePiece->getLiftPreset() == GamePiece::LiftPreset::HIGH) {
+        step = 2;
+    }
+
+    if (scoreGamePieceStep == 0) {
+        gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH_PIVOT);
+        scoreGamePieceStep++;
+    }
+    else if (scoreGamePieceStep == 1 && gamePiece->liftAtPosition()) {
+        gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH);
+        scoreGamePieceStep++;
+    }
+    else if (scoreGamePieceStep == 2 && gamePiece->liftAtPosition()) {
+        gamePiece->placeGamePiece();
+        scoreGamePieceStep++;
+    }
+    else if (scoreGamePieceStep == 3 && gamePiece->isFinishedScoring()) {
+        scoreGamePieceStep = 0;
+        return true;
+    }
+
+    return false;
 }
 
 void Autonomous::sendFeedback() {

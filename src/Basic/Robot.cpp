@@ -25,6 +25,7 @@ void Robot::AutonomousInit() {
 }
 
 void Robot::AutonomousPeriodic() {
+    autonomous.process();
     drive.process();
     gamePiece.process();
     lift.process();

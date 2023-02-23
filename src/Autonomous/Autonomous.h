@@ -15,10 +15,11 @@
 
 class WhooshWhoosh;
 class Drive;
+class GamePiece;
 
 class Autonomous : public Mechanism {
 public:
-    Autonomous(WhooshWhoosh* whooshWhoosh, Drive* drive);
+    Autonomous(WhooshWhoosh* whooshWhoosh, Drive* drive, GamePiece* gamePiece);
     ~Autonomous();
 
     void process() override;
@@ -106,6 +107,8 @@ private:
      */
     void runTrajectory(Trajectory* trajectory);
 
+    bool scoreGamePiece();
+
     enum class StartingLocation {
         MARS = -1, // Not really mars - signifies that we aren't running any auto.
         BARRIER_SIDE = 0,
@@ -126,12 +129,14 @@ private:
     int step = 0;
     int traverseChargeStationStep = 0;
     int balanceChargeStationStep = 0;
+    int scoreGamePieceStep = 0;
 
     LinearTrajectory balanceChargeStationTrajectory { frc::Pose2d(5.35_m, 2.7_m, 0_deg), frc::Pose2d(5.35_m, 2.7_m + DIST_TO_CS_CENTER, 0_deg), 1.5_mps, 2_mps_sq };
     LinearTrajectory traverseChargeStationTrajectory { frc::Pose2d(5.35_m, 2.7_m, 0_deg), frc::Pose2d(5.35_m, 2.7_m + (2 * DIST_TO_CS_CENTER), 0_deg), 1.5_mps, 2_mps_sq };
 
     WhooshWhoosh* whooshWhoosh;
     Drive* drive;
+    GamePiece* gamePiece;
 
     CSVTrajectory grid1_to_gp1_traj { DEPLOY_DIR "ThunderAuto/grid1_to_gp1.csv" };
     CSVTrajectory grid2_to_gp1_traj { DEPLOY_DIR "ThunderAuto/grid2_to_gp1.csv" };

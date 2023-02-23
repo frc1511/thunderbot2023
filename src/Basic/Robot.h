@@ -47,10 +47,12 @@ private:
     GamePiece gamePiece { &grabber, &lift};
     UltraBrickMode ultraBrickMode;
     Controls controls { &drive, &gamePiece, &ultraBrickMode};
+    Autonomous autonomous { &whooshWhoosh, &drive, &gamePiece };
 
     // Every mechanism on the robot.
     std::vector<Mechanism*> allMechanisms {
-        &whooshWhoosh, &drive, &gamePiece, &controls, &rollingRaspberry, &grabber, &lift, &ultraBrickMode
+        &whooshWhoosh, &drive, &gamePiece, &controls,
+        &rollingRaspberry, &grabber, &lift, &ultraBrickMode, &autonomous,
     };
 
     // Mechanisms that are run universally when the robot is running.
