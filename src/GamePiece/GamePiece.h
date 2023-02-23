@@ -18,16 +18,17 @@ public:
 
     // The different presets for the lift.
     enum class LiftPreset {
-        INTAKE,       // Starting Config / Normal intake.
-        INTAKE_FUNKY, // Intake for tipped over cone
-        GROUND, // Hybrid Node
-        MID,
-        MID_PIVOT,
-        HIGH,
-        HIGH_PIVOT,
-        BALCONY, //I dont like the balcony
-        BALCONY_PIVOT,
-        TRAVEL, //Just a bit different than intake
+        INTAKE,        // Starting position & cone/cube intake.
+        INTAKE_FUNKY,  // Intake position for preparing to intake a tipped cone.
+        TIPPED_CONE,   // Tipped over cone intake position.
+        GROUND,        // Low scoring position.
+        MID,           // Mid scoring position.
+        MID_PIVOT,     // Mid scoring position - only pivot.
+        HIGH,          // High scoring position.
+        HIGH_PIVOT,    // High scoring position - only pivot.
+        BALCONY,       // Balcony scoring position.
+        BALCONY_PIVOT, // Balcony scoring position - only pivot.
+        TRAVEL,        // Travel position.
     };
 
     // Sets the pivot and extension of the lift to a preset.
@@ -78,16 +79,17 @@ private:
     Lift* lift;
 
     const std::map<LiftPreset, std::pair<units::degree_t, units::meter_t>> presetMap {
-        { LiftPreset::INTAKE,       std::make_pair(-40_deg, 0_m) },      // Starting config & cone/cube intake.
-        { LiftPreset::INTAKE_FUNKY, std::make_pair(-28_deg, 0.168_m) },  // Tipped over cone intake.
-        { LiftPreset::GROUND,       std::make_pair(-25_deg, 0.1_m) },    // Low scoring position.
+        { LiftPreset::INTAKE,       std::make_pair(-40_deg, 0_m)      }, // Starting position & cone/cube intake.
+        { LiftPreset::INTAKE_FUNKY, std::make_pair(-28_deg, 0.168_m)  }, // Intake position for preparing to intake a tipped cone.
+        { LiftPreset::TIPPED_CONE,  std::make_pair(-28_deg, 0.168_m)  }, // Tipped over cone intake position.
+        { LiftPreset::GROUND,       std::make_pair(-25_deg, 0.1_m)    }, // Low scoring position.
         { LiftPreset::MID,          std::make_pair(0_deg,   38.25_in) }, // Mid scoring position.
-        { LiftPreset::MID_PIVOT,    std::make_pair(0_deg,   0_m) },      // Mid scoring position - only pivot.
+        { LiftPreset::MID_PIVOT,    std::make_pair(0_deg,   0_m)      }, // Mid scoring position - only pivot.
         { LiftPreset::HIGH,         std::make_pair(20_deg,  38.25_in) }, // High scoring position.
-        { LiftPreset::HIGH_PIVOT,   std::make_pair(20_deg,  0_m) },      // High scoring position - only pivot.
-        { LiftPreset::BALCONY,      std::make_pair(18_deg,  30_in) },    // Balcony scoring position.
-        { LiftPreset::BALCONY_PIVOT,std::make_pair(18_deg,  0_m) },      // Balcony scoring position - only pivot.
-        { LiftPreset::TRAVEL,       std::make_pair(-25_deg, 0_m) },      // Travel position.
+        { LiftPreset::HIGH_PIVOT,   std::make_pair(20_deg,  0_m)      }, // High scoring position - only pivot.
+        { LiftPreset::BALCONY,      std::make_pair(18_deg,  30_in)    }, // Balcony scoring position.
+        { LiftPreset::BALCONY_PIVOT,std::make_pair(18_deg,  0_m)      }, // Balcony scoring position - only pivot.
+        { LiftPreset::TRAVEL,       std::make_pair(-25_deg, 0_m)      }, // Travel position.
     };
 
     // hi jeff

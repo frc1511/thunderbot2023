@@ -230,24 +230,38 @@ void Controls::doAux() {
     bool prepareCone = auxController.getButton(AuxButton::TRIANGLE, ThunderGameController::ButtonState::PRESSED);
     bool prepareCube = auxController.getButton(AuxButton::SQUARE, ThunderGameController::ButtonState::PRESSED);
     bool prepareTippedCone = auxController.getButton(AuxButton::CIRCLE, ThunderGameController::ButtonState::PRESSED);
-    bool liftHigh = auxController.getDPad() == ThunderGameController::DPad::UP;
-    bool liftMid = auxController.getDPad() == ThunderGameController::DPad::RIGHT;
-    bool liftLow = auxController.getDPad() == ThunderGameController::DPad::DOWN;
-    bool justPivot = auxController.getButton(AuxButton::LEFT_BUMPER);
+    bool liftHigh = false;
+    bool shouldLiftHigh = auxController.getDPad() == ThunderGameController::DPad::UP;
+    bool liftMid = false;
+    bool shouldLiftMid = auxController.getDPad() == ThunderGameController::DPad::RIGHT;
+    bool liftLow = false;
+    bool shouldLiftLow = auxController.getDPad() == ThunderGameController::DPad::DOWN;
     bool score = false;
     bool shouldScore = auxController.getAxis(AuxAxis::LEFT_TRIGGER) > AXIS_DEADZONE;
 
-    if (shouldScore) {
-        score = !wasScoring;
-    }
+    // Make the non-button controls be toggles.
+
+    if (shouldScore) score = !wasScoring;
     wasScoring = shouldScore;
+
+    if (shouldLiftHigh) liftHigh = !wasLiftHigh;
+    wasLiftHigh = shouldLiftHigh;
+
+    if (shouldLiftMid) liftMid = !wasLiftMid;
+    wasLiftMid = shouldLiftMid;
+
+    if (shouldLiftLow) liftLow = !wasLiftLow;
+    wasLiftLow = shouldLiftLow;
 
     bool intake = auxController.getAxis(AuxAxis::RIGHT_TRIGGER) > AXIS_DEADZONE;
     bool outtake = auxController.getButton(AuxButton::RIGHT_BUMPER);
     bool overrideGamePiece = auxController.getButton(AuxButton::SHARE, ThunderGameController::ButtonState::PRESSED);
     
     // If we have a GamePiece, we don't want to prepare to grab another one.
-    if (gamePiece->getGamePieceType() != Grabber::GamePieceType::NONE) {
+    if (gamePiece->getGamePieceType() != Grabber::GamePieceType::NONE ||
+        // Also don't prepare for multiple game pieces at once.
+        prepareCone + prepareCube + prepareTippedCone > 1) {
+
         prepareCone = false;
         prepareCube = false;
         prepareTippedCone = false;
@@ -262,19 +276,26 @@ void Controls::doAux() {
         gamePiece->setGrabberPosition(Grabber::Position::OPEN);
     }
 
-    // Sets the wrist to the tipped position.
-    if (prepareTippedCone) {
-        gamePiece->setWrist(true);
-    }
-    // Sets the wrist to the upright position.
-    else if (prepareCone || prepareCube) {
+    if (prepareCone || prepareCube) {
+        // Move the lift to the correct intake position.
+        gamePiece->setLiftPreset(GamePiece::LiftPreset::INTAKE);
+
+        // Set the wrist to the upright position.
         gamePiece->setWrist(false);
+    }
+    else if (prepareTippedCone) {
+        // Move the lift to the correct intake position.
+        gamePiece->setLiftPreset(GamePiece::LiftPreset::INTAKE_FUNKY);
+
+        // Set the wrist to the upright position.
+        gamePiece->setWrist(true);
     }
 
     if (liftHigh) {
         // If we don't have a GamePiece, go to the balcony position.
         if (gamePiece->getGamePieceType() == Grabber::GamePieceType::NONE) {
-            if (justPivot) {
+            // Toggle between the balcony and balcony pivot positions.
+            if (gamePiece->getLiftPreset() == GamePiece::LiftPreset::BALCONY) {
                 gamePiece->setLiftPreset(GamePiece::LiftPreset::BALCONY_PIVOT);
             }
             else {
@@ -283,7 +304,8 @@ void Controls::doAux() {
         }
         // If we do, go to the high position.
         else {
-            if (justPivot) {
+            // Toggle between the high and high pivot positions.
+            if (gamePiece->getLiftPreset() == GamePiece::LiftPreset::HIGH) {
                 gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH_PIVOT);
             }
             else {
@@ -293,7 +315,8 @@ void Controls::doAux() {
     }
     // Moves the lift to the mid grid position.
     if (liftMid) {
-        if (justPivot) {
+        // Toggle between the mid and mid pivot positions.
+        if (gamePiece->getLiftPreset() == GamePiece::LiftPreset::MID) {
             gamePiece->setLiftPreset(GamePiece::LiftPreset::MID_PIVOT);
         }
         else {

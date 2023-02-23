@@ -21,21 +21,21 @@ void GamePiece::doPersistentConfiguration() {
 
 void GamePiece::process() {
     if (getGamePieceType() != Grabber::GamePieceType::NONE) {
-        if (liftPreset == LiftPreset::INTAKE || liftPreset == LiftPreset::INTAKE_FUNKY) {
+        if (liftPreset == LiftPreset::INTAKE || liftPreset == LiftPreset::TIPPED_CONE) {
             setLiftPreset(LiftPreset::TRAVEL);
         }
     }
 
     if (!manualWrist) {
         if (wristTipped) {
-            // We don't want the grabber to hit the ground, so when the wrist is tipped the lowest preset is the 'INTAKE_FUNKY' preset.
+            // We don't want the grabber to hit the ground, so when the wrist is tipped the lowest preset is the 'TIPPED_CONE' preset.
             if (liftPreset == LiftPreset::INTAKE) {
-                setLiftPreset(LiftPreset::INTAKE_FUNKY);
+                setLiftPreset(LiftPreset::TIPPED_CONE);
                 grabber->setWristPosition(false);
             }
             else {
                 // Only move the wrist if the lift is at the correct position.
-                grabber->setWristPosition(lift->isAtPosition() && liftPreset == LiftPreset::INTAKE_FUNKY);
+                grabber->setWristPosition(lift->isAtPosition() && liftPreset == LiftPreset::TIPPED_CONE);
             }
         }
         else {
@@ -140,7 +140,10 @@ void GamePiece::sendFeedback() {
             liftPresetString = "Intake Cone or Cube";
             break;
         case LiftPreset::INTAKE_FUNKY:
-            liftPresetString = "Intake Funky Cone";
+            liftPresetString = "Prepare intake Tipped Cone";
+            break;
+        case LiftPreset::TIPPED_CONE:
+            liftPresetString = "Intake Tipped Cone";
             break;
         case LiftPreset::MID:
             liftPresetString = "Mid";
