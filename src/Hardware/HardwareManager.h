@@ -51,5 +51,5 @@ public:
 
     // Game controller types.
     using DriveGameController = ThunderXboxController;
-    using AuxGameController = ThunderXboxController;
+    using AuxGameController = ThunderPS4Controller;
 };

@@ -1,6 +1,9 @@
 #include <Trajectory/TrajectoryRecorder.h>
 #include <fstream>
 
+//0.168105 len
+// -0.696491 ang
+
 TrajectoryRecorder::TrajectoryRecorder()
 : lastStateIt(states.cend()) { }
 

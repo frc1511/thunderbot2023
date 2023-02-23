@@ -97,18 +97,33 @@ void Grabber::process() {
         }
     }
 
+    static frc::Timer myTimer;
+
     //if it is autoIntaking, check sensors and set motors and things
     if (currentAction == Action::INTAKE) {
         leftIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, INTAKE_SPEED);
         rightIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, INTAKE_SPEED);
-        // If the intake sensor is triggered, we have intaked a GamePiece.
-        if (!intakeSensor.Get()) {
-            if (!finishIntaking) {
+        if (leftIntakeMotor.getOutputCurrent() >= 10_A || rightIntakeMotor.getOutputCurrent() >= 10_A) {
+            myTimer.Start();
+            if (myTimer.Get() > 0.25_s) {
                 finishIntakingTimer.Reset();
                 finishIntakingTimer.Start();
                 finishIntaking = true;
             }
         }
+        else {
+            myTimer.Reset();
+            myTimer.Stop();
+        }
+        // If the intake sensor is triggered, we have intaked a GamePiece.
+        // if (!intakeSensor.Get()) {
+            // if (leftIntakeMotor.getOutputCurrent() >= 32_A || rightIntakeMotor.getOutputCurrent() >= 32_A) {
+            // if (!finishIntaking) {
+            //     finishIntakingTimer.Reset();
+            //     finishIntakingTimer.Start();
+            //     finishIntaking = true;
+            // }
+        // }
     } 
     else if (currentAction == Action::OUTTAKE) {
         leftIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, -INTAKE_SPEED);
@@ -196,12 +211,12 @@ bool Grabber::isFinishedIntaking() {
 
 void Grabber::configureMotors() {
     leftIntakeMotor.configFactoryDefault();
-    leftIntakeMotor.setIdleMode(ThunderCANMotorController::IdleMode::COAST);
+    leftIntakeMotor.setIdleMode(ThunderCANMotorController::IdleMode::BRAKE);
     leftIntakeMotor.configSmartCurrentLimit(INTAKE_MAX_AMPERAGE);
     leftIntakeMotor.setInverted(false);
     
     rightIntakeMotor.configFactoryDefault();
-    rightIntakeMotor.setIdleMode(ThunderCANMotorController::IdleMode::COAST);
+    rightIntakeMotor.setIdleMode(ThunderCANMotorController::IdleMode::BRAKE);
     rightIntakeMotor.configSmartCurrentLimit(INTAKE_MAX_AMPERAGE);
     rightIntakeMotor.setInverted(true);
 }

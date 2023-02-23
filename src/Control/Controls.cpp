@@ -235,7 +235,7 @@ void Controls::doAux() {
     bool prepareTippedCone = auxController.getButton(AuxButton::CIRCLE, ThunderGameController::ButtonState::PRESSED);
     bool liftHigh = auxController.getDPad() == ThunderGameController::DPad::UP;
     bool liftMid = auxController.getDPad() == ThunderGameController::DPad::RIGHT;
-    bool liftLow = auxController.getDPad() == ThunderGameController::DPad::LEFT;
+    bool liftLow = auxController.getDPad() == ThunderGameController::DPad::DOWN;
     bool justPivot = auxController.getButton(AuxButton::LEFT_BUMPER);
     bool score = false;
     bool shouldScore = auxController.getAxis(AuxAxis::LEFT_TRIGGER) > AXIS_DEADZONE;

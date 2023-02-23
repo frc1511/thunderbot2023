@@ -332,14 +332,11 @@ void Drive::reloadRecordedTrajectory() {
 }
 
 void Drive::updateOdometry() {
-    frc::Rotation2d rot = getRotation();
-    fmt::print("rot: {}\n", rot.Degrees().value());
-
     /**
      * Update the pose estimator with encoder measurements from
      * the swerve modules.
      */
-    poseEstimator.Update(rot, getModulePositions());
+    poseEstimator.Update(getRotation(), getModulePositions());
 
     /**
      * Update the pose estimator with the estimated poses from
