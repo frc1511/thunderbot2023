@@ -6,9 +6,19 @@
 #include <units/math.h>
 #include <Hardware/HardwareManager.h>
 #include <frc/DigitalInput.h>
-#include <frc/controller/PIDController.h>
-#include <frc/filter/SlewRateLimiter.h>
+#include <frc/controller/ProfiledPIDController.h>
+#include <frc/trajectory/TrapezoidProfile.h>
 #include <units/velocity.h>
+
+#define EXTENSION_P 0.926354793886058
+#define EXTENSION_I 0.0
+#define EXTENSION_D 0.0
+#define EXTENSION_I_ZONE 0 
+#define EXTENSION_FF 0
+
+// These values are made up (mean nothing in terms of actual units).
+#define EXTENSION_MAX_VEL 1_mps
+#define EXTENSION_MAX_ACCEL 2_mps_sq
 
 class Lift : public Mechanism {
 public:
@@ -60,9 +70,11 @@ private:
     // Sensor detecting if the lift is at the extension limit (fully extended).
     frc::DigitalInput extensionSensor;
 
-    // frc::PIDController extensionPIDController;
-    // Control the acceleration of the extension motor (we are royally misusing this class to do this).
-    // frc::SlewRateLimiter<units::meters_per_second> extensionSlewRateLimiter;
+    // Profiled PID Controller for the lift extension.
+    frc::ProfiledPIDController<units::meters> extensionPIDController {
+        EXTENSION_P, EXTENSION_I, EXTENSION_D,
+        frc::TrapezoidProfile<units::meters>::Constraints(EXTENSION_MAX_VEL, EXTENSION_MAX_ACCEL)
+    };
 
     struct LiftPosition {
         double pivotPosition;

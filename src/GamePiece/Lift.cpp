@@ -38,28 +38,11 @@
 #define EXTENSION_MAX_AMPERAGE 40_A
 
 // --- PID Values ---
-#define PIVOT_P 0.0244
+#define PIVOT_P 0.02449602581
 #define PIVOT_I 0.0
 #define PIVOT_D 0.0
 #define PIVOT_I_ZONE 0
 #define PIVOT_FF 0
-
-#define EXTENSION_P 0.0354//0.0177
-#define EXTENSION_I 0.0
-#define EXTENSION_D 0.0
-#define EXTENSION_I_ZONE 0 
-#define EXTENSION_FF 0
-
-#define EXTENSION_MPS_P 0.1
-#define EXTENSION_MPS_I 0
-#define EXTENSION_MPS_D 0
-
-// These values are not in meters per second lol.
-#define EXTENSION_MAX_ACCEL 2_mps_sq
-#define EXTENSION_MAX_DECEL -4_mps_sq
-
-#define PIVOT_MAX_ACCEL 2_mps_sq
-#define PIVOT_MAX_DECEL -100_mps_sq
 
 // Removes the backdrive offset from an extension encoder value.
 #define NORMALIZE_EXTENSION_POSITION(x, offset) (x - offset)
@@ -72,12 +55,14 @@ Lift::Lift()
   pivotMotorLeft(HardwareManager::IOMap::CAN_LIFT_PIVOT_LEFT), 
   pivotMotorRight(HardwareManager::IOMap::CAN_LIFT_PIVOT_RIGHT),
   homeSensor(HardwareManager::IOMap::DIO_LIFT_HOME),
-  extensionSensor(HardwareManager::IOMap::DIO_LIFT_EXTENSION)
-//   extensionPIDController(EXTENSION_P, EXTENSION_I, EXTENSION_D),
-//   extensionSlewRateLimiter(EXTENSION_MAX_ACCEL, EXTENSION_MAX_DECEL)
-    {
+  extensionSensor(HardwareManager::IOMap::DIO_LIFT_EXTENSION) {
 
     configureMotors();
+
+    extensionPIDController.Reset(0_m);
+    positionalExtensionLength = 0_m;
+    positionalAngle = -40_deg;
+    controlType = ControlType::POSITION;
 }
 
 Lift::~Lift() {
@@ -95,9 +80,6 @@ void Lift::resetToMode(MatchMode mode) {
     pivotMotorLeft.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, 0);
     pivotMotorRight.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, 0);
 
-    // extensionSlewRateLimiter.Reset(0_mps);
-    // extensionPIDController.Reset();
-
     static bool wasAuto = false;
 
     // Going from Auto to Disabled to Teleop.
@@ -111,8 +93,6 @@ void Lift::resetToMode(MatchMode mode) {
         // Doing something else.
         if (!wasAuto && mode != Mechanism::MatchMode::DISABLED) {
             // Stuff to reset normally.
-            positionalExtensionLength = 0_m;
-            positionalAngle = -40_deg;
         }
     }
 }
@@ -161,16 +141,18 @@ void Lift::process() {
         extensionMotor.setEncoderPosition(DENORMALIZE_EXTENSION_POSITION(MAX_EXTENSION_ENCODER, extensionOffset));
         currentExtensionPosition = MAX_EXTENSION_ENCODER;
 
-        // extensionPIDController.Reset();
-        // extensionSlewRateLimiter.Reset(0_mps);
+        extensionPIDController.Reset(
+            (DENORMALIZE_EXTENSION_POSITION(MAX_EXTENSION_ENCODER, extensionOffset) / MAX_EXTENSION_ENCODER) * MAX_EXTENSION_LENGTH
+        );
     }
     // If the home flag is set, reset the encoder value to the known minimum.
     if (homeSensor.Get()) {
         extensionMotor.setEncoderPosition(DENORMALIZE_EXTENSION_POSITION(0, extensionOffset));
         currentExtensionPosition = 0;
 
-        // extensionPIDController.Reset();
-        // extensionSlewRateLimiter.Reset(0_mps);
+        extensionPIDController.Reset(
+            (DENORMALIZE_EXTENSION_POSITION(0, extensionOffset) / MAX_EXTENSION_ENCODER) * MAX_EXTENSION_LENGTH
+        );
     }
 
     // Calculate the target extension position.
@@ -192,12 +174,13 @@ void Lift::process() {
     pivotMotorRight.set(ThunderCANMotorController::ControlMode::POSITION, targetPivotPosition);
 
     // Set the PID reference of the extension motor to the encoder position.
-    extensionMotor.set(ThunderCANMotorController::ControlMode::POSITION, DENORMALIZE_EXTENSION_POSITION(targetExtensionPosition, extensionOffset));
+    // extensionMotor.set(ThunderCANMotorController::ControlMode::POSITION, DENORMALIZE_EXTENSION_POSITION(targetExtensionPosition, extensionOffset));
 
-    // double percentOutput = extensionPIDController.Calculate(currentExtensionPosition, targetExtensionPosition);
-    // percentOutput = std::clamp(percentOutput, -1.0, 1.0);
-    // percentOutput = extensionSlewRateLimiter.Calculate(units::meters_per_second_t(percentOutput)).value();
-    // extensionMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, percentOutput);
+    units::meter_t currentLength = (DENORMALIZE_EXTENSION_POSITION(currentExtensionPosition, extensionOffset) / MAX_EXTENSION_ENCODER) * MAX_EXTENSION_LENGTH;
+    units::meter_t targetLength = (DENORMALIZE_EXTENSION_POSITION(targetExtensionPosition, extensionOffset) / MAX_EXTENSION_ENCODER) * MAX_EXTENSION_LENGTH;
+
+    double extensionPercentOutput = extensionPIDController.Calculate(currentLength, targetLength);
+    extensionMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, extensionPercentOutput);
 
     auto isAtPosition = [&](double current, double target, double tolerance) {
         return std::abs(current - target) < tolerance;
