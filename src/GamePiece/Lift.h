@@ -9,12 +9,22 @@
 #include <frc/controller/ProfiledPIDController.h>
 #include <frc/trajectory/TrapezoidProfile.h>
 #include <units/velocity.h>
+#include <units/acceleration.h>
+#include <units/angle.h>
+#include <units/angular_velocity.h>
+#include <units/angular_acceleration.h>
+
+// --- PID Values ---
+#define PIVOT_P (0.0119402985074627) //0.02449602581
+#define PIVOT_I 0.0
+#define PIVOT_D 0.0
 
 #define EXTENSION_P (0.926354793886058 * 2)
 #define EXTENSION_I 0.0
 #define EXTENSION_D 0.0
-#define EXTENSION_I_ZONE 0 
-#define EXTENSION_FF 0
+
+#define PIVOT_MAX_VEL 40_deg_per_s
+#define PIVOT_MAX_ACCEL 30_deg_per_s_sq
 
 // These values are made up (mean nothing in terms of actual units).
 #define EXTENSION_MAX_VEL 2_mps
@@ -69,6 +79,12 @@ private:
 
     // Sensor detecting if the lift is at the extension limit (fully extended).
     frc::DigitalInput extensionSensor;
+
+    // Profiled PID Controller for the pivot.
+    frc::ProfiledPIDController<units::degrees> pivotPIDController {
+        PIVOT_P, PIVOT_I, PIVOT_D,
+        frc::TrapezoidProfile<units::degrees>::Constraints(PIVOT_MAX_VEL, PIVOT_MAX_ACCEL)
+    };
 
     // Profiled PID Controller for the lift extension.
     frc::ProfiledPIDController<units::meters> extensionPIDController {

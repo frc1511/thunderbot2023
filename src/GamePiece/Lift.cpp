@@ -37,13 +37,6 @@
 #define PIVOT_MAX_AMPERAGE 40_A
 #define EXTENSION_MAX_AMPERAGE 40_A
 
-// --- PID Values ---
-#define PIVOT_P 0.02449602581
-#define PIVOT_I 0.0
-#define PIVOT_D 0.0
-#define PIVOT_I_ZONE 0
-#define PIVOT_FF 0
-
 // Removes the backdrive offset from an extension encoder value.
 #define NORMALIZE_EXTENSION_POSITION(x, offset) (x - offset)
 
@@ -59,6 +52,7 @@ Lift::Lift()
 
     configureMotors();
 
+    pivotPIDController.Reset(0_deg);
     extensionPIDController.Reset(0_m);
     positionalExtensionLength = 0_m;
     positionalAngle = -40_deg;
@@ -125,17 +119,10 @@ void Lift::process() {
     // Get the current position of the lift.
     auto [currentPivotPosition, currentExtensionPosition, extensionOffset] = getCurrentPosition();
 
-    // Calculate the target pivot position.
-    double targetPivotPosition = currentPivotPosition;
-    {
-        // Convert the positional angle to a percent of the range of motion.
-        double pivotPercent = (positionalAngle - MIN_PIVOT_ANGLE) / (MAX_PIVOT_ANGLE - MIN_PIVOT_ANGLE);
-        // Don't overshoot the limits!
-        pivotPercent = std::clamp(pivotPercent, 0.0, 1.0);
+    units::degree_t currentLeftPivotAngle = (pivotMotorLeft.getEncoderPosition() / MAX_PIVOT_ENCODER) * (MAX_PIVOT_ANGLE - MIN_PIVOT_ANGLE) + MIN_PIVOT_ANGLE;
+    units::degree_t currentRightPivotAngle = (pivotMotorRight.getEncoderPosition() / MAX_PIVOT_ENCODER) * (MAX_PIVOT_ANGLE - MIN_PIVOT_ANGLE) + MIN_PIVOT_ANGLE;
 
-        targetPivotPosition = pivotPercent * MAX_PIVOT_ENCODER;
-    }
-
+    /*
     // If the extension flag is set, reset the encoder value to the known maximum.
     if (extensionSensor.Get()) {
         extensionMotor.setEncoderPosition(DENORMALIZE_EXTENSION_POSITION(MAX_EXTENSION_ENCODER, extensionOffset));
@@ -154,7 +141,7 @@ void Lift::process() {
             (DENORMALIZE_EXTENSION_POSITION(0, extensionOffset) / MAX_EXTENSION_ENCODER) * MAX_EXTENSION_LENGTH
         );
     }
-
+    */
     // Calculate the target extension position.
     double targetExtensionPosition = currentExtensionPosition;
     {
@@ -166,18 +153,11 @@ void Lift::process() {
         targetExtensionPosition = extensionPercent * MAX_EXTENSION_ENCODER;
     }
 
-    _targetPivotPosition = targetPivotPosition;
-    _targetExtensionPosition = targetExtensionPosition;
-
-    // Set the PID reference of the pivot motors to the encoder position.
-    pivotMotorLeft.set(ThunderCANMotorController::ControlMode::POSITION, targetPivotPosition);
-    pivotMotorRight.set(ThunderCANMotorController::ControlMode::POSITION, targetPivotPosition);
-
-    // Set the PID reference of the extension motor to the encoder position.
-    // extensionMotor.set(ThunderCANMotorController::ControlMode::POSITION, DENORMALIZE_EXTENSION_POSITION(targetExtensionPosition, extensionOffset));
-
     units::meter_t currentLength = (DENORMALIZE_EXTENSION_POSITION(currentExtensionPosition, extensionOffset) / MAX_EXTENSION_ENCODER) * MAX_EXTENSION_LENGTH;
     units::meter_t targetLength = (DENORMALIZE_EXTENSION_POSITION(targetExtensionPosition, extensionOffset) / MAX_EXTENSION_ENCODER) * MAX_EXTENSION_LENGTH;
+
+    pivotMotorLeft.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, pivotPIDController.Calculate(currentLeftPivotAngle, positionalAngle));
+    pivotMotorRight.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, pivotPIDController.Calculate(currentRightPivotAngle, positionalAngle));
 
     double extensionPercentOutput = extensionPIDController.Calculate(currentLength, targetLength);
     extensionMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, extensionPercentOutput);
@@ -187,7 +167,7 @@ void Lift::process() {
     };
     
     // Check if the lift is at the target position.
-    atPosition = isAtPosition(currentPivotPosition, targetPivotPosition, PIVOT_ENCODER_TOLERANCE) &&
+    atPosition = units::math::abs(currentLeftPivotAngle - positionalAngle) < 2_deg &&
                     isAtPosition(currentExtensionPosition, targetExtensionPosition, EXTENSION_ENCODER_TOLERANCE);
 }
 
@@ -244,10 +224,6 @@ void Lift::configureMotors() {
     pivotMotorLeft.configP(PIVOT_P);
     pivotMotorLeft.configI(PIVOT_I);
     pivotMotorLeft.configD(PIVOT_D);
-    pivotMotorLeft.configIZone(PIVOT_I_ZONE);
-    pivotMotorLeft.configFF(PIVOT_FF);
-
-    pivotMotorLeft.configOutputRange(-0.5, 0.6);
 
     // Right Pivot Motor Configuration
     pivotMotorRight.configFactoryDefault();
@@ -256,13 +232,9 @@ void Lift::configureMotors() {
     pivotMotorRight.configSmartCurrentLimit(PIVOT_MAX_AMPERAGE);
     pivotMotorRight.setInverted(true);
 
-    pivotMotorRight.configOutputRange(-0.5, 0.6);
-
     pivotMotorRight.configP(PIVOT_P);
     pivotMotorRight.configI(PIVOT_I);
     pivotMotorRight.configD(PIVOT_D);
-    pivotMotorRight.configIZone(PIVOT_I_ZONE);
-    pivotMotorRight.configFF(PIVOT_FF);
     
     // Extension Motor Configuration
     extensionMotor.configFactoryDefault();
@@ -270,13 +242,9 @@ void Lift::configureMotors() {
     extensionMotor.configSmartCurrentLimit(EXTENSION_MAX_AMPERAGE);
     extensionMotor.setInverted(true);
 
-    extensionMotor.configOutputRange(-0.6, 0.6);
-
     extensionMotor.configP(EXTENSION_P);
     extensionMotor.configI(EXTENSION_I);
     extensionMotor.configD(EXTENSION_D);
-    extensionMotor.configIZone(EXTENSION_I_ZONE);
-    extensionMotor.configFF(EXTENSION_FF);
 }
 
 void Lift::sendFeedback() {
