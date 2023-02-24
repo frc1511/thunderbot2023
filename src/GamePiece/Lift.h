@@ -15,16 +15,16 @@
 #include <units/angular_acceleration.h>
 
 // --- PID Values ---
-#define PIVOT_P (0.0119402985074627 * 4) //0.02449602581
+#define PIVOT_P 0.025//(0.0119402985074627 * 4) //0.02449602581
 #define PIVOT_I 0.0
 #define PIVOT_D 0.0
 
-#define EXTENSION_P (0.926354793886058 * 3)
+#define EXTENSION_P 1.968503937 //(0.926354793886058 * 3)
 #define EXTENSION_I 0.0
 #define EXTENSION_D 0.0
 
-#define PIVOT_MAX_VEL 50_deg_per_s
-#define PIVOT_MAX_ACCEL 70_deg_per_s_sq
+#define PIVOT_MAX_VEL 30_deg_per_s
+#define PIVOT_MAX_ACCEL 40_deg_per_s_sq
 
 // These values are made up (mean nothing in terms of actual units).
 #define EXTENSION_MAX_VEL 2_mps
@@ -60,9 +60,9 @@ private:
     ControlType controlType;
 
     // Target extension length of the lift arm.
-    units::meter_t positionalExtensionLength;
+    units::meter_t targetExtension;
     // Target angle of the lift arm.
-    units::degree_t positionalAngle;
+    units::degree_t targetAngle;
 
     // Whether the lift is at its desired position.
     bool atPosition;
@@ -80,8 +80,12 @@ private:
     // Sensor detecting if the lift is at the extension limit (fully extended).
     frc::DigitalInput extensionSensor;
 
-    // Profiled PID Controller for the pivot.
-    frc::ProfiledPIDController<units::degrees> pivotPIDController {
+    // Profiled PID Controllers for the pivot.
+    frc::ProfiledPIDController<units::degrees> pivotLeftPIDController {
+        PIVOT_P, PIVOT_I, PIVOT_D,
+        frc::TrapezoidProfile<units::degrees>::Constraints(PIVOT_MAX_VEL, PIVOT_MAX_ACCEL)
+    };
+    frc::ProfiledPIDController<units::degrees> pivotRightPIDController {
         PIVOT_P, PIVOT_I, PIVOT_D,
         frc::TrapezoidProfile<units::degrees>::Constraints(PIVOT_MAX_VEL, PIVOT_MAX_ACCEL)
     };
@@ -92,13 +96,14 @@ private:
         frc::TrapezoidProfile<units::meters>::Constraints(EXTENSION_MAX_VEL, EXTENSION_MAX_ACCEL)
     };
 
-    struct LiftPosition {
-        double pivotPosition;
-        double extensionPosition;
-        double extensionOffset;
+    struct LiftState {
+        units::meter_t extension;
+        units::degree_t leftAngle;
+        units::degree_t rightAngle;
+        units::meter_t extensionOffset;
     };
 
-    LiftPosition getCurrentPosition();
+    LiftState getCurrentState();
 
     void configureMotors();
 
