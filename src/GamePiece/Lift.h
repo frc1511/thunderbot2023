@@ -15,16 +15,16 @@
 #include <units/angular_acceleration.h>
 
 // --- PID Values ---
-#define PIVOT_P (0.0119402985074627) //0.02449602581
+#define PIVOT_P (0.0119402985074627 * 4) //0.02449602581
 #define PIVOT_I 0.0
 #define PIVOT_D 0.0
 
-#define EXTENSION_P (0.926354793886058 * 2)
+#define EXTENSION_P (0.926354793886058 * 3)
 #define EXTENSION_I 0.0
 #define EXTENSION_D 0.0
 
-#define PIVOT_MAX_VEL 40_deg_per_s
-#define PIVOT_MAX_ACCEL 30_deg_per_s_sq
+#define PIVOT_MAX_VEL 50_deg_per_s
+#define PIVOT_MAX_ACCEL 70_deg_per_s_sq
 
 // These values are made up (mean nothing in terms of actual units).
 #define EXTENSION_MAX_VEL 2_mps

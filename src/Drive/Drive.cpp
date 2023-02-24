@@ -88,8 +88,8 @@ void Drive::resetToMode(MatchMode mode) {
     manualData = {};
 
     // Reset the rate limiters to 0.
-    driveRateLimiter.Reset(0_mps);
-    turnRateLimiter.Reset(0_rad_per_s);
+    // driveRateLimiter.Reset(0_mps);
+    // turnRateLimiter.Reset(0_rad_per_s);
 
     // This seems to be necessary. Don't ask me why.
     for (SwerveModule* module : swerveModules) {
@@ -405,14 +405,14 @@ void Drive::execManual() {
     units::radian_t head = units::math::atan2(yVel, xVel);
 
     // Adjust the velocity using the configured acceleration and deceleration limits.
-    vel = driveRateLimiter.Calculate(vel);
+    // vel = driveRateLimiter.Calculate(vel);
 
     // Calculate the new component velocities.
     xVel = units::math::cos(head) * vel;
     yVel = units::math::sin(head) * vel;
 
     // Adjust the angular velocity using the configured acceleration and deceleration limits.
-    angVel = turnRateLimiter.Calculate(angVel);
+    // angVel = turnRateLimiter.Calculate(angVel);
 
     frc::Pose2d currPose(getEstimatedPose());
     
@@ -421,7 +421,7 @@ void Drive::execManual() {
     // Generate chassis speeds depending on the control mode.
     if (manualData.flags & ControlFlag::FIELD_CENTRIC) {
         // Generate chassis speeds based on the rotation of the robot relative to the field.
-        velocities = frc::ChassisSpeeds::FromFieldRelativeSpeeds(xVel, yVel, angVel, getRotation());//currPose.Rotation());
+        velocities = frc::ChassisSpeeds::FromFieldRelativeSpeeds(xVel, yVel, angVel, currPose.Rotation());
     }
     else {
         // Chassis speeds are robot-centric.

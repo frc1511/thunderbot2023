@@ -83,9 +83,9 @@ private:
         { LiftPreset::INTAKE_FUNKY, std::make_pair(-28_deg, 0.168_m)  }, // Intake position for preparing to intake a tipped cone.
         { LiftPreset::TIPPED_CONE,  std::make_pair(-28_deg, 0.168_m)  }, // Tipped over cone intake position.
         { LiftPreset::GROUND,       std::make_pair(-25_deg, 0.1_m)    }, // Low scoring position.
-        { LiftPreset::MID,          std::make_pair(0_deg,   38.25_in) }, // Mid scoring position.
-        { LiftPreset::MID_PIVOT,    std::make_pair(0_deg,   0_m)      }, // Mid scoring position - only pivot.
-        { LiftPreset::HIGH,         std::make_pair(20_deg,  38.25_in) }, // High scoring position.
+        { LiftPreset::MID,          std::make_pair(20_deg,   0.581128_m)},//19.211846_deg 0.445070_m) }, // Mid scoring position.
+        { LiftPreset::MID_PIVOT,    std::make_pair(19.211846_deg,   0_m)      }, // Mid scoring position - only pivot.
+        { LiftPreset::HIGH,         std::make_pair(22_deg,  38.25_in) }, // High scoring position.
         { LiftPreset::HIGH_PIVOT,   std::make_pair(20_deg,  0_m)      }, // High scoring position - only pivot.
         { LiftPreset::BALCONY,      std::make_pair(18_deg,  30_in)    }, // Balcony scoring position.
         { LiftPreset::BALCONY_PIVOT,std::make_pair(18_deg,  0_m)      }, // Balcony scoring position - only pivot.

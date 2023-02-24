@@ -4,7 +4,7 @@
 // The max amperage of the intake motors.
 #define INTAKE_MAX_AMPERAGE 20_A
 
-#define INTAKE_SPEED 0.7
+#define INTAKE_SPEED 1.0
 
 Grabber::Grabber() 
 : leftIntakeMotor(HardwareManager::IOMap::CAN_GRABBER_INTAKE_LEFT),
@@ -101,10 +101,10 @@ void Grabber::process() {
     if (currentAction == Action::INTAKE) {
         leftIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, INTAKE_SPEED);
         rightIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, INTAKE_SPEED);
-        if (leftIntakeMotor.getOutputCurrent() >= 12_A || rightIntakeMotor.getOutputCurrent() >= 12_A) {
+        if (leftIntakeMotor.getOutputCurrent() >= 10_A || rightIntakeMotor.getOutputCurrent() >= 10_A) {
             intakeCurrentTimer.Start();
             // Sustained current spike for 0.25 seconds.
-            if (intakeCurrentTimer.Get() > 0.3_s) {
+            if (intakeCurrentTimer.Get() > 0.15_s) {
                 finishIntakingTimer.Reset();
                 finishIntakingTimer.Start();
                 finishIntaking = true;
@@ -116,8 +116,8 @@ void Grabber::process() {
         }
     } 
     else if (currentAction == Action::OUTTAKE) {
-        leftIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, -INTAKE_SPEED);
-        rightIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, -INTAKE_SPEED);
+        leftIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, -0.2);
+        rightIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, -0.2);
     } 
     else if (currentAction == Action::IDLE) {
         // Stop the motors.
