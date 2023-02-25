@@ -8,6 +8,7 @@
 #include <map>
 #include <cstdint>
 #include <numbers>
+#include <array>
 
 #define DEPLOY_DIR "/home/lvuser/deploy/"
 
@@ -138,20 +139,60 @@ private:
     Drive* drive;
     GamePiece* gamePiece;
 
-    CSVTrajectory grid1_to_gp1_traj { DEPLOY_DIR "ThunderAuto/grid1_to_gp1.csv" };
-    CSVTrajectory grid2_to_gp1_traj { DEPLOY_DIR "ThunderAuto/grid2_to_gp1.csv" };
-    CSVTrajectory gp1_to_grid1_traj { DEPLOY_DIR "ThunderAuto/gp1_to_grid1.csv" };
-    CSVTrajectory gp1_to_grid2_traj { DEPLOY_DIR "ThunderAuto/gp1_to_grid2.csv" };
-    CSVTrajectory gp1_to_cs_traj    { DEPLOY_DIR "ThunderAuto/gp1_to_cs.csv"    };
-    CSVTrajectory grid4_to_cs_traj  { DEPLOY_DIR "ThunderAuto/grid4_to_cs.csv"  };
-    CSVTrajectory grid5_to_cs_traj  { DEPLOY_DIR "ThunderAuto/grid5_to_cs.csv"  };
-    CSVTrajectory cs_to_gp3_traj    { DEPLOY_DIR "ThunderAuto/cs_to_gp3.csv"    };
-    CSVTrajectory gp3_to_cs_traj    { DEPLOY_DIR "ThunderAuto/gp3_to_cs.csv"    };
-    CSVTrajectory grid6_to_gp4_traj { DEPLOY_DIR "ThunderAuto/grid6_to_gp4.csv" };
-    CSVTrajectory grid7_to_gp4_traj { DEPLOY_DIR "ThunderAuto/grid7_to_gp4.csv" };
-    CSVTrajectory gp4_to_grid6_traj { DEPLOY_DIR "ThunderAuto/gp4_to_grid6.csv" };
-    CSVTrajectory gp4_to_grid7_traj { DEPLOY_DIR "ThunderAuto/gp4_to_grid7.csv" };
-    CSVTrajectory gp4_to_cs_traj    { DEPLOY_DIR "ThunderAuto/gp4_to_cs.csv"    };
+    enum Path {
+        GRID1_TO_GP1 = 0,
+        GRID2_TO_GP1 = 1,
+        GP1_TO_GRID1 = 2,
+        GP1_TO_GRID2 = 3,
+        GP1_TO_CS    = 4,
+        GRID4_TO_CS  = 5,
+        GRID5_TO_CS  = 6,
+        CS_TO_GP3    = 7,
+        GP3_TO_CS    = 8,
+        GRID6_TO_GP4 = 9,
+        GRID7_TO_GP4 = 10,
+        GP4_TO_GRID6 = 11,
+        GP4_TO_GRID7 = 12,
+        GP4_TO_CS    = 13,
+
+        PATH_NUM = 14,
+    };
+
+    std::array<CSVTrajectory, Path::PATH_NUM> bluePaths = {
+        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/grid1_to_gp1.csv", false },
+        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/grid2_to_gp1.csv", false },
+        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/gp1_to_grid1.csv", false },
+        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/gp1_to_grid2.csv", false },
+        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/gp1_to_cs.csv",    false },
+        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/grid4_to_cs.csv",  false },
+        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/grid5_to_cs.csv",  false },
+        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/cs_to_gp3.csv",    false },
+        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/gp3_to_cs.csv",    false },
+        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/grid6_to_gp4.csv", false },
+        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/grid7_to_gp4.csv", false },
+        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/gp4_to_grid6.csv", false },
+        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/gp4_to_grid7.csv", false },
+        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/gp4_to_cs.csv",    false },
+    };
+
+    std::array<CSVTrajectory, Path::PATH_NUM> redPaths = {
+        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/grid1_to_gp1.csv", true },
+        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/grid2_to_gp1.csv", true },
+        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/gp1_to_grid1.csv", true },
+        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/gp1_to_grid2.csv", true },
+        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/gp1_to_cs.csv",    true },
+        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/grid4_to_cs.csv",  true },
+        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/grid5_to_cs.csv",  true },
+        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/cs_to_gp3.csv",    true },
+        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/gp3_to_cs.csv",    true },
+        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/grid6_to_gp4.csv", true },
+        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/grid7_to_gp4.csv", true },
+        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/gp4_to_grid6.csv", true },
+        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/gp4_to_grid7.csv", true },
+        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/gp4_to_cs.csv",    true },
+    };
+
+    std::array<CSVTrajectory, Path::PATH_NUM>* paths = &bluePaths;
 
     /**
      * An action that pauses the path for a specified number of seconds.

@@ -5,9 +5,11 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <fmt/core.h>
 
+#define PIVOT_FF 0.0//0.05
+
 // The allowable error in the pivot angle and extension length.
-#define PIVOT_ENCODER_TOLERANCE 5.0
-#define EXTENSION_ENCODER_TOLERANCE 4.0
+#define PIVOT_TOLERANCE 3_deg
+#define EXTENSION_TOLERANCE 2_in
 
 // The minimum angle of the arm.
 #define MIN_PIVOT_ANGLE -47_deg
@@ -16,7 +18,7 @@
 #define MAX_PIVOT_ANGLE 20_deg
 
 // The encoder value at the maximum angle of the arm.
-#define MAX_PIVOT_ENCODER 81.645897
+#define MAX_PIVOT_ENCODER 84.027077
 
 // The maximum extension length of the arm (delta from starting position).
 #define MAX_EXTENSION_LENGTH 38.25_in
@@ -28,7 +30,7 @@
 #define MIN_PIVOT_EXTEND_ENCODER 3.738092
 
 // The change in extension encoder value over the full pivot range of the arm.
-#define EXTENSION_BACKDRIVE_ENCODER -2.214285
+#define EXTENSION_BACKDRIVE_ENCODER -2.23809 //-2.214285
 
 #define MANUAL_PIVOT_SPEED_COEFF 0.3
 #define MANUAL_EXTENSION_SPEED_COEFF 0.2
@@ -52,8 +54,8 @@ Lift::Lift()
 
     configureMotors();
 
-    pivotLeftPIDController.Reset(0_deg);
-    pivotRightPIDController.Reset(0_deg);
+    // pivotLeftPIDController.Reset(-47_deg);
+    pivotRightPIDController.Reset(-47_deg);
     extensionPIDController.Reset(0_m);
     targetExtension = 0_m;
     targetAngle = -40_deg;
@@ -114,15 +116,41 @@ void Lift::process() {
         return;
     }
 
+    auto isAtPosition = [&](auto current, auto target, auto tolerance) {
+        return units::math::abs(current - target) < tolerance;
+    };
+
     // --- The rest of this function is for automatic control of the lift. ---
 
     // Get the current position of the lift.
     auto [currentExtension, currentLeftPivot, currentRightPivot, currentExtensionOffset] = getCurrentState();
 
-    double extensionOffsetPosition = (currentExtensionOffset / MAX_EXTENSION_LENGTH) * MAX_EXTENSION_ENCODER;
-
     units::meter_t newTargetExtension = targetExtension;
     units::degree_t newTargetAngle = targetAngle;
+
+    static bool isPivotingDown = false;
+    static units::degree_t lockedAngle = 0_deg;
+
+    if (!isAtPosition(currentRightPivot, targetAngle, PIVOT_TOLERANCE)) {
+        if (currentRightPivot < targetAngle) {
+            // Going up, don't extend.
+            newTargetExtension = 0_m;
+            isPivotingDown = false;
+        }
+        else {
+            if (!isAtPosition(currentExtension, targetExtension, EXTENSION_TOLERANCE)) {
+                if (!isPivotingDown) lockedAngle = currentRightPivot;
+                // Going down, don't pivot.
+                newTargetAngle = lockedAngle;
+                isPivotingDown = true;
+            }
+        }
+    }
+    else {
+        isPivotingDown = false;
+    }
+
+    double extensionOffsetPosition = (currentExtensionOffset / MAX_EXTENSION_LENGTH) * MAX_EXTENSION_ENCODER;
 
     static bool wasExtensionSensor = false;
 
@@ -146,30 +174,26 @@ void Lift::process() {
     }
     wasHomeSensor = homeSensor.Get();
 
-    double leftPivotPercentOutput = pivotLeftPIDController.Calculate(currentLeftPivot, targetAngle);
-    double rightPivotPercentOutput = pivotRightPIDController.Calculate(currentRightPivot, targetAngle);
+    // double leftPivotPercentOutput = pivotLeftPIDController.Calculate(currentLeftPivot, targetAngle);
+    double rightPivotPercentOutput = pivotRightPIDController.Calculate(currentRightPivot, newTargetAngle);
 
-    leftPivotPercentOutput = std::clamp(leftPivotPercentOutput, -0.7, 0.7);
-    rightPivotPercentOutput = std::clamp(rightPivotPercentOutput, -0.7, 0.7);
+    // leftPivotPercentOutput = std::clamp(leftPivotPercentOutput, -0.7, 0.7);
+    rightPivotPercentOutput = std::clamp(rightPivotPercentOutput, -1.0, 1.0);
+
+    double pivotPercent = (currentRightPivot - MIN_PIVOT_ANGLE) / (MAX_PIVOT_ANGLE - MIN_PIVOT_ANGLE);
 
     // Control the pivot motors.
-    pivotMotorLeft.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, leftPivotPercentOutput);
-    pivotMotorRight.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, rightPivotPercentOutput);
+    pivotMotorLeft.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, rightPivotPercentOutput + pivotPercent * PIVOT_FF);
+    pivotMotorRight.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, rightPivotPercentOutput + pivotPercent * PIVOT_FF);
 
-    units::meter_t targetExtensionOffset = ((EXTENSION_BACKDRIVE_ENCODER * (targetAngle / MAX_PIVOT_ANGLE)) / MAX_EXTENSION_ENCODER) * MAX_EXTENSION_LENGTH;
-
-    double extensionPercentOutput = extensionPIDController.Calculate(DENORMALIZE_EXTENSION_POSITION(currentExtension, currentExtensionOffset), DENORMALIZE_EXTENSION_POSITION(targetExtension, targetExtensionOffset));
-    extensionPercentOutput = std::clamp(extensionPercentOutput, -0.8, 0.8);
+    double extensionPercentOutput = extensionPIDController.Calculate(DENORMALIZE_EXTENSION_POSITION(currentExtension, currentExtensionOffset), DENORMALIZE_EXTENSION_POSITION(newTargetExtension, currentExtensionOffset));
+    extensionPercentOutput = std::clamp(extensionPercentOutput, -1.0, 1.0);
     extensionMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, extensionPercentOutput);
-
-    auto isAtPosition = [&](auto current, auto target, auto tolerance) {
-        return units::math::abs(current - target) < tolerance;
-    };
     
     // Check if the lift is at the target position.
-    atPosition = isAtPosition(currentLeftPivot, targetAngle, 1_deg) &&
-                 isAtPosition(currentRightPivot, targetAngle, 1_deg) &&
-                 isAtPosition(currentExtension, targetExtension, 2_in);
+    atPosition = isAtPosition(currentLeftPivot, newTargetAngle, 3_deg) &&
+                 isAtPosition(currentRightPivot, newTargetAngle, 3_deg) &&
+                 isAtPosition(currentExtension, newTargetExtension, 2_in);
 }
 
 void Lift::setManualPivotSpeed(double speed) {
@@ -228,7 +252,7 @@ Lift::LiftState Lift::getCurrentState() {
     // Extension length.
     units::meter_t extensionLength = extensionPercent * MAX_EXTENSION_LENGTH;
 
-    units::meter_t extensionOffset = ((EXTENSION_BACKDRIVE_ENCODER * (leftAngle / MAX_PIVOT_ANGLE)) / MAX_EXTENSION_ENCODER) * MAX_EXTENSION_LENGTH;
+    units::meter_t extensionOffset = ((EXTENSION_BACKDRIVE_ENCODER * ((leftAngle - MIN_PIVOT_ANGLE) / (MAX_PIVOT_ANGLE - MIN_PIVOT_ANGLE))) / MAX_EXTENSION_ENCODER) * MAX_EXTENSION_LENGTH;
 
     return LiftState { extensionLength, leftAngle, rightAngle, extensionOffset };
 }
@@ -315,7 +339,7 @@ void Lift::sendFeedback() {
     frc::SmartDashboard::PutNumber("Lift_CurrentExtension_A", extensionMotor.getOutputCurrent().value());
 
     double pivotPercent = currentExtension / MAX_EXTENSION_LENGTH;
-    double extensionPercent = currentLeftAngle / MAX_PIVOT_ANGLE;
+    double extensionPercent = (currentLeftAngle - MIN_PIVOT_ANGLE) / (MAX_PIVOT_ANGLE - MIN_PIVOT_ANGLE);
 
     // Dashboard feedback
     frc::SmartDashboard::PutNumber("thunderdashboard_lift_pivot_percent", pivotPercent);

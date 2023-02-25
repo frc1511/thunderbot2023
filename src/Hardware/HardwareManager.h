@@ -50,6 +50,6 @@ public:
 #endif
 
     // Game controller types.
-    using DriveGameController = ThunderXboxController;
+    using DriveGameController = ThunderPS4Controller;
     using AuxGameController = ThunderPS4Controller;
 };

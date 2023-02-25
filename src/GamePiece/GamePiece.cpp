@@ -45,7 +45,24 @@ void GamePiece::process() {
 }
 
 void GamePiece::setLiftPreset(LiftPreset preset) {
+    if (preset == LiftPreset::MID) {
+        preset = getGamePieceType() == Grabber::GamePieceType::CUBE ? LiftPreset::MID_CUBE : LiftPreset::MID_CONE;
+    }
+
+    if (preset == LiftPreset::HIGH) {
+        preset = getGamePieceType() == Grabber::GamePieceType::CUBE ? LiftPreset::HIGH_CUBE : LiftPreset::HIGH_CONE;
+    }
+
+    if (preset == LiftPreset::MID_PIVOT) {
+        preset = getGamePieceType() == Grabber::GamePieceType::CUBE ? LiftPreset::MID_CUBE_PIVOT : LiftPreset::MID_CONE_PIVOT;
+    }
+
+    if (preset == LiftPreset::HIGH_PIVOT) {
+        preset = getGamePieceType() == Grabber::GamePieceType::CUBE ? LiftPreset::HIGH_CUBE_PIVOT : LiftPreset::HIGH_CONE_PIVOT;
+    }
+
     const auto& [angle, extension] = presetMap.at(preset);
+
     lift->setPosition(angle, extension);
     liftPreset = preset;
 }
@@ -62,7 +79,22 @@ void GamePiece::setWristManual(bool tipped) {
 }
 
 GamePiece::LiftPreset GamePiece::getLiftPreset() {
-    return liftPreset;
+    switch (liftPreset) {
+        case LiftPreset::MID_CONE:
+        case LiftPreset::MID_CUBE:
+            return LiftPreset::MID;
+        case LiftPreset::HIGH_CONE:
+        case LiftPreset::HIGH_CUBE:
+            return LiftPreset::HIGH;
+        case LiftPreset::MID_CONE_PIVOT:
+        case LiftPreset::MID_CUBE_PIVOT:
+            return LiftPreset::MID_PIVOT;
+        case LiftPreset::HIGH_CONE_PIVOT:
+        case LiftPreset::HIGH_CUBE_PIVOT:
+            return LiftPreset::HIGH_PIVOT;
+        default:
+            return liftPreset;
+    }
 }
 
 void GamePiece::setManualPivotSpeed(double speed) {
@@ -121,29 +153,17 @@ void GamePiece::sendFeedback() {
     std::string liftPresetString = "";
 
     switch (liftPreset) {
-        case LiftPreset::BALCONY:
-            liftPresetString = "Balcony";
+        case LiftPreset::INTAKE:
+            liftPresetString = "Intake";
             break;
-        case LiftPreset::BALCONY_PIVOT:
-            liftPresetString = "Balcony Pivot";
+        case LiftPreset::INTAKE_FUNKY:
+            liftPresetString = "Intake Funky";
+            break;
+        case LiftPreset::TIPPED_CONE:
+            liftPresetString = "Tipped Cone";
             break;
         case LiftPreset::GROUND:
             liftPresetString = "Ground";
-            break;
-        case LiftPreset::HIGH:
-            liftPresetString = "High";
-            break;
-        case LiftPreset::HIGH_PIVOT:
-            liftPresetString = "High Pivot";
-            break;
-        case LiftPreset::INTAKE:
-            liftPresetString = "Intake Cone or Cube";
-            break;
-        case LiftPreset::INTAKE_FUNKY:
-            liftPresetString = "Prepare intake Tipped Cone";
-            break;
-        case LiftPreset::TIPPED_CONE:
-            liftPresetString = "Intake Tipped Cone";
             break;
         case LiftPreset::MID:
             liftPresetString = "Mid";
@@ -151,8 +171,50 @@ void GamePiece::sendFeedback() {
         case LiftPreset::MID_PIVOT:
             liftPresetString = "Mid Pivot";
             break;
+        case LiftPreset::HIGH:
+            liftPresetString = "High";
+            break;
+        case LiftPreset::HIGH_PIVOT:
+            liftPresetString = "High Pivot";
+            break;
+        case LiftPreset::BALCONY:
+            liftPresetString = "Balcony";
+            break;
+        case LiftPreset::BALCONY_PIVOT:
+            liftPresetString = "Balcony Pivot";
+            break;
         case LiftPreset::TRAVEL:
             liftPresetString = "Travel";
+            break;
+        case LiftPreset::MID_CONE:
+            liftPresetString = "Mid Cone";
+            break;
+        case LiftPreset::MID_CUBE:
+            liftPresetString = "Mid Cube";
+            break;
+        case LiftPreset::MID_CONE_PIVOT:
+            liftPresetString = "Mid Cone Pivot";
+            break;
+        case LiftPreset::MID_CUBE_PIVOT:
+            liftPresetString = "Mid Cube Pivot";
+            break;
+        case LiftPreset::HIGH_CONE:
+            liftPresetString = "High Cone";
+            break;
+        case LiftPreset::HIGH_CUBE:
+            liftPresetString = "High Cube";
+            break;
+        case LiftPreset::HIGH_CONE_PIVOT:
+            liftPresetString = "High Cone Pivot";
+            break;
+        case LiftPreset::HIGH_CUBE_PIVOT:
+            liftPresetString = "High Cube Pivot";
+            break;
+        case LiftPreset::AUTO_JANKY:
+            liftPresetString = "Auto Janky";
+            break;
+        case LiftPreset::AUTO_JANKY_LOWER:
+            liftPresetString = "Auto Janky Lower";
             break;
         }
 

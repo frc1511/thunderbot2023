@@ -1,7 +1,10 @@
 #include <Trajectory/CSVTrajectory.h>
 #include <Util/Parser.h>
 
-CSVTrajectory::CSVTrajectory(std::filesystem::path path) {
+#define FIELD_X 16.54175_m
+#define FIELD_Y 8.0137_m
+
+CSVTrajectory::CSVTrajectory(std::filesystem::path path, bool inverted) {
     std::string fileStr = Parser::getFile(path);
     if (fileStr.empty()) exit(1);
 
@@ -19,6 +22,11 @@ CSVTrajectory::CSVTrajectory(std::filesystem::path path) {
         units::meters_per_second_t velocity(Parser::parseNumber(currIter, fileStr.cend())); ++currIter;
         frc::Rotation2d rotation = units::radian_t(Parser::parseNumber(currIter, fileStr.cend())); ++currIter;
         u_int32_t action = static_cast<u_int32_t>(Parser::parseNumber(currIter, fileStr.cend())); ++currIter;
+
+        if (inverted) {
+            xPos = FIELD_X - xPos;
+            rotation = frc::Rotation2d(rotation.Degrees() + 180_deg);
+        }
 
         frc::Pose2d pose(xPos, yPos, rotation);
 

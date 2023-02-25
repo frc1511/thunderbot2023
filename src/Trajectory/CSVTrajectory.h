@@ -8,7 +8,7 @@
  */
 class CSVTrajectory : public Trajectory {
 public:
-    CSVTrajectory(std::filesystem::path path);
+    CSVTrajectory(std::filesystem::path path, bool inverted = false);
     ~CSVTrajectory();
 
     /**

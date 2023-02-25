@@ -29,6 +29,18 @@ public:
         BALCONY,       // Balcony scoring position.
         BALCONY_PIVOT, // Balcony scoring position - only pivot.
         TRAVEL,        // Travel position.
+
+        MID_CONE,
+        MID_CUBE,
+        MID_CONE_PIVOT,
+        MID_CUBE_PIVOT,
+        HIGH_CONE,
+        HIGH_CUBE,
+        HIGH_CONE_PIVOT,
+        HIGH_CUBE_PIVOT,
+
+        AUTO_JANKY,
+        AUTO_JANKY_LOWER,
     };
 
     // Sets the pivot and extension of the lift to a preset.
@@ -79,17 +91,29 @@ private:
     Lift* lift;
 
     const std::map<LiftPreset, std::pair<units::degree_t, units::meter_t>> presetMap {
-        { LiftPreset::INTAKE,       std::make_pair(-40_deg, 0_m)      }, // Starting position & cone/cube intake.
-        { LiftPreset::INTAKE_FUNKY, std::make_pair(-28_deg, 0.168_m)  }, // Intake position for preparing to intake a tipped cone.
-        { LiftPreset::TIPPED_CONE,  std::make_pair(-28_deg, 0.168_m)  }, // Tipped over cone intake position.
-        { LiftPreset::GROUND,       std::make_pair(-25_deg, 0.1_m)    }, // Low scoring position.
-        { LiftPreset::MID,          std::make_pair(20_deg,   0.581128_m)},//19.211846_deg 0.445070_m) }, // Mid scoring position.
-        { LiftPreset::MID_PIVOT,    std::make_pair(19.211846_deg,   0_m)      }, // Mid scoring position - only pivot.
-        { LiftPreset::HIGH,         std::make_pair(22_deg,  38.25_in) }, // High scoring position.
-        { LiftPreset::HIGH_PIVOT,   std::make_pair(20_deg,  0_m)      }, // High scoring position - only pivot.
-        { LiftPreset::BALCONY,      std::make_pair(18_deg,  30_in)    }, // Balcony scoring position.
-        { LiftPreset::BALCONY_PIVOT,std::make_pair(18_deg,  0_m)      }, // Balcony scoring position - only pivot.
-        { LiftPreset::TRAVEL,       std::make_pair(-25_deg, 0_m)      }, // Travel position.
+        { LiftPreset::INTAKE,           std::make_pair(-40_deg, 0_m)      }, // Starting position & cone/cube intake.
+        { LiftPreset::INTAKE_FUNKY,     std::make_pair(-28_deg, 0.168_m)  }, // Intake position for preparing to intake a tipped cone.
+        { LiftPreset::TIPPED_CONE,      std::make_pair(-28_deg, 0.168_m)  }, // Tipped over cone intake position.
+        { LiftPreset::GROUND,           std::make_pair(-25_deg, 0.1_m)    }, // Low scoring position.
+
+        { LiftPreset::MID_CONE,         std::make_pair(16_deg,  0.59_m)   }, // Mid scoring position.
+        { LiftPreset::MID_CONE_PIVOT,   std::make_pair(16_deg,  0_m)      }, // Mid scoring position - only pivot.
+
+        { LiftPreset::MID_CUBE,         std::make_pair(10_deg,  0_m)      }, // Mid scoring position.
+        { LiftPreset::MID_CUBE_PIVOT,   std::make_pair(10_deg,  0_m)      }, // Mid scoring position - only pivot.
+
+        { LiftPreset::HIGH_CONE,        std::make_pair(20_deg,  38.25_in) }, // High scoring position.
+        { LiftPreset::HIGH_CONE_PIVOT,  std::make_pair(20_deg,  0_m)      }, // High scoring position - only pivot.
+
+        { LiftPreset::HIGH_CUBE,        std::make_pair(17_deg,  20_in)    }, // High scoring position.
+        { LiftPreset::HIGH_CUBE_PIVOT,  std::make_pair(17_deg,  0_m)      }, // High scoring position - only pivot.
+
+        { LiftPreset::BALCONY,          std::make_pair(20_deg,  38.25_in) }, // Balcony scoring position.
+        { LiftPreset::BALCONY_PIVOT,    std::make_pair(20_deg,  0_m)      }, // Balcony scoring position - only pivot.
+        { LiftPreset::TRAVEL,           std::make_pair(-25_deg, 0_m)      }, // Travel position.
+
+        { LiftPreset::AUTO_JANKY,       std::make_pair(6.5_deg, 0.56_m)   },
+        { LiftPreset::AUTO_JANKY_LOWER, std::make_pair(0.0_deg, 0.56_m)   },
     };
 
     // hi jeff

@@ -15,20 +15,21 @@
 #include <units/angular_acceleration.h>
 
 // --- PID Values ---
-#define PIVOT_P 0.025//(0.0119402985074627 * 4) //0.02449602581
+
+#define PIVOT_P 0.05
 #define PIVOT_I 0.0
 #define PIVOT_D 0.0
 
-#define EXTENSION_P 1.968503937 //(0.926354793886058 * 3)
+#define EXTENSION_P 5
 #define EXTENSION_I 0.0
 #define EXTENSION_D 0.0
 
-#define PIVOT_MAX_VEL 30_deg_per_s
-#define PIVOT_MAX_ACCEL 40_deg_per_s_sq
+#define PIVOT_MAX_VEL 55_deg_per_s
+#define PIVOT_MAX_ACCEL 60_deg_per_s_sq
 
 // These values are made up (mean nothing in terms of actual units).
-#define EXTENSION_MAX_VEL 2_mps
-#define EXTENSION_MAX_ACCEL 6_mps_sq
+#define EXTENSION_MAX_VEL 1_mps
+#define EXTENSION_MAX_ACCEL 3_mps_sq
 
 class Lift : public Mechanism {
 public:
@@ -81,10 +82,10 @@ private:
     frc::DigitalInput extensionSensor;
 
     // Profiled PID Controllers for the pivot.
-    frc::ProfiledPIDController<units::degrees> pivotLeftPIDController {
-        PIVOT_P, PIVOT_I, PIVOT_D,
-        frc::TrapezoidProfile<units::degrees>::Constraints(PIVOT_MAX_VEL, PIVOT_MAX_ACCEL)
-    };
+    // frc::ProfiledPIDController<units::degrees> pivotLeftPIDController {
+    //     PIVOT_P, PIVOT_I, PIVOT_D,
+    //     frc::TrapezoidProfile<units::degrees>::Constraints(PIVOT_MAX_VEL, PIVOT_MAX_ACCEL)
+    // };
     frc::ProfiledPIDController<units::degrees> pivotRightPIDController {
         PIVOT_P, PIVOT_I, PIVOT_D,
         frc::TrapezoidProfile<units::degrees>::Constraints(PIVOT_MAX_VEL, PIVOT_MAX_ACCEL)

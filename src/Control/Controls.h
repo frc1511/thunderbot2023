@@ -36,10 +36,6 @@ private:
 
     bool wasScoring = false;
 
-    bool wasLiftHigh = false;
-    bool wasLiftMid = false;
-    bool wasLiftLow = false;
-
     bool driveAligning = false;
 
     bool driveRobotCentric = false;

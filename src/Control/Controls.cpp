@@ -230,28 +230,17 @@ void Controls::doAux() {
     bool prepareCone = auxController.getButton(AuxButton::TRIANGLE, ThunderGameController::ButtonState::PRESSED);
     bool prepareCube = auxController.getButton(AuxButton::SQUARE, ThunderGameController::ButtonState::PRESSED);
     bool prepareTippedCone = auxController.getButton(AuxButton::CIRCLE, ThunderGameController::ButtonState::PRESSED);
-    bool liftHigh = false;
-    bool shouldLiftHigh = auxController.getDPad() == ThunderGameController::DPad::UP;
-    bool liftMid = false;
-    bool shouldLiftMid = auxController.getDPad() == ThunderGameController::DPad::RIGHT;
-    bool liftLow = false;
-    bool shouldLiftLow = auxController.getDPad() == ThunderGameController::DPad::DOWN;
+    bool liftHigh = auxController.getDPad() == ThunderGameController::DPad::UP;
+    bool liftMid = auxController.getDPad() == ThunderGameController::DPad::RIGHT;
+    bool liftLow = auxController.getDPad() == ThunderGameController::DPad::DOWN;
     bool score = false;
     bool shouldScore = auxController.getAxis(AuxAxis::LEFT_TRIGGER) > AXIS_DEADZONE;
+    bool onlyPivot = auxController.getButton(AuxButton::LEFT_BUMPER);
 
     // Make the non-button controls be toggles.
 
     if (shouldScore) score = !wasScoring;
     wasScoring = shouldScore;
-
-    if (shouldLiftHigh) liftHigh = !wasLiftHigh;
-    wasLiftHigh = shouldLiftHigh;
-
-    if (shouldLiftMid) liftMid = !wasLiftMid;
-    wasLiftMid = shouldLiftMid;
-
-    if (shouldLiftLow) liftLow = !wasLiftLow;
-    wasLiftLow = shouldLiftLow;
 
     bool intake = auxController.getAxis(AuxAxis::RIGHT_TRIGGER) > AXIS_DEADZONE;
     bool outtake = auxController.getButton(AuxButton::RIGHT_BUMPER);
@@ -295,32 +284,32 @@ void Controls::doAux() {
         // If we don't have a GamePiece, go to the balcony position.
         if (gamePiece->getGamePieceType() == Grabber::GamePieceType::NONE) {
             // Toggle between the balcony and balcony pivot positions.
-            if (gamePiece->getLiftPreset() == GamePiece::LiftPreset::BALCONY_PIVOT) {
-                gamePiece->setLiftPreset(GamePiece::LiftPreset::BALCONY);
+            if (onlyPivot) {
+                gamePiece->setLiftPreset(GamePiece::LiftPreset::BALCONY_PIVOT);
             }
             else {
-                gamePiece->setLiftPreset(GamePiece::LiftPreset::BALCONY_PIVOT);
+                gamePiece->setLiftPreset(GamePiece::LiftPreset::BALCONY);
             }
         }
         // If we do, go to the high position.
         else {
             // Toggle between the high and high pivot positions.
-            if (gamePiece->getLiftPreset() == GamePiece::LiftPreset::HIGH_PIVOT) {
-                gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH);
+            if (onlyPivot) {
+                gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH_PIVOT);
             }
             else {
-                gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH_PIVOT);
+                gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH);
             }
         }
     }
     // Moves the lift to the mid grid position.
     if (liftMid) {
         // Toggle between the mid and mid pivot positions.
-        if (gamePiece->getLiftPreset() == GamePiece::LiftPreset::MID_PIVOT) {
-            gamePiece->setLiftPreset(GamePiece::LiftPreset::MID);
+        if (onlyPivot) {
+            gamePiece->setLiftPreset(GamePiece::LiftPreset::MID_PIVOT);
         }
         else {
-            gamePiece->setLiftPreset(GamePiece::LiftPreset::MID_PIVOT);
+            gamePiece->setLiftPreset(GamePiece::LiftPreset::MID);
         }
     }
     if (liftLow) {

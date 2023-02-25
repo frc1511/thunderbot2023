@@ -116,8 +116,8 @@ void Grabber::process() {
         }
     } 
     else if (currentAction == Action::OUTTAKE) {
-        leftIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, -0.2);
-        rightIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, -0.2);
+        leftIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, -INTAKE_SPEED);
+        rightIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, -INTAKE_SPEED);
     } 
     else if (currentAction == Action::IDLE) {
         // Stop the motors.

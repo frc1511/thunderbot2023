@@ -3,6 +3,7 @@
 #include <WhooshWhoosh/WhooshWhoosh.h>
 #include <GamePiece/GamePiece.h>
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/DriverStation.h>
 #include <fmt/core.h>
 
 Autonomous::Autonomous(WhooshWhoosh* _whooshWhoosh, Drive* _drive, GamePiece* _gamePiece)
@@ -20,6 +21,16 @@ void Autonomous::resetToMode(MatchMode mode) {
 }
 
 void Autonomous::process() {
+    if (frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kRed) {
+        paths = &redPaths;
+    }
+    else {
+        paths = &bluePaths;
+    }
+
+    // runTrajectory(&paths->at(GRID2_TO_GP1));
+    return;
+
     doing_auto = frc::SmartDashboard::GetBoolean("thunderdashboard_auto_doing_auto", false);
 
     // Autonomous delay.
@@ -76,12 +87,12 @@ void Autonomous::barrierSideAuto() {
         // Cube
         if (startingGamePiece == 0) {
             // Start at Grid 1.
-            drive->resetOdometry(grid1_to_gp1_traj.getInitialPose());
+            drive->resetOdometry(paths->at(GRID1_TO_GP1).getInitialPose());
         }
         // Cone
         else {
             // Start at Grid 2.
-            drive->resetOdometry(grid2_to_gp1_traj.getInitialPose());
+            drive->resetOdometry(paths->at(GRID2_TO_GP1).getInitialPose());
         }
 
         // Set the starting GamePiece.
@@ -100,12 +111,12 @@ void Autonomous::barrierSideAuto() {
         // Cube
         if (startingGamePiece == 0) {
             // Drive from Grid 1 to GP 1.
-            drive->runTrajectory(&grid1_to_gp1_traj, actions);
+            drive->runTrajectory(&paths->at(GRID1_TO_GP1), actions);
         }
         // Cone
         else {
             // Drive from Grid 2 to GP 1.
-            drive->runTrajectory(&grid2_to_gp1_traj, actions);
+            drive->runTrajectory(&paths->at(GRID2_TO_GP1), actions);
         }
 
         // Move lift down to intake.
@@ -149,11 +160,11 @@ void Autonomous::barrierSideAuto_finalScore() {
     if (get_step() == 0) {
         // Cube
         if (fieldGamePiece == 0) {
-            drive->runTrajectory(&gp1_to_grid1_traj, actions);
+            drive->runTrajectory(&paths->at(GP1_TO_GRID1), actions);
         }
         // Cone
         else {
-            drive->runTrajectory(&gp1_to_grid2_traj, actions);
+            drive->runTrajectory(&paths->at(GP1_TO_GRID2), actions);
         }
 
         // Raise the lift!
@@ -180,7 +191,7 @@ void Autonomous::barrierSideAuto_finalBalance() {
 
     // 0: Drive to Charge Station.
     if (get_step() == 0) {
-        drive->runTrajectory(&gp1_to_cs_traj, actions);
+        drive->runTrajectory(&paths->at(GP1_TO_CS), actions);
         step++;
     }
     // 1: Wait for drive.
@@ -200,12 +211,12 @@ void Autonomous::middleAuto() {
         // Cube
         if (startingGamePiece == 0) {
             // Start at Grid 4.
-            drive->resetOdometry(grid4_to_cs_traj.getInitialPose());
+            drive->resetOdometry(paths->at(GRID4_TO_CS).getInitialPose());
         }
         // Cone
         else {
             // Start at Grid 5.
-            drive->resetOdometry(grid5_to_cs_traj.getInitialPose());
+            drive->resetOdometry(paths->at(GRID5_TO_CS).getInitialPose());
         }
 
         // Set the starting GamePiece.
@@ -224,12 +235,12 @@ void Autonomous::middleAuto() {
         // Cube
         if (startingGamePiece == 0) {
             // Drive from Grid 4 to Charge Station.
-            drive->runTrajectory(&grid4_to_cs_traj, actions);
+            drive->runTrajectory(&paths->at(GRID4_TO_CS), actions);
         }
         // Cone
         else {
             // Drive from Grid 5 to Charge Station.
-            drive->runTrajectory(&grid5_to_cs_traj, actions);
+            drive->runTrajectory(&paths->at(GRID5_TO_CS), actions);
         }
 
         step++;
@@ -256,14 +267,14 @@ void Autonomous::middleAuto() {
         // Move lift down to intake.
         gamePiece->setLiftPreset(GamePiece::LiftPreset::INTAKE);
 
-        if (traverseChargeStation(cs_to_gp3_traj.getInitialPose())) {
+        if (traverseChargeStation(paths->at(CS_TO_GP3).getInitialPose())) {
             step++;
         }
     }
     // 5: Drive to GamePiece 3 and begin lowering lift.
     else if (step == 5) {
         // Drive from Charge Station to GamePiece 3.
-        drive->runTrajectory(&cs_to_gp3_traj, actions);
+        drive->runTrajectory(&paths->at(CS_TO_GP3), actions);
 
         // Prepare the grabber to intake GamePiece 3.
         gamePiece->setGrabberPosition(fieldGamePiece == 0 ? Grabber::Position::OPEN : Grabber::Position::AGAPE);
@@ -289,7 +300,7 @@ void Autonomous::middleAuto() {
     }
     // 8: Final Action is 1, drive to the Charge Station.
     else if (step == 8) {
-        drive->runTrajectory(&gp3_to_cs_traj, actions);
+        drive->runTrajectory(&paths->at(GP3_TO_CS), actions);
     }
     // 9: Balance on the Charge Station.
     else if (step == 9 && drive->isFinished()) {
@@ -306,12 +317,12 @@ void Autonomous::edgeSideAuto() {
         // Cube
         if (startingGamePiece == 0) {
             // Start at Grid 7.
-            drive->resetOdometry(grid7_to_gp4_traj.getInitialPose());
+            drive->resetOdometry(paths->at(GRID7_TO_GP4).getInitialPose());
         }
         // Cone
         else {
             // Start at Grid 6.
-            drive->resetOdometry(grid6_to_gp4_traj.getInitialPose());
+            drive->resetOdometry(paths->at(GRID6_TO_GP4).getInitialPose());
         }
 
         // Set the starting GamePiece.
@@ -330,12 +341,12 @@ void Autonomous::edgeSideAuto() {
         // Cube
         if (startingGamePiece == 0) {
             // Drive from Grid 7 to GP 4.
-            drive->runTrajectory(&grid7_to_gp4_traj, actions);
+            drive->runTrajectory(&paths->at(GRID7_TO_GP4), actions);
         }
         // Cone
         else {
             // Drive from Grid 6 to GP 4.
-            drive->runTrajectory(&grid6_to_gp4_traj, actions);
+            drive->runTrajectory(&paths->at(GRID6_TO_GP4), actions);
         }
 
         // Move lift down to intake.
@@ -379,11 +390,11 @@ void Autonomous::edgeSideAuto_finalScore() {
     if (get_step() == 0) {
         // Cube
         if (fieldGamePiece == 0) {
-            drive->runTrajectory(&gp4_to_grid7_traj, actions);
+            drive->runTrajectory(&paths->at(GP4_TO_GRID7), actions);
         }
         // Cone
         else {
-            drive->runTrajectory(&gp4_to_grid6_traj, actions);
+            drive->runTrajectory(&paths->at(GP4_TO_GRID6), actions);
         }
 
         // Raise the lift!
@@ -410,7 +421,7 @@ void Autonomous::edgeSideAuto_finalBalance() {
 
     // 0: Drive to Charge Station.
     if (get_step() == 0) {
-        drive->runTrajectory(&gp4_to_cs_traj, actions);
+        drive->runTrajectory(&paths->at(GP4_TO_CS), actions);
         step++;
     }
     // 1: Wait for drive.
