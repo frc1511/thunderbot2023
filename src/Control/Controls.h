@@ -7,10 +7,11 @@
 class Drive;
 class GamePiece;
 class UltraBrickMode;
+class BlinkyBlinky;
 
 class Controls : public Mechanism {
 public:
-    Controls(Drive* drive, GamePiece* gamePiece, UltraBrickMode* ultraBrickMode);
+    Controls(Drive* drive, GamePiece* gamePiece, UltraBrickMode* ultraBrickMode, BlinkyBlinky* blinkyBlinky);
     ~Controls();
 
     void resetToMode(MatchMode mode) override;
@@ -24,6 +25,7 @@ private:
     Drive* drive;
     GamePiece* gamePiece;
     UltraBrickMode* ultraBrickMode;
+    BlinkyBlinky* blinkyBlinky;
     HardwareManager::DriveGameController driveController { ThunderGameController::Controller::DRIVER };
     HardwareManager::AuxGameController auxController { ThunderGameController::Controller::AUX };
     frc::GenericHID switchPanel {2};

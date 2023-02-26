@@ -28,9 +28,6 @@ void Autonomous::process() {
         paths = &bluePaths;
     }
 
-    // runTrajectory(&paths->at(GRID2_TO_GP1));
-    return;
-
     doing_auto = frc::SmartDashboard::GetBoolean("thunderdashboard_auto_doing_auto", false);
 
     // Autonomous delay.
@@ -49,6 +46,12 @@ void Autonomous::process() {
     // The final action (If center start, 0 = do nothing, 1 = balance. If edge or barrier start, 0 = do nothing, 1 = score, 2 = balance).
     finalAction = frc::SmartDashboard::GetNumber("thunderdashboard_auto_final_action", -1.0);
 
+    if (!doing_auto) return;
+    
+    scorePreloadedGamePiece();
+
+    return;
+
     if (!doing_auto) {
         startingLocation = StartingLocation::MARS;
     }
@@ -66,6 +69,72 @@ void Autonomous::process() {
         case StartingLocation::EDGE_SIDE:
             edgeSideAuto();
             break;
+    }
+}
+
+void Autonomous::scorePreloadedGamePiece() {
+    if (step == 0) {
+        switch (startingLocation) {
+            case StartingLocation::MARS:
+                break;
+            case StartingLocation::BARRIER_SIDE:
+                if (startingGamePiece == 0) { // Cube
+                    // Grid 1
+                    drive->resetOdometry(paths->at(GRID1_TO_GP1).getInitialPose());
+                }
+                else { // Cone
+                    // Grid 2
+                    drive->resetOdometry(paths->at(GRID2_TO_GP1).getInitialPose());
+                }
+                break;
+            case StartingLocation::MIDDLE:
+                if (startingGamePiece == 0) { // Cube
+                    // Start at Grid 4.
+                    drive->resetOdometry(paths->at(GRID4_TO_CS).getInitialPose());
+                }
+                else { // Cone
+                    // Start at Grid 5.
+                    drive->resetOdometry(paths->at(GRID5_TO_CS).getInitialPose());
+                }
+                break;
+            case StartingLocation::EDGE_SIDE:
+                if (startingGamePiece == 0) { // Cube
+                    // Start at Grid 7.
+                    drive->resetOdometry(paths->at(GRID7_TO_GP4).getInitialPose());
+                }
+                else { // Cone
+                    // Start at Grid 6.
+                    drive->resetOdometry(paths->at(GRID6_TO_GP4).getInitialPose());
+                }
+                break;
+        }
+        if (startingGamePiece == 0) {
+            gamePiece->setGamePiece( Grabber::GamePieceType::CUBE);
+        }
+        step++;
+    }
+    else if (step == 1) {
+        if (startingGamePiece == 0) { // Cube
+            gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH_CUBE);
+        }
+        else if (startingGamePiece == 1) { // Cone
+            gamePiece->setLiftPreset(GamePiece::LiftPreset::AUTO_JANKY);
+        }
+        step++;
+    }
+    else if (step == 2 && gamePiece->liftAtPosition()) {
+        if (startingGamePiece == 1) { // Cone
+            gamePiece->setLiftPreset(GamePiece::LiftPreset::AUTO_JANKY_LOWER);
+        }
+        step++;
+    }
+    else if (step == 3 && gamePiece->liftAtPosition()) {
+        gamePiece->placeGamePiece();
+        step++;
+    }
+    else if (step == 4 && gamePiece->isFinishedScoring()) {
+        gamePiece->setLiftPreset(GamePiece::LiftPreset::INTAKE);
+        step++;
     }
 }
 

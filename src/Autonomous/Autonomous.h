@@ -110,6 +110,8 @@ private:
 
     bool scoreGamePiece();
 
+    void scorePreloadedGamePiece();
+
     enum class StartingLocation {
         MARS = -1, // Not really mars - signifies that we aren't running any auto.
         BARRIER_SIDE = 0,

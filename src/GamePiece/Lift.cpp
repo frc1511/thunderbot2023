@@ -338,8 +338,8 @@ void Lift::sendFeedback() {
     frc::SmartDashboard::PutNumber("Lift_CurrentLeftPivot_A", pivotMotorLeft.getOutputCurrent().value());
     frc::SmartDashboard::PutNumber("Lift_CurrentExtension_A", extensionMotor.getOutputCurrent().value());
 
-    double pivotPercent = currentExtension / MAX_EXTENSION_LENGTH;
-    double extensionPercent = (currentLeftAngle - MIN_PIVOT_ANGLE) / (MAX_PIVOT_ANGLE - MIN_PIVOT_ANGLE);
+    double extensionPercent = currentExtension / MAX_EXTENSION_LENGTH;
+    double pivotPercent = (currentLeftAngle - MIN_PIVOT_ANGLE) / (MAX_PIVOT_ANGLE - MIN_PIVOT_ANGLE);
 
     // Dashboard feedback
     frc::SmartDashboard::PutNumber("thunderdashboard_lift_pivot_percent", pivotPercent);

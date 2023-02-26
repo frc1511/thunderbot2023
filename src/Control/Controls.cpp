@@ -4,12 +4,13 @@
 #include <cmath>
 #include <numbers>
 #include <Drive/UltraBrickMode.h>
-
+#include <Illumination/BlinkyBlinky.h>
+#include <frc/smartdashboard/SmartDashboard.h>
 
 #define AXIS_DEADZONE 0.1
 
-Controls::Controls(Drive* _drive, GamePiece* _gamePiece, UltraBrickMode* _ultraBrickMode)
-: drive(_drive), gamePiece(_gamePiece), ultraBrickMode(_ultraBrickMode) { }
+Controls::Controls(Drive* _drive, GamePiece* _gamePiece, UltraBrickMode* _ultraBrickMode, BlinkyBlinky* _blinkyBlinky)
+: drive(_drive), gamePiece(_gamePiece), ultraBrickMode(_ultraBrickMode), blinkyBlinky(_blinkyBlinky) { }
 
 Controls::~Controls() { }
 
@@ -404,6 +405,51 @@ void Controls::doSwitchPanel() {
     driveRecording = switchPanel.GetRawButton(3);
     manualAux = switchPanel.GetRawButton(4);
     ultraBrickMode->setState(switchPanel.GetRawButton(5));
+
+    int ledMode = frc::SmartDashboard::GetNumber("thunderdashboard_led_mode", 0.0);
+
+    if (switchPanel.GetRawButton(6)) {
+        blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::OFF);
+    }
+    else if (ledMode == 0) {
+        if (settings.isCraterMode) {
+            blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::CRATER_MODE);
+        }
+        else if (!drive->isIMUCalibrated()) {
+            blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::CALIBRATING);
+        }
+        else if (switchPanel.GetRawButton(6)) {
+            switch (gamePiece->getGamePieceType()) {
+                case Grabber::GamePieceType::NONE:
+                    blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::RAINBOW);
+                    break;
+                case Grabber::GamePieceType::CONE:
+                    blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::CONE);
+                    break;
+                case Grabber::GamePieceType::CUBE:
+                    blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::CUBE);
+                    break;
+            }
+        }
+        else {
+            blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::ALLIANCE);
+        }
+    }
+    else if (ledMode == 1) {
+        blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::ALLIANCE);
+    }
+    else if (ledMode == 2) {
+        blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::CUSTOM);
+
+        double r = frc::SmartDashboard::GetNumber("thunderdashboard_led_custom_r", 0.0);
+        double g = frc::SmartDashboard::GetNumber("thunderdashboard_led_custom_g", 0.0);
+        double b = frc::SmartDashboard::GetNumber("thunderdashboard_led_custom_b", 0.0);
+
+        blinkyBlinky->setCustomColor(frc::Color(r, g, b));
+    }
+    else {
+        blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::OFF);
+    }
 }
 
 void Controls::sendFeedback() {

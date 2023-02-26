@@ -112,8 +112,8 @@ private:
         { LiftPreset::BALCONY_PIVOT,    std::make_pair(20_deg,  0_m)      }, // Balcony scoring position - only pivot.
         { LiftPreset::TRAVEL,           std::make_pair(-25_deg, 0_m)      }, // Travel position.
 
-        { LiftPreset::AUTO_JANKY,       std::make_pair(6.5_deg, 0.56_m)   },
-        { LiftPreset::AUTO_JANKY_LOWER, std::make_pair(0.0_deg, 0.56_m)   },
+        { LiftPreset::AUTO_JANKY,       std::make_pair(7_deg, 0.52_m + 1_in)   },
+        { LiftPreset::AUTO_JANKY_LOWER, std::make_pair(0.0_deg, 0.52_m + 1_in)   },
     };
 
     // hi jeff

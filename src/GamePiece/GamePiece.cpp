@@ -138,7 +138,7 @@ bool GamePiece::liftAtPosition() {
 }
 
 bool GamePiece::isFinishedScoring() {
-    return grabber->isPlacingGamePiece();
+    return !grabber->isPlacingGamePiece();
 }
 
 bool GamePiece::isFinishedIntaking() {
