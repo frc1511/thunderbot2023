@@ -74,6 +74,7 @@ void Controls::doDrive() {
     double angVel = driveController.getRightXAxis();
     bool xySlowMode = driveController.getLeftBumper();
     bool angSlowMode = driveController.getRightBumper();
+    bool toggleUltraBrickMode = driveController.getButton(DriveButton::SQUARE, ThunderGameController::ButtonState::PRESSED);
 
     double xAng = driveController.getAxis(DriveAxis::RIGHT_X);
     double yAng = driveController.getAxis(DriveAxis::RIGHT_Y);
@@ -85,6 +86,10 @@ void Controls::doDrive() {
 
     if (driveController.getButton(DriveButton::LEFT_STICK, ThunderGameController::ButtonState::PRESSED)) {
         driveLockX = !driveLockX;
+    }
+
+    if (toggleUltraBrickMode) {
+        doUltraBrickMode = !doUltraBrickMode;
     }
 
     bool wasBrickDrive = driveCtrlFlags & Drive::ControlFlag::BRICK;
@@ -126,6 +131,8 @@ void Controls::doDrive() {
         drive->calibrateIMU();
         driveAbsAngle = drive->getEstimatedPose().Rotation().Radians();
     }
+
+    ultraBrickMode->setState(doUltraBrickMode);
 
     switch (dpad) {
         case ThunderGameController::DPad::NONE:
@@ -201,7 +208,6 @@ void Controls::doDrive() {
     if (isManualControl() || driveAligning) {
         driveAligning = false;
     }
-/*
 
     if (!driveAligning) {
         // Control the drivetrain.    
@@ -215,11 +221,9 @@ void Controls::doDrive() {
             drive->manualControlAbsRotation(finalXVel, -finalYVel, driveAbsAngle, driveCtrlFlags);
         }
         else {
-            */
             drive->manualControlRelRotation(finalXVel, -finalYVel, -finalAngVel, driveCtrlFlags);
-            /*
         }
-    }*/
+    }
 }
 
 void Controls::doAux() {
@@ -404,7 +408,6 @@ void Controls::doSwitchPanel() {
     driveRobotCentric = switchPanel.GetRawButton(2);
     driveRecording = switchPanel.GetRawButton(3);
     manualAux = switchPanel.GetRawButton(4);
-    ultraBrickMode->setState(switchPanel.GetRawButton(5));
 
     int ledMode = frc::SmartDashboard::GetNumber("thunderdashboard_led_mode", 0.0);
 
@@ -418,17 +421,21 @@ void Controls::doSwitchPanel() {
         else if (!drive->isIMUCalibrated()) {
             blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::CALIBRATING);
         }
-        else if (switchPanel.GetRawButton(6)) {
-            switch (gamePiece->getGamePieceType()) {
-                case Grabber::GamePieceType::NONE:
-                    blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::RAINBOW);
-                    break;
-                case Grabber::GamePieceType::CONE:
-                    blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::CONE);
-                    break;
-                case Grabber::GamePieceType::CUBE:
-                    blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::CUBE);
-                    break;
+        else if (getCurrentMode() == MatchMode::DISABLED || doUltraBrickMode) {
+            blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::DISABLED);
+        }
+        else if (!switchPanel.GetRawButton(6)) {
+            if (gamePiece->getGamePieceType() != Grabber::GamePieceType::NONE) {
+                blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::RAINBOW);
+            }
+            else if (gamePiece->getGrabberPosition() == Grabber::Position::OPEN) {
+                blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::CUBE);
+            }
+            else if (gamePiece->getGrabberPosition() == Grabber::Position::AGAPE) {
+                blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::CONE);
+            }
+            else {
+                blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::RAINBOW);
             }
         }
         else {

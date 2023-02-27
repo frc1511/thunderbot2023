@@ -313,6 +313,8 @@ void Drive::resetOdometry(frc::Pose2d pose) {
      */
     poseEstimator.ResetPosition(getRotation(), getModulePositions(), pose);
 
+    whooshWhoosh->setHeadingAngle(0_deg);
+
     for (SwerveModule* module : swerveModules) {
         module->resetDrivePosition();
     }
@@ -421,7 +423,7 @@ void Drive::execManual() {
     // Generate chassis speeds depending on the control mode.
     if (manualData.flags & ControlFlag::FIELD_CENTRIC) {
         // Generate chassis speeds based on the rotation of the robot relative to the field.
-        velocities = frc::ChassisSpeeds::FromFieldRelativeSpeeds(xVel, yVel, angVel, currPose.Rotation());
+        velocities = frc::ChassisSpeeds::FromFieldRelativeSpeeds(xVel, yVel, angVel, whooshWhoosh->getHeadingAngle());// currPose.Rotation());
     }
     else {
         // Chassis speeds are robot-centric.

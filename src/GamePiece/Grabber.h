@@ -49,6 +49,7 @@ public:
     void startIntaking();
     bool isFinishedIntaking();
     void intakeGamePiece();
+    Position getPosition() { return currentPosition; }
 
 
 private:

@@ -35,6 +35,7 @@ private:
     void doSwitchPanel();
     bool driveLockX = false;
     bool manualAux = false;
+    bool doUltraBrickMode = false;
 
     bool wasScoring = false;
 

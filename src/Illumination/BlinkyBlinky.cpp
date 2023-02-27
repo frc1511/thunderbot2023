@@ -9,6 +9,10 @@ BlinkyBlinky::BlinkyBlinky() {
 
 BlinkyBlinky::~BlinkyBlinky() = default;
 
+void BlinkyBlinky::resetToMode(MatchMode mode) {
+
+}
+
 void BlinkyBlinky::process() {
     switch (ledMode) {
         case LEDMode::OFF:
@@ -34,7 +38,7 @@ void BlinkyBlinky::process() {
             setColor(frc::Color::kCornflowerBlue);
             break;
         case LEDMode::DISABLED:
-            setColor(frc::Color::kOrange);
+            setColor(frc::Color(255, 27, 0));
             break;
         case LEDMode::CUSTOM:
             setColor(customColor);
