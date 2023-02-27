@@ -9,6 +9,7 @@
 
 // The allowable error in the pivot angle and extension length.
 #define PIVOT_TOLERANCE 3_deg
+#define PIVOT_TOLERANCE_BIGGER 6_deg
 #define EXTENSION_TOLERANCE 2_in
 
 // The minimum angle of the arm.
@@ -131,7 +132,7 @@ void Lift::process() {
     static bool isPivotingDown = false;
     static units::degree_t lockedAngle = 0_deg;
 
-    if (!isAtPosition(currentRightPivot, targetAngle, PIVOT_TOLERANCE)) {
+    if (!isAtPosition(currentRightPivot, targetAngle, PIVOT_TOLERANCE_BIGGER)) {
         if (currentRightPivot < targetAngle) {
             // Going up, don't extend.
             newTargetExtension = 0_m;

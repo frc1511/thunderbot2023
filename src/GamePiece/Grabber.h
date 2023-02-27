@@ -6,6 +6,7 @@
 #include <frc/DigitalInput.h>
 #include <frc/DoubleSolenoid.h>
 #include <frc/Solenoid.h>
+#include <functional>
 
 class Grabber : public Mechanism {
 public:
@@ -34,6 +35,8 @@ public:
     };
 
     void setPosition(Position position);
+    Position getPosition();
+
     void setWristPosition(bool tipped);
     enum class GamePieceType {
         NONE = -1,
@@ -49,8 +52,9 @@ public:
     void startIntaking();
     bool isFinishedIntaking();
     void intakeGamePiece();
-    Position getPosition() { return currentPosition; }
 
+    void onScore(std::function<void()> callback);
+    void onAcquire(std::function<void(GamePieceType)> callback);
 
 private:
     Action currentAction;
@@ -71,4 +75,7 @@ private:
     frc::DoubleSolenoid wristPiston;
     void configureMotors();
     bool tipped;
+
+    std::function<void()> scoreCallback;
+    std::function<void(GamePieceType)> acquireCallback;
 };

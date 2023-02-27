@@ -4,7 +4,21 @@
 
 GamePiece::GamePiece(Grabber* _grabber, Lift* _lift) 
 : grabber(_grabber), lift(_lift) {
-
+    // Pivot down after scoring.
+    grabber->onScore([this]() {
+        setWrist(false);
+        setLiftPreset(LiftPreset::INTAKE);
+    });
+    // Pivot up after acquisition.
+    grabber->onAcquire([this](Grabber::GamePieceType type) {
+        setWrist(false);
+        if (type == Grabber::GamePieceType::CUBE) {
+            setLiftPreset(LiftPreset::HIGH_CUBE_PIVOT);
+        }
+        else {
+            setLiftPreset(LiftPreset::HIGH_CONE_PIVOT);
+        }
+    });
 }
 
 GamePiece::~GamePiece() {
@@ -20,12 +34,6 @@ void GamePiece::doPersistentConfiguration() {
 }
 
 void GamePiece::process() {
-    if (getGamePieceType() != Grabber::GamePieceType::NONE) {
-        if (liftPreset == LiftPreset::INTAKE || liftPreset == LiftPreset::TIPPED_CONE) {
-            setLiftPreset(LiftPreset::TRAVEL);
-        }
-    }
-
     if (!manualWrist) {
         if (wristTipped) {
             // We don't want the grabber to hit the ground, so when the wrist is tipped the lowest preset is the 'TIPPED_CONE' preset.

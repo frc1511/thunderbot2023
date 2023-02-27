@@ -55,6 +55,9 @@ void Grabber::process() {
                 placingGamePiece = false;
                 setAction(Action::IDLE);
                 gamePieceType = GamePieceType::NONE;
+                if (scoreCallback) {
+                    scoreCallback();
+                }
             } else {
                 setAction(Action::OUTTAKE);
             }
@@ -91,6 +94,11 @@ void Grabber::process() {
             else {
                 gamePieceType = GamePieceType::CONE;
                 setPosition(Position::AJAR);
+            }
+
+            // Call the acquire callback.
+            if (acquireCallback) {
+                acquireCallback(gamePieceType);
             }
         }
         else {
@@ -168,6 +176,10 @@ void Grabber::setPosition(Position position) {
     currentPosition = position;
 }
 
+Grabber::Position Grabber::getPosition() {
+    return currentPosition;
+}
+
 Grabber::GamePieceType Grabber::getGamePieceType() {
     return gamePieceType;
 }
@@ -201,6 +213,14 @@ void Grabber::setGamePiece(Grabber::GamePieceType type) {
 
 bool Grabber::isFinishedIntaking() {
     return !autoIntaking;
+}
+
+void Grabber::onScore(std::function<void()> callback) {
+    scoreCallback = callback;
+}
+
+void Grabber::onAcquire(std::function<void(GamePieceType)> callback) {
+    acquireCallback = callback;
 }
 
 void Grabber::configureMotors() {
