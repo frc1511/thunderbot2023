@@ -88,10 +88,6 @@ void Controls::doDrive() {
         driveLockX = !driveLockX;
     }
 
-    if (toggleUltraBrickMode) {
-        doUltraBrickMode = !doUltraBrickMode;
-    }
-
     bool wasBrickDrive = driveCtrlFlags & Drive::ControlFlag::BRICK;
     
     driveCtrlFlags = Drive::ControlFlag::NONE;
@@ -131,8 +127,6 @@ void Controls::doDrive() {
         drive->calibrateIMU();
         driveAbsAngle = drive->getEstimatedPose().Rotation().Radians();
     }
-
-    ultraBrickMode->setState(doUltraBrickMode);
 
     switch (dpad) {
         case ThunderGameController::DPad::NONE:
@@ -192,7 +186,23 @@ void Controls::doDrive() {
     if (wasBrickDrive && !isMoving()) {
         driveCtrlFlags |= Drive::ControlFlag::BRICK;
     }
-// Hi Peter!!!
+
+    // Don't allow enabling ultra brick mode if the robot is moving.
+    if (isMoving() && !doUltraBrickMode && toggleUltraBrickMode) {
+        toggleUltraBrickMode = false;
+    }
+
+    if (toggleUltraBrickMode) {
+        doUltraBrickMode = !doUltraBrickMode;
+    }
+
+    ultraBrickMode->setState(doUltraBrickMode);
+    // Put it in brick mode if we're in ultra brick mode.
+    if (doUltraBrickMode) {
+        driveCtrlFlags |= Drive::ControlFlag::BRICK;
+    }
+
+    // Hi Peter!!!
     if (xySlowMode){
         finalXVel *= .5;
         finalYVel *= .5;
