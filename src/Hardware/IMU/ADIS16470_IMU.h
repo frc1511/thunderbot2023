@@ -241,7 +241,7 @@ class ADIS16470_IMU : public nt::NTSendable,
 
   /** @brief Resources **/
   frc::DigitalInput* m_reset_in;
-  // frc::DigitalOutput* m_status_led;
+  frc::DigitalOutput* m_status_led;
 
   /**
    * @brief Switches to standard SPI operation. Primarily used when exiting auto
