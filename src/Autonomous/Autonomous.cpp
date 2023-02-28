@@ -528,7 +528,13 @@ void Autonomous::balanceOnChargeStation() {
     // 1: Calculate the optimal drive velocity for the current tilt angle.
     else if (balanceChargeStationStep == 1 && drive->isFinished()) {
         units::meters_per_second_t antiTiltVel = whooshWhoosh->calculateAntiTiltDriveVelocity();
-        // TODO: Drive!!!
+        unsigned flags = Drive::ControlFlag::FIELD_CENTRIC;
+        if (antiTiltVel <= 0.1_mps) {
+            antiTiltVel = 0.0_mps;
+            flags |= Drive::ControlFlag::BRICK;
+        }
+
+        drive->velocityControlAbsRotation(0_mps, antiTiltVel, 0_deg, flags);
     }
 }
 
