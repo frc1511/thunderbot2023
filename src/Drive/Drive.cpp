@@ -83,9 +83,9 @@ void Drive::doPersistentConfiguration() {
 void Drive::resetToMode(MatchMode mode) {
     driveMode = DriveMode::STOPPED;
 
-    ManualControlData lastManualData(manualData);
     // Reset the manual control data.
-    manualData = {};
+    VelocityControlData lastControlData(controlData);
+    controlData = { 0_mps, 0_mps, 0_rad_per_s, ControlFlag::NONE };
 
     // Reset the rate limiters to 0.
     // driveRateLimiter.Reset(0_mps);
@@ -107,7 +107,7 @@ void Drive::resetToMode(MatchMode mode) {
         trajectoryTimer.Stop();
 
         // If the drivetrain movement was being recorded before being disabled.
-        if (lastManualData.flags & ControlFlag::RECORDING) {
+        if (lastControlData.flags & ControlFlag::RECORDING) {
             /**
              * Export the recorded trajectory to a CSV file on the RoboRIO so
              * it can be examined and/or played back later.
@@ -168,8 +168,8 @@ void Drive::process() {
         case DriveMode::STOPPED:
             execStopped();
             break;
-        case DriveMode::MANUAL:
-            execManual();
+        case DriveMode::VELOCITY:
+            execVelocityControl();
             break;
         case DriveMode::TRAJECTORY:
             execTrajectory();
@@ -178,33 +178,60 @@ void Drive::process() {
 }
 
 void Drive::manualControlRelRotation(double xPct, double yPct, double angPct, unsigned flags) {
-    double newXPct = xPct, newYPct = yPct, newAngPct = angPct;
+    /**
+     * Calculate chassis velocities using percentages of the configured max
+     * manual control velocities.
+     */
+    units::meters_per_second_t xVel    = xPct * DRIVE_MANUAL_MAX_VEL;
+    units::meters_per_second_t yVel    = yPct * DRIVE_MANUAL_MAX_VEL;
+    units::radians_per_second_t angVel = angPct * DRIVE_MANUAL_MAX_ANG_VEL;
 
+    // Pass the velocities to the velocity control function.
+    velocityControlRelRotation(xVel, yVel, angVel, flags);
+}
+
+void Drive::manualControlAbsRotation(double xPct, double yPct, units::radian_t angle, unsigned flags) {
+    /**
+     * Calculate chassis velocities using percentages of the configured max
+     * manual control velocities.
+     */
+    units::meters_per_second_t xVel    = xPct * DRIVE_MANUAL_MAX_VEL;
+    units::meters_per_second_t yVel    = yPct * DRIVE_MANUAL_MAX_VEL;
+
+    // Pass the velocities to the velocity control function.
+    velocityControlAbsRotation(xVel, yVel, angle, flags);
+}
+
+void Drive::velocityControlRelRotation(units::meters_per_second_t xVel, units::meters_per_second_t yVel, units::radians_per_second_t angVel, unsigned flags) {
+    units::meters_per_second_t newXVel    = xVel;
+    units::meters_per_second_t newYVel    = yVel;
+    units::radians_per_second_t newAngVel = angVel;
+    
     // Apply the locked axis flags.
-    if (flags & ControlFlag::LOCK_X) newXPct = 0;
-    if (flags & ControlFlag::LOCK_Y) newYPct = 0;
-    if (flags & ControlFlag::LOCK_ROT) newAngPct = 0;
+    if (flags & ControlFlag::LOCK_X) newXVel = 0_mps;
+    if (flags & ControlFlag::LOCK_Y) newYVel = 0_mps;
+    if (flags & ControlFlag::LOCK_ROT) newAngVel = 0_rad_per_s;
 
     // Stop the robot in brick mode no matter what.
     if (flags & ControlFlag::BRICK) {
         driveMode = DriveMode::STOPPED;
     }
     // The robot isn't being told to do move, sooo.... stop??
-    else if ((!newXPct && !newYPct && !newAngPct)) {
+    else if ((!newXVel && !newYVel && !newAngVel)) {
         driveMode = DriveMode::STOPPED;
     }
     // The robot is being told to do stuff, so start doing stuff.
     else {
-        driveMode = DriveMode::MANUAL;
+        driveMode = DriveMode::VELOCITY;
     }
 
-    manualData = { newXPct, newYPct, newAngPct, flags };
+    controlData = { newXVel, newYVel, newAngVel, flags };
 }
 
-void Drive::manualControlAbsRotation(double xPct, double yPct, units::radian_t angle, unsigned flags) {
+void Drive::velocityControlAbsRotation(units::meters_per_second_t xVel, units::meters_per_second_t yVel, units::radian_t angle, unsigned flags) {
     units::radian_t currAngle = getEstimatedPose().Rotation().Radians();
 
-    // Reset the PID controller.
+    // Reset the PID controller if this is the first run.
     static bool firstRun = true;
     if (firstRun) {
         manualThetaPIDController.Reset(currAngle);
@@ -215,9 +242,7 @@ void Drive::manualControlAbsRotation(double xPct, double yPct, units::radian_t a
         manualThetaPIDController.Calculate(currAngle, angle)
     );
 
-    double angPct = (angVel / DRIVE_MANUAL_MAX_ANG_VEL).value();
-
-    manualControlRelRotation(xPct, yPct, angPct, flags);
+    velocityControlRelRotation(xVel, yVel, angVel, flags);
 }
 
 void Drive::runTrajectory(Trajectory* _trajectory, const std::map<u_int32_t, Action*>& actionMap) {
@@ -291,7 +316,7 @@ bool Drive::alignToGrid(AlignmentDirection direction) {
 
 bool Drive::isFinished() const {
     // Stopped is as 'finished' as it gets I guess.
-    return driveMode == DriveMode::STOPPED || driveMode == DriveMode::MANUAL;
+    return driveMode == DriveMode::STOPPED || driveMode == DriveMode::VELOCITY;
 }
 
 void Drive::calibrateIMU() {
@@ -381,37 +406,29 @@ void Drive::execStopped() {
     aligningGridNode = -1;
 
     // Put the drivetrain into brick mode if the flag is set.
-    if (manualData.flags & ControlFlag::BRICK) {
+    if (controlData.flags & ControlFlag::BRICK) {
         makeBrick();
     }
 
     // If recording, record the current state of the robot.
-    if (manualData.flags & ControlFlag::RECORDING) {
+    if (controlData.flags & ControlFlag::RECORDING) {
         record_state();
     }
 }
 
-void Drive::execManual() {
-    /**
-     * Calculate chassis velocities using percentages of the configured max
-     * manual control velocities.
-     */
-    units::meters_per_second_t xVel = manualData.xPct * DRIVE_MANUAL_MAX_VEL;
-    units::meters_per_second_t yVel = manualData.yPct * DRIVE_MANUAL_MAX_VEL;
-    units::radians_per_second_t angVel = manualData.angPct * DRIVE_MANUAL_MAX_ANG_VEL;
-
+void Drive::execVelocityControl() {
     // The velocity of the robot using the component velocities.
-    units::meters_per_second_t vel = units::math::hypot(xVel, yVel);
+    units::meters_per_second_t vel = units::math::hypot(controlData.xVel, controlData.yVel);
 
     // The heading of the robot's velocity.
-    units::radian_t head = units::math::atan2(yVel, xVel);
+    units::radian_t head = units::math::atan2(controlData.yVel, controlData.xVel);
 
     // Adjust the velocity using the configured acceleration and deceleration limits.
     // vel = driveRateLimiter.Calculate(vel);
 
     // Calculate the new component velocities.
-    xVel = units::math::cos(head) * vel;
-    yVel = units::math::sin(head) * vel;
+    // xVel = units::math::cos(head) * vel;
+    // yVel = units::math::sin(head) * vel;
 
     // Adjust the angular velocity using the configured acceleration and deceleration limits.
     // angVel = turnRateLimiter.Calculate(angVel);
@@ -421,13 +438,13 @@ void Drive::execManual() {
     frc::ChassisSpeeds velocities;
 
     // Generate chassis speeds depending on the control mode.
-    if (manualData.flags & ControlFlag::FIELD_CENTRIC) {
+    if (controlData.flags & ControlFlag::FIELD_CENTRIC) {
         // Generate chassis speeds based on the rotation of the robot relative to the field.
-        velocities = frc::ChassisSpeeds::FromFieldRelativeSpeeds(xVel, yVel, angVel, whooshWhoosh->getHeadingAngle());// currPose.Rotation());
+        velocities = frc::ChassisSpeeds::FromFieldRelativeSpeeds(controlData.xVel, controlData.yVel, controlData.angVel, whooshWhoosh->getHeadingAngle());// currPose.Rotation());
     }
     else {
         // Chassis speeds are robot-centric.
-        velocities = { xVel, yVel, angVel };
+        velocities = { controlData.xVel, controlData.yVel, controlData.angVel };
     }
 
     // Just for feedback.
@@ -437,7 +454,7 @@ void Drive::execManual() {
     setModuleStates(velocities);
 
     // If recording, record the current state of the robot.
-    if (manualData.flags & ControlFlag::RECORDING) {
+    if (controlData.flags & ControlFlag::RECORDING) {
         record_state();
     }
 }
@@ -685,18 +702,18 @@ void Drive::sendFeedback() {
     frc::Pose2d pose(getEstimatedPose());
 
     // Drive feedback.
-    frc::SmartDashboard::PutNumber("Drive_PoseY_m",          pose.X().value());
-    frc::SmartDashboard::PutNumber("Drive_PoseX_m",          pose.Y().value());
-    frc::SmartDashboard::PutNumber("Drive_PoseRot_deg",      getRotation().Degrees().value());
-    frc::SmartDashboard::PutNumber("Drive_ManualPercentX",   manualData.xPct);
-    frc::SmartDashboard::PutNumber("Drive_ManualPercentY",   manualData.yPct);
-    frc::SmartDashboard::PutNumber("Drive_ManualPercentRot", manualData.angPct);
-    frc::SmartDashboard::PutBoolean("Drive_FieldCentric",    manualData.flags & ControlFlag::FIELD_CENTRIC);
-    frc::SmartDashboard::PutBoolean("Drive_Brick",           manualData.flags & ControlFlag::BRICK);
-    frc::SmartDashboard::PutBoolean("Drive_Recording",       manualData.flags & ControlFlag::RECORDING);
-    frc::SmartDashboard::PutBoolean("Drive_LockX",           manualData.flags & ControlFlag::LOCK_X);
-    frc::SmartDashboard::PutBoolean("Drive_LockY",           manualData.flags & ControlFlag::LOCK_Y);
-    frc::SmartDashboard::PutBoolean("Drive_LockRot",         manualData.flags & ControlFlag::LOCK_ROT);
+    frc::SmartDashboard::PutNumber("Drive_PoseY_m",                 pose.X().value());
+    frc::SmartDashboard::PutNumber("Drive_PoseX_m",                 pose.Y().value());
+    frc::SmartDashboard::PutNumber("Drive_PoseRot_deg",             getRotation().Degrees().value());
+    frc::SmartDashboard::PutNumber("Drive_ControlVelX_mps",         controlData.xVel.value());
+    frc::SmartDashboard::PutNumber("Drive_ControlVelY_mps",         controlData.yVel.value());
+    frc::SmartDashboard::PutNumber("Drive_ControlVelRot_rad_per_s", controlData.angVel.value());
+    frc::SmartDashboard::PutBoolean("Drive_FieldCentric",           controlData.flags & ControlFlag::FIELD_CENTRIC);
+    frc::SmartDashboard::PutBoolean("Drive_Brick",                  controlData.flags & ControlFlag::BRICK);
+    frc::SmartDashboard::PutBoolean("Drive_Recording",              controlData.flags & ControlFlag::RECORDING);
+    frc::SmartDashboard::PutBoolean("Drive_LockX",                  controlData.flags & ControlFlag::LOCK_X);
+    frc::SmartDashboard::PutBoolean("Drive_LockY",                  controlData.flags & ControlFlag::LOCK_Y);
+    frc::SmartDashboard::PutBoolean("Drive_LockRot",                controlData.flags & ControlFlag::LOCK_ROT);
 
     // ThunderDashboard things.
     frc::SmartDashboard::PutNumber("thunderdashboard_drive_x_pos",        pose.X().value());

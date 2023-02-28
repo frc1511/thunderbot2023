@@ -65,7 +65,7 @@
 #define DRIVE_XY_D 0.02
 
 // Drivetrain Theta PID values.
-#define DRIVE_THETA_P 4.0
+#define DRIVE_THETA_P 0.5
 #define DRIVE_THETA_I 0.0
 #define DRIVE_THETA_D 0.1
 
@@ -118,6 +118,20 @@ public:
      * Positive yPct   -> Move forward,           Negative yPct   -> Move backward.
     */
     void manualControlAbsRotation(double xPct, double yPct, units::radian_t angle, unsigned flags);
+
+    /**
+     * Controls the speeds of the drivetrain using the velocities specified.
+     * (The direction of the velocities is dependant on the control type).
+    */
+    void velocityControlRelRotation(units::meters_per_second_t xVel, units::meters_per_second_t yVel, units::radians_per_second_t angVel, unsigned flags);
+
+    /**
+     * Controls the speeds of the drivetrain using the velocities specified. 
+     * (The direction of the velocities is dependant on the control type).
+     * The angle is based on the robot's knowledge about it's position on the
+     * field.
+     */
+    void velocityControlAbsRotation(units::meters_per_second_t xVel, units::meters_per_second_t yVel, units::radian_t angle, unsigned flags);
 
     /**
      * Runs a trajectory.
@@ -203,9 +217,9 @@ private:
     void execStopped();
 
     /**
-     * Executes the instructions for when the robot is in manual control.
+     * Executes the instructions for when the robot is in velocity control.
      */
-    void execManual();
+    void execVelocityControl();
 
     /**
      * Executes the instructions for when the robot is running a trajectory.
@@ -323,22 +337,22 @@ private:
 
     enum class DriveMode {
         STOPPED,
-        MANUAL,
+        VELOCITY,
         TRAJECTORY,
     };
 
     // The current drive mode.
     DriveMode driveMode = DriveMode::STOPPED;
 
-    struct ManualControlData {
-        double xPct = 0;
-        double yPct = 0;
-        double angPct = 0;
+    struct VelocityControlData {
+        units::meters_per_second_t xVel;
+        units::meters_per_second_t yVel;
+        units::radians_per_second_t angVel;
         unsigned flags = ControlFlag::NONE;
     };
 
-    // The data concerning manual control.
-    ManualControlData manualData {};
+    // The data concerning velocity control.
+    VelocityControlData controlData {};
 
     // Used to record trajectories when in manual control.
     TrajectoryRecorder trajectoryRecorder;
