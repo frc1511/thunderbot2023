@@ -67,6 +67,9 @@ void Grabber::process() {
             setPosition(Position::OPEN);
             gamePieceType = GamePieceType::NONE;
             placingGamePiece = false;
+            if (scoreCallback) {
+                scoreCallback();
+            }
         }
         // How do we place a GamePiece that doesn't exist?
         else if (gamePieceType == GamePieceType::NONE) {

@@ -129,7 +129,6 @@ void Controls::doDrive() {
     }
 
     switch (dpad) {
-        case ThunderGameController::DPad::NONE:
         case ThunderGameController::DPad::DOWN:
             // Align center.
             driveAligning = true;
@@ -215,7 +214,7 @@ void Controls::doDrive() {
         return finalXVel || finalYVel || finalAngVel || finalXAng || finalYAng;
     };
 
-    if (isManualControl() || driveAligning) {
+    if (isManualControl()) {
         driveAligning = false;
     }
 
