@@ -360,6 +360,7 @@ void Controls::doAux() {
     // Overrides the current game piece count.
     if (overrideGamePiece) {
         gamePiece->overrideHasGamePiece();
+        gamePiece->setLiftPreset(GamePiece::LiftPreset::INTAKE);
     }
 }
 
