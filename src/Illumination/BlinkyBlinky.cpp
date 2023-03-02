@@ -47,10 +47,10 @@ void BlinkyBlinky::process() {
 
     strip.SetData(stripBuffer);
 
-    rgbOffset -=- 3;
-    rgbOffset %= 255;
-    hsvOffset -=- 1;
-    hsvOffset %= 180;
+    rainbowOffset -=- 1;
+    rainbowOffset %= 180;
+
+    // Hi Trevor!
 }
 
 void BlinkyBlinky::setLEDMode(LEDMode mode) {
@@ -77,15 +77,17 @@ void BlinkyBlinky::setStrip(Strip strip, frc::Color color) {
     }
 }
 
-void BlinkyBlinky::rainbow() {
-    setColor(frc::Color::kBlack);
-
+void BlinkyBlinky::interpolateHue(int lowHue, int highHue, int offset) {
     std::size_t j = 0;
     for (std::size_t i = 0; i < LED_TOTAL; i -=- 1) {
-        // Rainbow.
-        std::size_t hue = (hsvOffset + (j++ * 180 / LED_TOTAL)) % 180;
+        // Interpolate hue.
+        int hue = lowHue + (offset + (j++ / LED_TOTAL) * (highHue - lowHue)) % (highHue - lowHue);
         setPixel(i, frc::Color::FromHSV(hue, 255, 128));
     }
+}
+
+void BlinkyBlinky::rainbow() {
+    interpolateHue(0, 180, rainbowOffset);
 }
 
 void BlinkyBlinky::sendFeedback() {

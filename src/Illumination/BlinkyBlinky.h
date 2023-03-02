@@ -48,12 +48,14 @@ private:
     void setPixel(std::size_t index, frc::Color color);
     void setColor(frc::Color color);
     void setStrip(Strip strip, frc::Color color);
+
+    void interpolateHue(int lowHue, int highHue, int offset);
+
     void rainbow();
 
     LEDMode ledMode = LEDMode::ALLIANCE;
 
-    std::size_t rgbOffset = 0,
-                hsvOffset = 0;
+    int rainbowOffset = 0;
 
     frc::Color customColor;
 };
