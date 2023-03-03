@@ -7,14 +7,17 @@
 #define CAMERA_EXPOSURE 40
 
 Camera::Camera(int id, std::string name)
-: intakeCamera(frc::CameraServer::StartAutomaticCapture(id)) {
-    
-    intakeCamera.SetResolution(CAMERA_WIDTH, CAMERA_HEIGHT);
-    intakeCamera.SetFPS(CAMERA_FPS);
-    intakeCamera.SetExposureManual(CAMERA_EXPOSURE);
+: camera(frc::CameraServer::StartAutomaticCapture(name, id)), cvSink(name) {
+
+    camera.SetResolution(CAMERA_WIDTH, CAMERA_HEIGHT);
+    camera.SetFPS(CAMERA_FPS);
+    camera.SetExposureManual(CAMERA_EXPOSURE);
 
     // Send the video stream to the dashboard.
-    frc::CameraServer::PutVideo(name, CAMERA_WIDTH, CAMERA_HEIGHT);
+    outputStream = frc::CameraServer::PutVideo(name, CAMERA_WIDTH, CAMERA_HEIGHT);
+
+    cvSink.SetSource(camera);
+    cvSink.SetEnabled(true);
 }
 
 Camera::~Camera() = default;

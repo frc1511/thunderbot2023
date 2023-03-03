@@ -8,14 +8,16 @@
 class Camera : public Mechanism {
 public:
     Camera(int id, std::string name);
-    ~Camera();
+    virtual ~Camera();
 
     void process() override;
     void sendFeedback() override;
     void doPersistentConfiguration() override;
     void resetToMode(MatchMode mode) override;
 
-private:
-    cs::UsbCamera intakeCamera;
+protected:
+    cs::UsbCamera camera;
+    cs::CvSink cvSink;
+    cs::CvSource outputStream;
 };
 

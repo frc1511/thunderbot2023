@@ -93,7 +93,7 @@ private:
     Lift* lift;
 
     const std::map<LiftPreset, std::pair<units::degree_t, units::meter_t>> presetMap {
-        { LiftPreset::INTAKE,           std::make_pair(-40_deg, 0_m) },//-33.5_deg, 0.1376_m) },// std::make_pair(-40_deg, 0_m)      }, // Starting position & cone/cube intake.
+        { LiftPreset::INTAKE,           std::make_pair(-33.5_deg, 0.1376_m) },// std::make_pair(-40_deg, 0_m)      }, // Starting position & cone/cube intake.
         { LiftPreset::INTAKE_FUNKY,     std::make_pair(-23_deg, 0.168_m)  }, // Intake position for preparing to intake a tipped cone.
         { LiftPreset::TIPPED_CONE,      std::make_pair(-28_deg, 0.168_m)  }, // Tipped over cone intake position.
         { LiftPreset::GROUND,           std::make_pair(-25_deg, 0.1_m)    }, // Low scoring position.

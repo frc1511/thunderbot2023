@@ -14,6 +14,7 @@
 #include <Basic/RobotChess.h>
 #include <Drive/UltraBrickMode.h>
 #include <Illumination/BlinkyBlinky.h>
+#include <Vision/IntakeCamera.h>
 
 class Robot : public frc::TimedRobot {
 public:
@@ -51,14 +52,15 @@ private:
     Controls controls { &drive, &gamePiece, &ultraBrickMode, &blinkyBlinky };
     Autonomous autonomous { &whooshWhoosh, &drive, &gamePiece };
 
+    IntakeCamera intakeCamera;
+
     // Every mechanism on the robot.
     std::vector<Mechanism*> allMechanisms {
-        &whooshWhoosh, &drive, &gamePiece, &controls,
-        &rollingRaspberry, &grabber, &lift, &ultraBrickMode, &autonomous, &blinkyBlinky
+        &whooshWhoosh, &drive, &gamePiece, &controls, &rollingRaspberry, &grabber, &lift, &ultraBrickMode, &autonomous, &blinkyBlinky, &intakeCamera
     };
 
     // Mechanisms that are run universally when the robot is running.
     std::vector<Mechanism*> universalMechanisms {
-        &whooshWhoosh, &rollingRaspberry, &blinkyBlinky
+        &whooshWhoosh, &rollingRaspberry, &blinkyBlinky, &intakeCamera
     };
 };
