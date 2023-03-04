@@ -18,10 +18,6 @@ public:
 private:
     void threadMain();
 
-    cs::UsbCamera camera;
-    cs::CvSink cvSink;
-    cs::CvSource outputStream;
-
     std::thread visionThread;
     std::mutex visionMutex;
 

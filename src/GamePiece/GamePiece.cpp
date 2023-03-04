@@ -12,12 +12,7 @@ GamePiece::GamePiece(Grabber* _grabber, Lift* _lift)
     // Pivot up after acquisition.
     grabber->onAcquire([this](Grabber::GamePieceType type) {
         setWrist(false);
-        if (type == Grabber::GamePieceType::CUBE) {
-            setLiftPreset(LiftPreset::HIGH_CUBE_PIVOT);
-        }
-        else {
-            setLiftPreset(LiftPreset::HIGH_CONE_PIVOT);
-        }
+        setLiftPreset(LiftPreset::TRAVEL);
     });
 }
 
@@ -117,7 +112,7 @@ void GamePiece::setGrabberAction(Grabber::Action action) {
     grabber->setAction(action);
 
     if (action == Grabber::Action::OUTTAKE) {
-        grabber->overrideHasGamePiece();
+        grabber->overrideHasGamePiece(false);
     }
 }
 
@@ -129,8 +124,8 @@ Grabber::GamePieceType GamePiece::getGamePieceType() {
     return grabber->getGamePieceType();
 }
 
-void GamePiece::overrideHasGamePiece() {
-    grabber->overrideHasGamePiece();
+void GamePiece::overrideHasGamePiece(bool hasGamePiece) {
+    grabber->overrideHasGamePiece(hasGamePiece);
 }
 
 void GamePiece::placeGamePiece() {

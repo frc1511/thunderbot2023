@@ -42,9 +42,9 @@ public:
     using SwerveDriveMotor = ThunderCANMotorController;
     using SwerveTurningMotor = ThunderCANMotorController;
     using SwerveTurningEncoder = ThunderCANMagneticEncoder;
-    using GrabberIntakeMotor = ThunderCANSparkMax;
-    using LiftExtensionMotor = ThunderCANTalonSRX;
-    using LiftLeftPivotMotor = ThunderCANTalonSRX;
+    using GrabberIntakeMotor = ThunderCANMotorController;
+    using LiftExtensionMotor = ThunderCANMotorController;
+    using LiftLeftPivotMotor = ThunderCANMotorController;
     using LiftRightPivotMotor = ThunderCANMotorController;
 
 #endif

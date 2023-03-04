@@ -2,14 +2,15 @@
 
 class ThunderGameController {
 public:
-    virtual ~ThunderGameController() { }
-
-    virtual void process() { }
-
     enum class Controller {
         DRIVER = 0,
         AUX = 1,
     };
+
+    ThunderGameController(Controller controller) : controller(controller) { }
+    virtual ~ThunderGameController() { }
+
+    virtual void process() { }
 
     enum class ButtonState {
         PRESSED,
@@ -17,8 +18,8 @@ public:
         RELEASED,
     };
 
-    virtual bool getButton(int button, ButtonState state = ButtonState::HELD) = 0;
-    virtual double getAxis(int axis) = 0;
+    virtual bool getButton(int button, ButtonState state = ButtonState::HELD) { return false; }
+    virtual double getAxis(int axis) { return 0.0; }
 
     enum class DPad {
         NONE = -1,
@@ -32,37 +33,37 @@ public:
         UP_LEFT = 315,
     };
 
-    virtual DPad getDPad() = 0;
+    virtual DPad getDPad() { return DPad::NONE; }
 
-    virtual bool getTriangleButton(ButtonState state = ButtonState::HELD) = 0;
-    virtual bool getCircleButton(ButtonState state = ButtonState::HELD) = 0;
-    virtual bool getCrossButton(ButtonState state = ButtonState::HELD) = 0;
-    virtual bool getSquareButton(ButtonState state = ButtonState::HELD) = 0;
+    virtual bool getTriangleButton(ButtonState state = ButtonState::HELD) { return false; }
+    virtual bool getCircleButton(ButtonState state = ButtonState::HELD) { return false; }
+    virtual bool getCrossButton(ButtonState state = ButtonState::HELD) { return false; }
+    virtual bool getSquareButton(ButtonState state = ButtonState::HELD) { return false; }
 
-    virtual bool getYButton(ButtonState state = ButtonState::HELD) = 0;
-    virtual bool getBButton(ButtonState state = ButtonState::HELD) = 0;
-    virtual bool getAButton(ButtonState state = ButtonState::HELD) = 0;
-    virtual bool getXButton(ButtonState state = ButtonState::HELD) = 0;
+    virtual bool getYButton(ButtonState state = ButtonState::HELD) { return false; }
+    virtual bool getBButton(ButtonState state = ButtonState::HELD) { return false; }
+    virtual bool getAButton(ButtonState state = ButtonState::HELD) { return false; }
+    virtual bool getXButton(ButtonState state = ButtonState::HELD) { return false; }
 
-    virtual bool getLeftBumper(ButtonState state = ButtonState::HELD) = 0;
-    virtual bool getRightBumper(ButtonState state = ButtonState::HELD) = 0;
+    virtual bool getLeftBumper(ButtonState state = ButtonState::HELD) { return false; }
+    virtual bool getRightBumper(ButtonState state = ButtonState::HELD) { return false; }
 
-    virtual bool getShareButton(ButtonState state = ButtonState::HELD) = 0;
-    virtual bool getOptionsButton(ButtonState state = ButtonState::HELD) = 0;
+    virtual bool getShareButton(ButtonState state = ButtonState::HELD) { return false; }
+    virtual bool getOptionsButton(ButtonState state = ButtonState::HELD) { return false; }
 
-    virtual bool getBackButton(ButtonState state = ButtonState::HELD) = 0;
-    virtual bool getStartButton(ButtonState state = ButtonState::HELD) = 0;
+    virtual bool getBackButton(ButtonState state = ButtonState::HELD) { return false; }
+    virtual bool getStartButton(ButtonState state = ButtonState::HELD) { return false; }
 
-    virtual bool getLeftStickButton(ButtonState state = ButtonState::HELD) = 0;
-    virtual bool getRightStickButton(ButtonState state = ButtonState::HELD) = 0;
+    virtual bool getLeftStickButton(ButtonState state = ButtonState::HELD) { return false; }
+    virtual bool getRightStickButton(ButtonState state = ButtonState::HELD) { return false; }
 
-    virtual double getLeftXAxis() = 0;
-    virtual double getLeftYAxis() = 0;
-    virtual double getRightXAxis() = 0;
-    virtual double getRightYAxis() = 0;
+    virtual double getLeftXAxis() { return 0.0; }
+    virtual double getLeftYAxis() { return 0.0; }
+    virtual double getRightXAxis() { return 0.0; }
+    virtual double getRightYAxis() { return 0.0; }
 
-    virtual double getLeftTrigger() = 0;
-    virtual double getRightTrigger() = 0;
+    virtual double getLeftTrigger() { return 0.0; }
+    virtual double getRightTrigger() { return 0.0; }
 
     virtual void setRumble(double left, double right) { }
 
@@ -100,7 +101,5 @@ public:
     virtual void setPlayerLed(unsigned char bitmask, bool fade) { }
 
 protected:
-    ThunderGameController(Controller controller) : controller(controller) { }
-
     Controller controller;
 };

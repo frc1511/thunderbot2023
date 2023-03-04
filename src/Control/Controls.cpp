@@ -258,7 +258,8 @@ void Controls::doAux() {
 
     bool intake = auxController.getAxis(AuxAxis::RIGHT_TRIGGER) > AXIS_DEADZONE;
     bool outtake = auxController.getButton(AuxButton::RIGHT_BUMPER);
-    bool overrideGamePiece = auxController.getButton(AuxButton::SHARE, ThunderGameController::ButtonState::PRESSED);
+    bool overrideGamePieceNo = auxController.getButton(AuxButton::SHARE, ThunderGameController::ButtonState::PRESSED);
+    bool overrideGamePieceYes = auxController.getButton(AuxButton::CROSS, ThunderGameController::ButtonState::PRESSED);
     
     // If we have a GamePiece, we don't want to prepare to grab another one.
     if (gamePiece->getGamePieceType() != Grabber::GamePieceType::NONE ||
@@ -358,9 +359,12 @@ void Controls::doAux() {
     }
 
     // Overrides the current game piece count.
-    if (overrideGamePiece) {
-        gamePiece->overrideHasGamePiece();
+    if (overrideGamePieceNo) {
+        gamePiece->overrideHasGamePiece(false);
         gamePiece->setLiftPreset(GamePiece::LiftPreset::INTAKE);
+    }
+    if (overrideGamePieceYes) {
+        gamePiece->overrideHasGamePiece(true);
     }
 }
 
@@ -436,7 +440,7 @@ void Controls::doSwitchPanel() {
         }
         else if (!switchPanel.GetRawButton(6)) {
             if (gamePiece->getGamePieceType() != Grabber::GamePieceType::NONE) {
-                blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::RAINBOW);
+                blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::HAS_GAMEPIECE);
             }
             else if (gamePiece->getGrabberPosition() == Grabber::Position::OPEN) {
                 blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::CUBE);

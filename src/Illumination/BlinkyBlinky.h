@@ -25,6 +25,7 @@ public:
         ALLIANCE,
         CUBE,
         CONE,
+        HAS_GAMEPIECE,
         CRATER_MODE,
         CALIBRATING,
         DISABLED,

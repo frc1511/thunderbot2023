@@ -45,7 +45,7 @@ public:
     };
 
     GamePieceType getGamePieceType();
-    void overrideHasGamePiece();
+    void overrideHasGamePiece(bool hasGamePiece);
     void placeGamePiece();
     void setGamePiece(Grabber::GamePieceType gamePieceType);
     bool isPlacingGamePiece();

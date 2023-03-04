@@ -22,6 +22,9 @@ void BlinkyBlinky::process() {
         case LEDMode::RAINBOW:
             rainbow();
             break;
+        case LEDMode::HAS_GAMEPIECE:
+            setColor(frc::Color::kRed);
+            break;
         case LEDMode::ALLIANCE:
             setColor(frc::DriverStation::GetAlliance() == frc::DriverStation::kBlue ? frc::Color::kBlue : frc::Color::kRed);
             break;
@@ -104,6 +107,9 @@ void BlinkyBlinky::sendFeedback() {
             break;
         case LEDMode::CUBE:
             modeString = "cube";
+            break;
+        case LEDMode::HAS_GAMEPIECE:
+            modeString = "has gamepiece";
             break;
         case LEDMode::ALLIANCE:
             modeString = "alliance";

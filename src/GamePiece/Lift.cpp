@@ -19,7 +19,7 @@
 #define MAX_PIVOT_ANGLE 20_deg
 
 // The encoder value at the maximum angle of the arm.
-#define MAX_PIVOT_ENCODER 84.027077
+#define MAX_PIVOT_ENCODER 84//84.027077
 
 // The maximum extension length of the arm (delta from starting position).
 #define MAX_EXTENSION_LENGTH 38.25_in

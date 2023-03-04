@@ -21,7 +21,7 @@
 #endif
 
 // I/O ID for missing devices.
-#define IO_MISSING -1
+#define IO_MISSING 0
 
 class IOMap {
 public:

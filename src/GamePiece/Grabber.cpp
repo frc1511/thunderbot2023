@@ -58,17 +58,23 @@ void Grabber::process() {
                 if (scoreCallback) {
                     scoreCallback();
                 }
-            } else {
+            }
+            else {
                 setAction(Action::OUTTAKE);
             }
         }
         // Cone: Open the grabber completely.
         else if (gamePieceType == GamePieceType::CONE) {
-            setPosition(Position::OPEN);
-            gamePieceType = GamePieceType::NONE;
-            placingGamePiece = false;
-            if (scoreCallback) {
-                scoreCallback();
+            if (placingGamePieceTimer.Get() >= 0.25_s) {
+                placingGamePiece = false;
+                setAction(Action::IDLE);
+                gamePieceType = GamePieceType::NONE;
+                if (scoreCallback) {
+                    scoreCallback();
+                }
+            }
+            else {
+                setPosition(Position::OPEN);
             }
         }
         // How do we place a GamePiece that doesn't exist?
@@ -112,8 +118,8 @@ void Grabber::process() {
     if (currentAction == Action::INTAKE) {
         leftIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, INTAKE_SPEED);
         rightIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, INTAKE_SPEED);
-        if ((currentPosition == Position::OPEN && (leftIntakeMotor.getOutputCurrent() >= 13_A || rightIntakeMotor.getOutputCurrent() >= 13_A)) ||
-            (currentPosition == Position::AGAPE && (leftIntakeMotor.getOutputCurrent() >= 10_A || rightIntakeMotor.getOutputCurrent() >= 10_A))) {
+        if ((currentPosition == Position::OPEN && (leftIntakeMotor.getOutputCurrent() >= 17_A || rightIntakeMotor.getOutputCurrent() >= 17_A)) ||
+            (currentPosition == Position::AGAPE && (leftIntakeMotor.getOutputCurrent() >= 15_A || rightIntakeMotor.getOutputCurrent() >= 15_A))) {
             intakeCurrentTimer.Start();
             // Sustained current spike for 0.25 seconds.
             if ((currentPosition == Position::OPEN && intakeCurrentTimer.Get() > 0.20_s) ||
@@ -145,8 +151,8 @@ void Grabber::process() {
     } 
     else if (currentPosition == Position::AGAPE) {
         // Only one piston is extended to intake a cone.
-        grabberPiston1.Set(frc::DoubleSolenoid::Value::kReverse); 
-        grabberPiston2.Set(frc::DoubleSolenoid::Value::kForward);
+        grabberPiston1.Set(frc::DoubleSolenoid::Value::kForward); 
+        grabberPiston2.Set(frc::DoubleSolenoid::Value::kReverse);
     } 
     else if (currentPosition == Position::AJAR) {
         // Both pistons are retracted to hold a cone.
@@ -193,9 +199,34 @@ void Grabber::intakeGamePiece() {
     autoIntakingTimer.Start();
 }
 
-void Grabber::overrideHasGamePiece() {
-    gamePieceType = GamePieceType::NONE;
+void Grabber::overrideHasGamePiece(bool hasGamePiece) {
     placingGamePiece = false;
+    if (hasGamePiece) {
+        if (gamePieceType != GamePieceType::NONE) {
+            return;
+        }
+
+        switch (currentPosition) {
+            case Position::OPEN:
+                gamePieceType = GamePieceType::CUBE;
+                if (acquireCallback) {
+                    acquireCallback(gamePieceType);
+                }
+                break;
+            case Position::AGAPE:
+                gamePieceType = GamePieceType::CONE;
+                setPosition(Position::AJAR);
+                if (acquireCallback) {
+                    acquireCallback(gamePieceType);
+                }
+                break;
+            case Position::AJAR:
+                break;
+        }
+    }
+    else {
+        gamePieceType = GamePieceType::NONE;
+    }
 }
 
 void Grabber::placeGamePiece() {

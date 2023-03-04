@@ -23,28 +23,7 @@ std::map<Grabber::GamePieceType, std::pair<cv::Scalar, cv::Scalar>> gamePieceHSV
     { Grabber::GamePieceType::NONE, { cv::Scalar(0, 0, 0), cv::Scalar(255, 255, 255) } }
 };
 
-IntakeCamera::IntakeCamera()
-: cvSink(CAMERA_NAME) {
-// : Camera(HardwareManager::IOMap::USB_INTAKE_CAMERA, "intake_camera") {
-    std::vector<cs::UsbCameraInfo> camInfos = cs::UsbCamera::EnumerateUsbCameras();
-    if (!camInfos.empty()) {
-        fmt::print("Found camera #{} named {} at path {}\n", camInfos.at(0).dev, camInfos.at(0).name, camInfos.at(0).path);
-        camera = frc::CameraServer::StartAutomaticCapture(CAMERA_NAME, camInfos.at(0).dev);
-    }
-    else {
-        return;
-    }
-
-    camera.SetResolution(320, 240);
-    camera.SetFPS(30);
-    camera.SetExposureManual(40);
-
-    // Send the video stream to the dashboard.
-    // cvSink = frc::CameraServer::GetVideo(CAMERA_NAME);
-    outputStream = frc::CameraServer::PutVideo(CAMERA_NAME, 320, 240);
-    cvSink.SetSource(camera);
-    cvSink.SetEnabled(true);
-
+IntakeCamera::IntakeCamera() {
     visionThread = std::thread([this] { threadMain(); });
 }
 
@@ -60,6 +39,12 @@ void IntakeCamera::setTarget(Grabber::GamePieceType target) {
 void IntakeCamera::threadMain() {
     using namespace std::chrono_literals;
 
+    cs::UsbCamera camera = frc::CameraServer::StartAutomaticCapture();
+    camera.SetResolution(640, 480);
+
+    cs::CvSink cvSink = frc::CameraServer::GetVideo();
+    cs::CvSource outputStream = frc::CameraServer::PutVideo("intake_camera", 640, 480);
+
     cv::Mat frame, frame_threshold;
 
     while (true) {
@@ -72,7 +57,7 @@ void IntakeCamera::threadMain() {
         //     std::this_thread::sleep_for(100ms);
         //     continue;
         // }
-        target = Grabber::GamePieceType::CUBE;
+        target = Grabber::GamePieceType::CONE;
 
         uint64_t frameTime = cvSink.GrabFrame(frame);
         if (!frameTime) {
@@ -97,6 +82,7 @@ void IntakeCamera::threadMain() {
             cv::rectangle(frame, rect, cv::Scalar(0, 255, 0), 2);
         }
 
-        outputStream.PutFrame(frame_threshold);
+        outputStream.PutFrame(frame);
+        // fmt::print("Sent frame, {}, {}, {}\n", cvSink.GetError(), outputStream.IsEnabled(), outputStream.IsConnected());
     }
 }
