@@ -1,5 +1,14 @@
 #include <Vision/IntakeCamera.h>
-#include <opencv2/opencv.hpp>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-enum-enum-conversion"
+#include <opencv2/core/core.hpp>
+#include <opencv2/core/types.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/features2d.hpp>
+#pragma GCC diagnostic pop
+
 #include <fmt/core.h>
 #include <map>
 #include <vector>
@@ -89,6 +98,5 @@ void IntakeCamera::threadMain() {
         }
 
         outputStream.PutFrame(frame_threshold);
-        std::cout << "Sent frame\n";
     }
 }

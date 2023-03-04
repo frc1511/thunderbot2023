@@ -245,7 +245,7 @@ void Drive::velocityControlAbsRotation(units::meters_per_second_t xVel, units::m
     velocityControlRelRotation(xVel, yVel, angVel, flags);
 }
 
-void Drive::runTrajectory(Trajectory* _trajectory, const std::map<u_int32_t, Action*>& actionMap) {
+void Drive::runTrajectory(const Trajectory* _trajectory, const std::map<u_int32_t, Action*>& actionMap) {
     driveMode = DriveMode::TRAJECTORY;
     // Set the trajectory.
     trajectory = _trajectory;
@@ -418,10 +418,10 @@ void Drive::execStopped() {
 
 void Drive::execVelocityControl() {
     // The velocity of the robot using the component velocities.
-    units::meters_per_second_t vel = units::math::hypot(controlData.xVel, controlData.yVel);
+    // units::meters_per_second_t vel = units::math::hypot(controlData.xVel, controlData.yVel);
 
     // The heading of the robot's velocity.
-    units::radian_t head = units::math::atan2(controlData.yVel, controlData.xVel);
+    // units::radian_t head = units::math::atan2(controlData.yVel, controlData.xVel);
 
     // Adjust the velocity using the configured acceleration and deceleration limits.
     // vel = driveRateLimiter.Calculate(vel);

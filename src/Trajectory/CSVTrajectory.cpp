@@ -41,7 +41,7 @@ CSVTrajectory::CSVTrajectory(std::filesystem::path path, bool inverted) {
 
 CSVTrajectory::~CSVTrajectory() { }
 
-CSVTrajectory::State CSVTrajectory::sample(units::second_t time) {
+CSVTrajectory::State CSVTrajectory::sample(units::second_t time) const {
     decltype(states)::const_iterator upperBound = states.upper_bound(time),
                                      lowerBound = --states.lower_bound(time);
     
@@ -81,12 +81,12 @@ CSVTrajectory::State CSVTrajectory::sample(units::second_t time) {
     return State{ pose, velocity };
 }
 
-units::second_t CSVTrajectory::getDuration() {
+units::second_t CSVTrajectory::getDuration() const {
     // Reverse iterator to get the last element.
     return states.rbegin()->first;
 }
 
-frc::Pose2d CSVTrajectory::getInitialPose() {
+frc::Pose2d CSVTrajectory::getInitialPose() const {
     const State& state(states.cbegin()->second);
 
     return state.pose;

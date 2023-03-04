@@ -28,22 +28,22 @@ public:
     /**
      * Samples the trajectory at a specified time.
      */
-    virtual State sample(units::second_t time) = 0;
+    virtual State sample(units::second_t time) const = 0;
 
     /**
      * Returns the duration in seconds of the trajectory.
      */
-    virtual units::second_t getDuration() = 0;
+    virtual units::second_t getDuration() const = 0;
 
     /**
      * Returns the initial position of the robot.
      */
-    virtual frc::Pose2d getInitialPose() = 0;
+    virtual frc::Pose2d getInitialPose() const = 0;
 
     /**
      * Returns the actions with their attributed timestamps.
      */
-    virtual const std::map<units::second_t, u_int32_t>& getActions() { return defaultActions; }
+    virtual const std::map<units::second_t, u_int32_t>& getActions() const { return defaultActions; }
 
 protected:
     Trajectory() = default;

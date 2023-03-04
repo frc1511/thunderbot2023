@@ -124,7 +124,6 @@ void BlinkyBlinky::sendFeedback() {
 
 
     frc::SmartDashboard::PutString("BlinkyBlinky_Mode", modeString);
-    frc::SmartDashboard::PutNumber("BlinkyBlinky_RGB_Offset", rgbOffset);
-    frc::SmartDashboard::PutNumber("BlinkyBlinky_HSV_Offset", hsvOffset);
+    frc::SmartDashboard::PutNumber("BlinkyBlinky_RainbowOffset", rainbowOffset);
 }
 

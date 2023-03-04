@@ -20,17 +20,17 @@ public:
     /**
      * Samples the trajectory at a specified time.
      */
-    State sample(units::second_t time) override;
+    State sample(units::second_t time) const;
 
     /**
      * Returns the duration in seconds of the trajectory.
      */
-    inline units::second_t getDuration() override { return duration; }
+    inline units::second_t getDuration() const { return duration; }
 
     /**
      * Returns the initial position of the robot.
      */
-    inline frc::Pose2d getInitialPose() override { return startPose; }
+    inline frc::Pose2d getInitialPose() const { return startPose; }
 
 private:
     std::map<units::second_t, u_int32_t> actions;

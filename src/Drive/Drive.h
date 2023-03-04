@@ -136,7 +136,7 @@ public:
     /**
      * Runs a trajectory.
      */
-    void runTrajectory(Trajectory* trajectory, const std::map<u_int32_t, Action*>& actionMap);
+    void runTrajectory(const Trajectory* trajectory, const std::map<u_int32_t, Action*>& actionMap);
 
     /**
      * Drives the robot to a specified target pose.
@@ -374,7 +374,7 @@ private:
     CSVTrajectory recordedTrajectory { RECORDED_TRAJ_PATH };
 
     // The trajectory that is currently being run.
-    Trajectory* trajectory = nullptr;
+    const Trajectory* trajectory = nullptr;
 
     // The available actions.
     const std::map<u_int32_t, Action*>* trajectoryActions = nullptr;

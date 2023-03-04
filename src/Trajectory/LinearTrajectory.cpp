@@ -72,7 +72,7 @@ LinearTrajectory::LinearTrajectory(frc::Pose2d _startPose,
 
 LinearTrajectory::~LinearTrajectory() { }
 
-Trajectory::State LinearTrajectory::sample(units::second_t time) {
+Trajectory::State LinearTrajectory::sample(units::second_t time) const {
     // Trajectory is complete, so return the end state.
     if (time >= duration) {
         return State(endPose, endVel);

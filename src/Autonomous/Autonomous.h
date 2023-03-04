@@ -12,7 +12,7 @@
 
 #define DEPLOY_DIR "/home/lvuser/deploy/"
 
-#define DIST_TO_CS_CENTER ((0.97_m / 2.0) + (80.4_in / 2.0))
+#define DIST_TO_CS_CENTER ((0.95_m / 2.0) + (80.4_in / 2.0))
 
 class WhooshWhoosh;
 class Drive;
@@ -28,208 +28,178 @@ public:
     void resetToMode(MatchMode mode) override;
 
 private:
+    enum class AutoMode {
+        DO_NOTHING     = 0,
+        BARRIER_3GP    = 1,
+        BARRIER_2GP_CS = 2,
+        CENTER_1GP     = 3,
+        CENTER_1GP_CS  = 4,
+        EDGE_3GP       = 5,
+        EDGE_2GP_CS    = 6,
+    };
+
+    AutoMode selectedAutoMode = AutoMode::DO_NOTHING;
+
     void doNothing();
+    void barrier3GP();
+    void barrier2GP_CS();
+    void center1GP();
+    void center1GP_CS();
+    void edge3GP();
+    void edge2GP_CS();
 
-    /**
-     * Auto mode for starting at side of the community closest to barrier.
-     * 1. Score preloaded GamePiece on grid.
-     * 2. Drive around the Charge Station and collect GamePiece 1.
-     * 3. Configurable final action:
-     *    a. Do nothing
-     *    b. Score collected GamePiece 1
-     *    c. Balance on Charge Station
-     */
-    void barrierSideAuto();
-
-    enum {
-        BARRIER_SIDE_AUTO_END_STEP = 5
+    const std::map<AutoMode, const char*> autoModeNames {
+        { AutoMode::DO_NOTHING,     "Do Nothing"      },
+        { AutoMode::BARRIER_3GP,    "Barrier: 3GP"    },
+        { AutoMode::BARRIER_2GP_CS, "Barrier: 2GP+CS" },
+        { AutoMode::CENTER_1GP,     "Center: 1GP"     },
+        { AutoMode::CENTER_1GP_CS,  "Center: 1GP+CS"  },
+        { AutoMode::EDGE_3GP,       "Edge: 3GP"       },
+        { AutoMode::EDGE_2GP_CS,    "Edge: 2GP+CS"    },
     };
-
-    /**
-     * Performs the final scoring action for barrier side auto.
-     */
-    void barrierSideAuto_finalScore();
-
-    /**
-     * Performs the final balancing action for the barrier side auto.
-     */
-    void barrierSideAuto_finalBalance();
-
-    /**
-     * Auto mode for starting in the middle of the community behind the charging station.
-     * 1. Score preloaded GamePiece on grid.
-     * 2. Configurable final action:
-     *    a. Do nothing
-     *    b. Balance on Charge Station
-     *    c. Go over Charge Station and collect GamePiece 2/3
-     *    d. Go over Charge Station, collect GamePiece 2/3, then balance on Charge Station
-     */
-    void middleAuto();
-
-    /**
-     * Auto mode for starting at the side of the community closest to wall.
-     * 1. Score preloaded GamePiece on grid.
-     * 2. Drive around the Charge Station and collect GamePiece 4.
-     * 3. Configure final action:
-     *    a. Do nothing
-     *    b. Score collected GamePiece 4
-     *    c. Balance on Charge Station
-     */
-    void edgeSideAuto();
-
-    enum {
-        EDGE_SIDE_AUTO_END_STEP = 5
-    };
-
-    /**
-     * Performs the final scoring action for edge side auto.
-     */
-    void edgeSideAuto_finalScore();
-
-    /**
-     * Performs the final balancing action for the edge side auto.
-     */
-    void edgeSideAuto_finalBalance();
-
-    /**
-     * Drive over the Charge Station.
-     * resetPose: The pose to reset once charge station cleared.
-     * Returns true once finished.
-     */
-    bool traverseChargeStation(frc::Pose2d resetPose);
-
-    /**
-     * Balances the robot on the Charge Station.
-     */
-    void balanceOnChargeStation();
-
-    /**
-     * Runs a trajectory from start to finish.
-     */
-    void runTrajectory(Trajectory* trajectory);
-
-    bool scoreGamePiece();
-
-    void scorePreloadedGamePiece();
-
-    enum class StartingLocation {
-        MARS = -1, // Not really mars - signifies that we aren't running any auto.
-        BARRIER_SIDE = 0,
-        MIDDLE = 1,
-        EDGE_SIDE = 2,
-    };
-
-    bool doing_auto = false;
-    StartingLocation startingLocation = StartingLocation::MARS;
-    int startingGamePiece = -1,
-        startingAction = -1,
-        fieldGamePiece = -1,
-        finalAction = -1;
 
     frc::Timer delayTimer,
                autoTimer;
 
     int step = 0;
-    int traverseChargeStationStep = 0;
-    int balanceChargeStationStep = 0;
-    int scoreGamePieceStep = 0;
 
-    LinearTrajectory balanceChargeStationTrajectory { frc::Pose2d(5.35_m, 2.7_m, 0_deg), frc::Pose2d(5.35_m, 2.7_m + DIST_TO_CS_CENTER, 0_deg), 1.5_mps, 2_mps_sq };
     LinearTrajectory traverseChargeStationTrajectory { frc::Pose2d(5.35_m, 2.7_m, 0_deg), frc::Pose2d(5.35_m, 2.7_m + (2 * DIST_TO_CS_CENTER), 0_deg), 1.5_mps, 2_mps_sq };
 
     WhooshWhoosh* whooshWhoosh;
     Drive* drive;
     GamePiece* gamePiece;
 
-    enum Path {
-        GRID1_TO_GP1 = 0,
-        GRID2_TO_GP1 = 1,
-        GP1_TO_GRID1 = 2,
-        GP1_TO_GRID2 = 3,
-        GP1_TO_CS    = 4,
-        GRID4_TO_CS  = 5,
-        GRID5_TO_CS  = 6,
-        CS_TO_GP3    = 7,
-        GP3_TO_CS    = 8,
-        GRID6_TO_GP4 = 9,
-        GRID7_TO_GP4 = 10,
-        GP4_TO_GRID6 = 11,
-        GP4_TO_GRID7 = 12,
-        GP4_TO_CS    = 13,
-
-        PATH_NUM = 14,
+    enum class Path {
+        BARRIER_START,
+        BARRIER_FINAL_SCORE,
+        BARRIER_FINAL_BALANCE,
+        CENTER_START,
+        EDGE_START,
+        EDGE_FINAL_SCORE,
+        EDGE_FINAL_BALANCE,
     };
 
-    std::array<CSVTrajectory, Path::PATH_NUM> bluePaths = {
-        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/grid1_to_gp1.csv", false },
-        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/grid2_to_gp1.csv", false },
-        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/gp1_to_grid1.csv", false },
-        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/gp1_to_grid2.csv", false },
-        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/gp1_to_cs.csv",    false },
-        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/grid4_to_cs.csv",  false },
-        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/grid5_to_cs.csv",  false },
-        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/cs_to_gp3.csv",    false },
-        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/gp3_to_cs.csv",    false },
-        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/grid6_to_gp4.csv", false },
-        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/grid7_to_gp4.csv", false },
-        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/gp4_to_grid6.csv", false },
-        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/gp4_to_grid7.csv", false },
-        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/gp4_to_cs.csv",    false },
+    const std::map<Path, CSVTrajectory> bluePaths {
+        { Path::BARRIER_START,         CSVTrajectory{ DEPLOY_DIR "ThunderAuto/barrier_start.csv",         false } },
+        { Path::BARRIER_FINAL_SCORE,   CSVTrajectory{ DEPLOY_DIR "ThunderAuto/barrier_final_score.csv",   false } },
+        { Path::BARRIER_FINAL_BALANCE, CSVTrajectory{ DEPLOY_DIR "ThunderAuto/barrier_final_balance.csv", false } },
+        { Path::CENTER_START,          CSVTrajectory{ DEPLOY_DIR "ThunderAuto/center_start.csv",          false } },
+        { Path::EDGE_START,            CSVTrajectory{ DEPLOY_DIR "ThunderAuto/edge_start.csv",            false } },
+        { Path::EDGE_FINAL_SCORE,      CSVTrajectory{ DEPLOY_DIR "ThunderAuto/edge_final_score.csv",      false } },
+        { Path::EDGE_FINAL_BALANCE,    CSVTrajectory{ DEPLOY_DIR "ThunderAuto/edge_final_balance.csv",    false } },
     };
 
-    std::array<CSVTrajectory, Path::PATH_NUM> redPaths = {
-        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/grid1_to_gp1.csv", true },
-        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/grid2_to_gp1.csv", true },
-        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/gp1_to_grid1.csv", true },
-        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/gp1_to_grid2.csv", true },
-        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/gp1_to_cs.csv",    true },
-        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/grid4_to_cs.csv",  true },
-        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/grid5_to_cs.csv",  true },
-        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/cs_to_gp3.csv",    true },
-        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/gp3_to_cs.csv",    true },
-        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/grid6_to_gp4.csv", true },
-        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/grid7_to_gp4.csv", true },
-        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/gp4_to_grid6.csv", true },
-        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/gp4_to_grid7.csv", true },
-        CSVTrajectory{ DEPLOY_DIR "ThunderAuto/gp4_to_cs.csv",    true },
+    const std::map<Path, CSVTrajectory> redPaths {
+        { Path::BARRIER_START,         CSVTrajectory{ DEPLOY_DIR "ThunderAuto/barrier_start.csv",         true } },
+        { Path::BARRIER_FINAL_SCORE,   CSVTrajectory{ DEPLOY_DIR "ThunderAuto/barrier_final_score.csv",   true } },
+        { Path::BARRIER_FINAL_BALANCE, CSVTrajectory{ DEPLOY_DIR "ThunderAuto/barrier_final_balance.csv", true } },
+        { Path::CENTER_START,          CSVTrajectory{ DEPLOY_DIR "ThunderAuto/center_start.csv",          true } },
+        { Path::EDGE_START,            CSVTrajectory{ DEPLOY_DIR "ThunderAuto/edge_start.csv",            true } },
+        { Path::EDGE_FINAL_SCORE,      CSVTrajectory{ DEPLOY_DIR "ThunderAuto/edge_final_score.csv",      true } },
+        { Path::EDGE_FINAL_BALANCE,    CSVTrajectory{ DEPLOY_DIR "ThunderAuto/edge_final_balance.csv",    true } },
     };
 
-    std::array<CSVTrajectory, Path::PATH_NUM>* paths = &bluePaths;
+    const std::map<Path, CSVTrajectory>* paths = nullptr;
 
     /**
-     * An action that pauses the path for a specified number of seconds.
+     * An action that scores the current game piece.
+    */
+    class ScoreAction : public Action {
+    public:
+        ScoreAction(GamePiece* gamePiece);
+        ~ScoreAction();
+
+        Result process() override;
+    private:
+        GamePiece* gamePiece;
+        int step = 0;
+    };
+
+    /**
+     * An action that scores the prepares the grabber to intake a cone.
      */
-    class PauseAction : public Action {
+    class IntakeToConeAction : public Action {
     public:
-        PauseAction(units::second_t duration);
-        ~PauseAction();
+        IntakeToConeAction(GamePiece* gamePiece);
+        ~IntakeToConeAction();
 
         Result process() override;
-
     private:
-        frc::Timer timer;
-        units::second_t duration;
+        GamePiece* gamePiece;
     };
 
-    class MessageAction : public Action {
+    /**
+     * An action that waits for the grabber to intake a GamePiece.
+     */
+    class IntakeWaitAction : public Action {
     public:
-        MessageAction(const char* msg = "Hello, Ishan!\n");
-        ~MessageAction();
+        IntakeWaitAction(GamePiece* gamePiece);
+        ~IntakeWaitAction();
 
         Result process() override;
-
     private:
-        const char* msg;
+        GamePiece* gamePiece;
     };
 
-    PauseAction pause3sAction { 3_s };
-    MessageAction msgAction;
+    /**
+     * Puts the lift in the high position.
+     */
+    class LiftHighAction : public Action {
+    public:
+        LiftHighAction(GamePiece* gamePiece);
+        ~LiftHighAction();
+
+        Result process() override;
+    private:
+        GamePiece* gamePiece;
+    };
+
+    /**
+     * Balances the robot on the charge station.
+     */
+    class BalanceAction : public Action {
+    public:
+        BalanceAction(Drive* drive, WhooshWhoosh* whooshWhoosh);
+        ~BalanceAction();
+
+        Result process() override;
+    private:
+        Drive* drive;
+        WhooshWhoosh* whooshWhoosh;
+        int step = 0;
+    };
+
+    /**
+     * Traverses the charge station, then balances the robot on it.
+     */
+    class BalanceMobilityAction : public Action {
+    public:
+        BalanceMobilityAction(Drive* drive, WhooshWhoosh* whooshWhoosh);
+        ~BalanceMobilityAction();
+
+        Result process() override;
+    private:
+        Drive* drive;
+        WhooshWhoosh* whooshWhoosh;
+        int step = 0;
+    };
+
+    ScoreAction scoreAction { gamePiece };
+    IntakeToConeAction intakeToConeAction { gamePiece };
+    IntakeWaitAction intakeWaitAction { gamePiece };
+    LiftHighAction liftHighAction { gamePiece };
+    BalanceAction balanceAction { drive, whooshWhoosh };
+    BalanceMobilityAction balanceMobilityAction { drive, whooshWhoosh };
 
     /**
      * A map of the actions that are available to each autonomous mode.
      */
     std::map<u_int32_t, Action*> actions {
-        { 1 << 0, &pause3sAction },
-        { 1 << 1, &msgAction },
+        { 1 << 0, &scoreAction },
+        { 1 << 1, &intakeToConeAction },
+        { 1 << 2, &intakeWaitAction },
+        { 1 << 3, &liftHighAction },
+        { 1 << 4, &balanceAction },
+        { 1 << 5, &balanceMobilityAction },
     };
 };
