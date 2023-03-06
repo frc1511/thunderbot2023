@@ -336,6 +336,7 @@ void Drive::resetOdometry(frc::Pose2d pose) {
      * Resets the position and rotation of the robot to a given pose
      * while ofsetting for the IMU's recorded rotation.
      */
+
     poseEstimator.ResetPosition(getRotation(), getModulePositions(), pose);
 
     whooshWhoosh->setHeadingAngle(0_deg);
@@ -440,7 +441,7 @@ void Drive::execVelocityControl() {
     // Generate chassis speeds depending on the control mode.
     if (controlData.flags & ControlFlag::FIELD_CENTRIC) {
         // Generate chassis speeds based on the rotation of the robot relative to the field.
-        velocities = frc::ChassisSpeeds::FromFieldRelativeSpeeds(controlData.xVel, controlData.yVel, controlData.angVel, whooshWhoosh->getHeadingAngle());// currPose.Rotation());
+        velocities = frc::ChassisSpeeds::FromFieldRelativeSpeeds(controlData.xVel, controlData.yVel, controlData.angVel, currPose.Rotation());//whooshWhoosh->getHeadingAngle());// currPose.Rotation());
     }
     else {
         // Chassis speeds are robot-centric.
@@ -535,7 +536,7 @@ void Drive::execTrajectory() {
     frc::Twist2d twist(currentPose.Log(state.pose));
 
     // The angle at which the robot should be driving at.
-    frc::Rotation2d heading(units::math::atan2(twist.dy, twist.dx));
+    frc::Rotation2d heading(units::math::atan2(twist.dy, twist.dx) - 90_deg);// + 90_deg);
 
     /**
      * Calculate the chassis velocities based on the error between the current

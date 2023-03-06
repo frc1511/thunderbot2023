@@ -12,8 +12,8 @@
 #define TEST_BOARD 1
 
 // Which robot to build the robot code for.
-#define WHICH_ROBOT 2023 // 2023 Robot.
-// #define WHICH_ROBOT 2022 // 2022 Robot.
+// #define WHICH_ROBOT 2023 // 2023 Robot.
+#define WHICH_ROBOT 2022 // 2022 Robot.
 // #define WHICH_ROBOT TEST_BOARD // Test board
 
 #ifndef WHICH_ROBOT
@@ -118,9 +118,9 @@ public:
         PWM_BLINKY_BLINKY = IO_MISSING,
 
         // DIO
-        DIO_GRABBER_INTAKE = 5,
-        DIO_LIFT_HOME      = 7,
-        DIO_LIFT_EXTENSION = 0,
+        DIO_GRABBER_INTAKE = IO_MISSING,
+        DIO_LIFT_HOME      = IO_MISSING,
+        DIO_LIFT_EXTENSION = IO_MISSING,
 
         // SPI
 

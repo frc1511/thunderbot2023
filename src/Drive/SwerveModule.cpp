@@ -7,7 +7,7 @@
 #define TURN_MAX_AMPERAGE 30_A
 
 // The number of seconds it will take for the drive motors to ramp from idle to full throttle.
-#define DRIVE_RAMP_TIME 1_s
+#define DRIVE_RAMP_TIME 0.3_s
 
 // --- PID Values ---
 

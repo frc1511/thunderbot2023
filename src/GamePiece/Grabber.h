@@ -70,9 +70,11 @@ private:
     HardwareManager::GrabberIntakeMotor leftIntakeMotor;
     HardwareManager::GrabberIntakeMotor rightIntakeMotor;
     frc::DigitalInput intakeSensor;
+#if WHICH_ROBOT == 2023
     frc::DoubleSolenoid grabberPiston1;
     frc::DoubleSolenoid grabberPiston2;
     frc::DoubleSolenoid wristPiston;
+#endif
     void configureMotors();
     bool tipped;
 

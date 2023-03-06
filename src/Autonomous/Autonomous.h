@@ -99,6 +99,8 @@ private:
         { Path::EDGE_FINAL_BALANCE,    CSVTrajectory{ DEPLOY_DIR "ThunderAuto/edge_final_balance.csv",    true } },
     };
 
+    CSVTrajectory testing_line { DEPLOY_DIR "ThunderAuto/test_line.csv", false };
+
     const std::map<Path, CSVTrajectory>* paths = nullptr;
 
     /**

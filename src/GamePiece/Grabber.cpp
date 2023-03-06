@@ -9,8 +9,9 @@
 Grabber::Grabber() 
 : leftIntakeMotor(HardwareManager::IOMap::CAN_GRABBER_INTAKE_LEFT),
   rightIntakeMotor(HardwareManager::IOMap::CAN_GRABBER_INTAKE_RIGHT),
-  intakeSensor(HardwareManager::IOMap::DIO_GRABBER_INTAKE),
-  grabberPiston1(HardwareManager::IOMap::CAN_PCM, frc::PneumaticsModuleType::CTREPCM,
+  intakeSensor(HardwareManager::IOMap::DIO_GRABBER_INTAKE)
+#if WHICH_ROBOT == 2023
+  ,grabberPiston1(HardwareManager::IOMap::CAN_PCM, frc::PneumaticsModuleType::CTREPCM,
        HardwareManager::IOMap::PCM_GRABBER_PISTON_1_EXTEND,
        HardwareManager::IOMap::PCM_GRABBER_PISTON_1_RETRACT),
   grabberPiston2(HardwareManager::IOMap::CAN_PCM, frc::PneumaticsModuleType::CTREPCM,
@@ -19,6 +20,7 @@ Grabber::Grabber()
    wristPiston(HardwareManager::IOMap::CAN_PCM, frc::PneumaticsModuleType::CTREPCM,
        HardwareManager::IOMap::PCM_GRABBER_WRIST_EXTEND,
        HardwareManager::IOMap::PCM_GRABBER_WRIST_RETRACT)
+#endif
    {
 
     configureMotors();
@@ -118,8 +120,8 @@ void Grabber::process() {
     if (currentAction == Action::INTAKE) {
         leftIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, INTAKE_SPEED);
         rightIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, INTAKE_SPEED);
-        if ((currentPosition == Position::OPEN && (leftIntakeMotor.getOutputCurrent() >= 17_A || rightIntakeMotor.getOutputCurrent() >= 17_A)) ||
-            (currentPosition == Position::AGAPE && (leftIntakeMotor.getOutputCurrent() >= 15_A || rightIntakeMotor.getOutputCurrent() >= 15_A))) {
+        if ((currentPosition == Position::OPEN && (leftIntakeMotor.getOutputCurrent() >= 20_A || rightIntakeMotor.getOutputCurrent() >= 20_A)) ||
+            (currentPosition == Position::AGAPE && (leftIntakeMotor.getOutputCurrent() >= 18_A || rightIntakeMotor.getOutputCurrent() >= 18_A))) {
             intakeCurrentTimer.Start();
             // Sustained current spike for 0.25 seconds.
             if ((currentPosition == Position::OPEN && intakeCurrentTimer.Get() > 0.20_s) ||
@@ -145,27 +147,37 @@ void Grabber::process() {
     }
 
     if (currentPosition == Position::OPEN) {
+#if WHICH_ROBOT == 2023
         // Both pistons are extended to intake a cube.
         grabberPiston1.Set(frc::DoubleSolenoid::Value::kForward); 
         grabberPiston2.Set(frc::DoubleSolenoid::Value::kForward);   
+#endif
     } 
     else if (currentPosition == Position::AGAPE) {
+#if WHICH_ROBOT == 2023
         // Only one piston is extended to intake a cone.
         grabberPiston1.Set(frc::DoubleSolenoid::Value::kForward); 
         grabberPiston2.Set(frc::DoubleSolenoid::Value::kReverse);
+#endif
     } 
     else if (currentPosition == Position::AJAR) {
+#if WHICH_ROBOT == 2023
         // Both pistons are retracted to hold a cone.
         grabberPiston1.Set(frc::DoubleSolenoid::Value::kReverse); 
         grabberPiston2.Set(frc::DoubleSolenoid::Value::kReverse);     
+#endif
     }
 
     // Set the wrist piston.
     if (tipped == true){
+#if WHICH_ROBOT == 2023
         wristPiston.Set(frc::DoubleSolenoid::Value::kForward);
+#endif
     }
     else{
+#if WHICH_ROBOT == 2023
         wristPiston.Set(frc::DoubleSolenoid::Value::kReverse);
+#endif
     }
 }
 

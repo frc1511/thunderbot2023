@@ -29,7 +29,7 @@ public:
 #endif
 
     // Motor and sensor types.
-#if WHICH_ROBOT == 2023 || WHICH_ROBOT == 2022
+#if WHICH_ROBOT == 2023
     using SwerveDriveMotor = ThunderCANSparkMax;
     using SwerveTurningMotor = ThunderCANSparkMax;
     using SwerveTurningEncoder = ThunderCANCoder;
@@ -37,6 +37,15 @@ public:
     using LiftExtensionMotor = ThunderCANSparkMax;
     using LiftLeftPivotMotor = ThunderCANSparkMax;
     using LiftRightPivotMotor = ThunderCANSparkMax;
+
+#elif WHICH_ROBOT == 2022
+    using SwerveDriveMotor = ThunderCANSparkMax;
+    using SwerveTurningMotor = ThunderCANSparkMax;
+    using SwerveTurningEncoder = ThunderCANCoder;
+    using GrabberIntakeMotor = ThunderCANMotorController;
+    using LiftExtensionMotor = ThunderCANMotorController;
+    using LiftLeftPivotMotor = ThunderCANMotorController;
+    using LiftRightPivotMotor = ThunderCANMotorController;
 
 #elif WHICH_ROBOT == TEST_BOARD
     using SwerveDriveMotor = ThunderCANMotorController;

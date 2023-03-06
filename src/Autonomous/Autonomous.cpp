@@ -35,6 +35,22 @@ void Autonomous::process() {
 
     selectedAutoMode = static_cast<AutoMode>(frc::SmartDashboard::GetNumber("Auto_Mode", 0.0));
 
+    if (step == 0) {
+        drive->resetOdometry(testing_line.getInitialPose());
+        step++;
+    }
+    else if (step == 1) {
+        drive->runTrajectory(&testing_line, actions);
+        step++;
+    }
+    else if (step == 2 && drive->isFinished()) {
+        fmt::print("Auto finished!\n");
+        step++;
+    }
+    else {
+        return;
+    }
+
     switch (selectedAutoMode) {
         case AutoMode::DO_NOTHING:
             doNothing();
