@@ -11,69 +11,63 @@
 VL6180X_ToF::VL6180X_ToF(frc::I2C::Port port, int deviceAddress)
 : i2c(port, deviceAddress) {
 
-    uint8_t buf[1];
-    *buf = 0xFF;
-
     // Check model id.
-    i2c.Read(REG_IDENTIFICATION_MODEL_ID, 1, buf);
-    if (*buf != 0xB4) {
+    if (readRegister(REG_IDENTIFICATION_MODEL_ID) != 0xB4) {
         return;
     }
 
     // Read SYSTEM__FRESH_OUT_OF_RESET register.
-    i2c.Read(REG_SYSTEM_FRESH_OUT_OF_RESET, 1, buf);
-    // Verify that the sensor is in idle mode and working as expected.
-    if (!(*buf & 0x01)) {
+    if (!(readRegister(REG_SYSTEM_FRESH_OUT_OF_RESET) & 0x01)) {
         // Ideally we'd reset the device by applying logic '0' to GPIO0, but we can't without that wired up.
         return;
     }
 
     // Clear the reset bit to start using the sensor.
-    i2c.Write(REG_SYSTEM_FRESH_OUT_OF_RESET, 0x00);
+    writeRegister(REG_SYSTEM_FRESH_OUT_OF_RESET, 0x00);
 
     isConnected = true;
 
     // Apply the tuning settings.
-    i2c.Write(0x0207, 0x01);
-    i2c.Write(0x0208, 0x01);
-    i2c.Write(0x0096, 0x00);
-    i2c.Write(0x0097, 0xfd);
-    i2c.Write(0x00e3, 0x00);
-    i2c.Write(0x00e4, 0x04);
-    i2c.Write(0x00e5, 0x02);
-    i2c.Write(0x00e6, 0x01);
-    i2c.Write(0x00e7, 0x03);
-    i2c.Write(0x00f5, 0x02);
-    i2c.Write(0x00d9, 0x05);
-    i2c.Write(0x00db, 0xce);
-    i2c.Write(0x00dc, 0x03);
-    i2c.Write(0x00dd, 0xf8);
-    i2c.Write(0x009f, 0x00);
-    i2c.Write(0x00a3, 0x3c);
-    i2c.Write(0x00b7, 0x00);
-    i2c.Write(0x00bb, 0x3c);
-    i2c.Write(0x00b2, 0x09);
-    i2c.Write(0x00ca, 0x09);
-    i2c.Write(0x0198, 0x01);
-    i2c.Write(0x01b0, 0x17);
-    i2c.Write(0x01ad, 0x00);
-    i2c.Write(0x00ff, 0x05);
-    i2c.Write(0x0100, 0x05);
-    i2c.Write(0x0199, 0x05);
-    i2c.Write(0x01a6, 0x1b);
-    i2c.Write(0x01ac, 0x3e);
-    i2c.Write(0x01a7, 0x1f);
-    i2c.Write(0x0030, 0x00);
+    writeRegister(0x0207, 0x01);
+    writeRegister(0x0208, 0x01);
+    writeRegister(0x0096, 0x00);
+    writeRegister(0x0097, 0xfd);
+    writeRegister(0x00e3, 0x00);
+    writeRegister(0x00e4, 0x04);
+    writeRegister(0x00e5, 0x02);
+    writeRegister(0x00e6, 0x01);
+    writeRegister(0x00e7, 0x03);
+    writeRegister(0x00f5, 0x02);
+    writeRegister(0x00d9, 0x05);
+    writeRegister(0x00db, 0xce);
+    writeRegister(0x00dc, 0x03);
+    writeRegister(0x00dd, 0xf8);
+    writeRegister(0x009f, 0x00);
+    writeRegister(0x00a3, 0x3c);
+    writeRegister(0x00b7, 0x00);
+    writeRegister(0x00bb, 0x3c);
+    writeRegister(0x00b2, 0x09);
+    writeRegister(0x00ca, 0x09);
+    writeRegister(0x0198, 0x01);
+    writeRegister(0x01b0, 0x17);
+    writeRegister(0x01ad, 0x00);
+    writeRegister(0x00ff, 0x05);
+    writeRegister(0x0100, 0x05);
+    writeRegister(0x0199, 0x05);
+    writeRegister(0x01a6, 0x1b);
+    writeRegister(0x01ac, 0x3e);
+    writeRegister(0x01a7, 0x1f);
+    writeRegister(0x0030, 0x00);
 
-    i2c.Write(0x0011, 0x10);
-    i2c.Write(0x010a, 0x30);
-    i2c.Write(0x003f, 0x46);
-    i2c.Write(0x0031, 0xFF);
-    i2c.Write(0x0041, 0x63);
-    i2c.Write(0x002e, 0x01);
-    i2c.Write(0x001b, 0x09);
-    i2c.Write(0x003e, 0x31);
-    i2c.Write(0x0014, 0x24);
+    writeRegister(0x0011, 0x10);
+    writeRegister(0x010a, 0x30);
+    writeRegister(0x003f, 0x46);
+    writeRegister(0x0031, 0xFF);
+    writeRegister(0x0041, 0x63);
+    writeRegister(0x002e, 0x01);
+    writeRegister(0x001b, 0x09);
+    writeRegister(0x003e, 0x31);
+    writeRegister(0x0014, 0x24);
 }
 
 VL6180X_ToF::~VL6180X_ToF() {
@@ -91,30 +85,44 @@ int VL6180X_ToF::getDeviceAddress() {
 units::meter_t VL6180X_ToF::getRange() {
     if (!isConnected) return 42_m;
 
-    uint8_t buf[1];
-
-    *buf = 0x00;
-    do {
-        // Read range status register.
-        i2c.Read(REG_RESULT_RANGE_STATUS, 1, buf);
-    } while (!(*buf & 0x01));
+    // Read range status register.
+    while (!(readRegister(REG_RESULT_RANGE_STATUS) & 0x01));
 
     // Start a range measurement.
-    i2c.Write(REG_SYSRANGE_START, 0x01);
+    writeRegister(REG_SYSRANGE_START, 0x01);
 
-    *buf = 0x00;
-    do {
-        // Read interrupt status register.
-        i2c.Read(REG_RESULT_INTERRUPT_STATUS_GPIO, 1, buf);
-    } while (!(*buf & 0x04));
+    // Read interrupt status register.
+    while (!(readRegister(REG_RESULT_INTERRUPT_STATUS_GPIO) & 0x04));
 
-    *buf = 0xFF;
-    i2c.Read(REG_RESULT_RANGE_VAL, 1, buf);
-
-    units::millimeter_t range(*buf);
+    // Read range register.
+    units::millimeter_t range(readRegister(REG_RESULT_RANGE_VAL));
 
     // Clear the interrupt.
-    i2c.Write(REG_SYSTEM_INTERRUPT_CLEAR, 0x07);
+    writeRegister(REG_SYSTEM_INTERRUPT_CLEAR, 0x07);
 
     return range;
+}
+
+void VL6180X_ToF::writeRegister(uint16_t reg, uint8_t data) {
+    uint8_t buffer[3];
+
+    buffer[0] = uint8_t(reg >> 8);
+    buffer[1] = uint8_t(reg & 0xFF);
+    buffer[2] = data;
+
+    i2c.WriteBulk(buffer, 3);
+}
+
+uint8_t VL6180X_ToF::readRegister(uint16_t reg) {
+    uint8_t buffer[2];
+
+    // Prompt the sensor to read the register.
+    buffer[0] = uint8_t(reg >> 8);
+    buffer[1] = uint8_t(reg & 0xFF);
+    i2c.WriteBulk(buffer, 2);
+
+    // Read the register.
+    i2c.ReadOnly(1, buffer);
+
+    return *buffer;
 }
