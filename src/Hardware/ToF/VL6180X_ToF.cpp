@@ -1,5 +1,6 @@
 #include <Hardware/ToF/VL6180X_ToF.h>
 
+#define REG_IDENTIFICATION_MODEL_ID 0x00
 #define REG_SYSTEM_FRESH_OUT_OF_RESET 0x0016
 #define REG_RESULT_RANGE_STATUS 0x004d
 #define REG_RESULT_INTERRUPT_STATUS_GPIO 0x004f
@@ -7,12 +8,14 @@
 #define REG_SYSRANGE_START 0x0018
 #define REG_RESULT_RANGE_VAL 0x0062
 
-VL6180X_ToF::VL6180X_ToF(frc::I2C::Port port, int deviceAddress) {
+VL6180X_ToF::VL6180X_ToF(frc::I2C::Port port, int deviceAddress)
+: i2c(port, deviceAddress) {
+
     uint8_t buf[1];
     *buf = 0xFF;
 
     // Check model id.
-    i2c.Read(0x00, 1, buf);
+    i2c.Read(REG_IDENTIFICATION_MODEL_ID, 1, buf);
     if (*buf != 0xB4) {
         return;
     }
