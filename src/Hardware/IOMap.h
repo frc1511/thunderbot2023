@@ -12,8 +12,8 @@
 #define TEST_BOARD 1
 
 // Which robot to build the robot code for.
-// #define WHICH_ROBOT 2023 // 2023 Robot.
-#define WHICH_ROBOT 2022 // 2022 Robot.
+#define WHICH_ROBOT 2023 // 2023 Robot.
+// #define WHICH_ROBOT 2022 // 2022 Robot.
 // #define WHICH_ROBOT TEST_BOARD // Test board
 
 #ifndef WHICH_ROBOT

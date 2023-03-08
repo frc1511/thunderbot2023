@@ -60,12 +60,12 @@
 #define MOTION_PROFILE_PATH std::filesystem::path("/home/lvuser/trajectory_motion.csv")
 
 // Drivetrain X and Y PID values.
-#define DRIVE_XY_P 0.4
+#define DRIVE_XY_P 0.8
 #define DRIVE_XY_I 0.0
 #define DRIVE_XY_D 0.02
 
 // Drivetrain Theta PID values.
-#define DRIVE_THETA_P 0.5
+#define DRIVE_THETA_P 6.0
 #define DRIVE_THETA_I 0.0
 #define DRIVE_THETA_D 0.1
 

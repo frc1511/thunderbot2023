@@ -7,7 +7,7 @@
 
 class VL6180X_ToF {
 public:
-   VL6180X_ToF(frc::I2C::Port port, int deviceAddress);
+   VL6180X_ToF(frc::I2C::Port port = frc::I2C::Port::kMXP, int deviceAddress = 0x29);
    ~VL6180X_ToF();
 
    frc::I2C::Port getI2CPort();

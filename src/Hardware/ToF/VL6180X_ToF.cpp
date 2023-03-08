@@ -1,4 +1,5 @@
 #include <Hardware/ToF/VL6180X_ToF.h>
+#include <fmt/core.h>
 
 #define REG_IDENTIFICATION_MODEL_ID 0x00
 #define REG_SYSTEM_FRESH_OUT_OF_RESET 0x0016
@@ -110,7 +111,8 @@ void VL6180X_ToF::writeRegister(uint16_t reg, uint8_t data) {
     buffer[1] = uint8_t(reg & 0xFF);
     buffer[2] = data;
 
-    i2c.WriteBulk(buffer, 3);
+    bool res = i2c.WriteBulk(buffer, 3);
+    if (res) fmt::print("Could not write! timeout!\n");
 }
 
 uint8_t VL6180X_ToF::readRegister(uint16_t reg) {
@@ -122,7 +124,8 @@ uint8_t VL6180X_ToF::readRegister(uint16_t reg) {
     i2c.WriteBulk(buffer, 2);
 
     // Read the register.
-    i2c.ReadOnly(1, buffer);
+    bool res = i2c.ReadOnly(1, buffer);
+    if (res) fmt::print("Could not read! timeout!\n");
 
     return *buffer;
 }

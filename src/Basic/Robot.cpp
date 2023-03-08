@@ -11,6 +11,7 @@ void Robot::RobotInit() {
         }
 
         frc::SmartDashboard::PutNumber("thunderdashboard_match_remaining", frc::DriverStation::GetMatchTime());
+
     }, 40_ms);
 }
 
@@ -18,6 +19,7 @@ void Robot::RobotPeriodic() {
     for (Mechanism* mech : universalMechanisms) {
         mech->process();
     }
+        // frc::SmartDashboard::PutNumber("VL6180X", units::millimeter_t(tofSensor.getRange()).value());
 }
 
 void Robot::AutonomousInit() {

@@ -16,6 +16,8 @@
 #include <Illumination/BlinkyBlinky.h>
 #include <Vision/IntakeCamera.h>
 
+#include <Hardware/ToF/VL6180X_ToF.h>
+
 class Robot : public frc::TimedRobot {
 public:
     void RobotInit() override;
@@ -63,4 +65,6 @@ private:
     std::vector<Mechanism*> universalMechanisms {
         &whooshWhoosh, &rollingRaspberry, &blinkyBlinky, &intakeCamera
     };
+
+    // VL6180X_ToF tofSensor;
 };
