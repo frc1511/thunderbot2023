@@ -19,7 +19,6 @@ void Robot::RobotPeriodic() {
     for (Mechanism* mech : universalMechanisms) {
         mech->process();
     }
-        // frc::SmartDashboard::PutNumber("VL6180X", units::millimeter_t(tofSensor.getRange()).value());
 }
 
 void Robot::AutonomousInit() {

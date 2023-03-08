@@ -65,7 +65,6 @@ public:
         PWM_BLINKY_BLINKY = 0,
 
         // DIO
-        DIO_GRABBER_INTAKE = 0,
         DIO_LIFT_HOME      = 1,
         DIO_LIFT_EXTENSION = 2, 
 
@@ -118,7 +117,6 @@ public:
         PWM_BLINKY_BLINKY = IO_MISSING,
 
         // DIO
-        DIO_GRABBER_INTAKE = IO_MISSING,
         DIO_LIFT_HOME      = IO_MISSING,
         DIO_LIFT_EXTENSION = IO_MISSING,
 
@@ -171,7 +169,6 @@ public:
         PWM_BLINKY_BLINKY = IO_MISSING,
 
         // DIO
-        DIO_GRABBER_INTAKE = 4,
         DIO_LIFT_HOME      = 1,
         DIO_LIFT_EXTENSION = 0,
 

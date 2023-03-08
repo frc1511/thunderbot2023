@@ -8,8 +8,7 @@
 
 Grabber::Grabber() 
 : leftIntakeMotor(HardwareManager::IOMap::CAN_GRABBER_INTAKE_LEFT),
-  rightIntakeMotor(HardwareManager::IOMap::CAN_GRABBER_INTAKE_RIGHT),
-  intakeSensor(HardwareManager::IOMap::DIO_GRABBER_INTAKE)
+  rightIntakeMotor(HardwareManager::IOMap::CAN_GRABBER_INTAKE_RIGHT)
 #if WHICH_ROBOT == 2023
   ,grabberPiston1(HardwareManager::IOMap::CAN_PCM, frc::PneumaticsModuleType::CTREPCM,
        HardwareManager::IOMap::PCM_GRABBER_PISTON_1_EXTEND,
@@ -120,20 +119,8 @@ void Grabber::process() {
     if (currentAction == Action::INTAKE) {
         leftIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, INTAKE_SPEED);
         rightIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, INTAKE_SPEED);
-        if ((currentPosition == Position::OPEN && (leftIntakeMotor.getOutputCurrent() >= 20_A || rightIntakeMotor.getOutputCurrent() >= 20_A)) ||
-            (currentPosition == Position::AGAPE && (leftIntakeMotor.getOutputCurrent() >= 18_A || rightIntakeMotor.getOutputCurrent() >= 18_A))) {
-            intakeCurrentTimer.Start();
-            // Sustained current spike for 0.25 seconds.
-            if ((currentPosition == Position::OPEN && intakeCurrentTimer.Get() > 0.20_s) ||
-                (currentPosition == Position::AGAPE && intakeCurrentTimer.Get() > 0.15_s)) {
-                finishIntakingTimer.Reset();
-                finishIntakingTimer.Start();
-                finishIntaking = true;
-            }
-        }
-        else {
-            intakeCurrentTimer.Reset();
-            intakeCurrentTimer.Stop();
+        if (intakeSensor.getRange() < 200_mm) {
+            finishIntaking = true;
         }
     } 
     else if (currentAction == Action::OUTTAKE) {
@@ -330,7 +317,9 @@ void Grabber::sendFeedback() {
     frc::SmartDashboard::PutBoolean("Grabber_PlacingGamePiece", placingGamePiece);
     frc::SmartDashboard::PutNumber("Grabber_PlacingGamePieceTimer_s", placingGamePieceTimer.Get().value());
     
-    frc::SmartDashboard::PutBoolean("Grabber_SensorIntake", intakeSensor.Get());
+#if WHICH_ROBOT == 2023
+    frc::SmartDashboard::PutNumber("Grabber_SensorIntake", units::millimeter_t(intakeSensor.getRange()).value());
+#endif
 
     frc::SmartDashboard::PutNumber("Grabber_TempRightIntake_F", rightIntakeMotor.getTemperature().value());
     frc::SmartDashboard::PutNumber("Grabber_TempLeftIntake_F", leftIntakeMotor.getTemperature().value());

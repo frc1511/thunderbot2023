@@ -3,6 +3,7 @@
 #include <Basic/Mechanism.h>
 #include <frc/Timer.h>
 #include <Hardware/HardwareManager.h>
+#include <Hardware/ToF/VL6180X_ToF.h>
 #include <frc/DigitalInput.h>
 #include <frc/DoubleSolenoid.h>
 #include <frc/Solenoid.h>
@@ -65,15 +66,14 @@ private:
     frc::Timer placingGamePieceTimer;
     frc::Timer autoIntakingTimer;
     frc::Timer finishIntakingTimer;
-    frc::Timer intakeCurrentTimer;
     bool finishIntaking;
     HardwareManager::GrabberIntakeMotor leftIntakeMotor;
     HardwareManager::GrabberIntakeMotor rightIntakeMotor;
-    frc::DigitalInput intakeSensor;
 #if WHICH_ROBOT == 2023
     frc::DoubleSolenoid grabberPiston1;
     frc::DoubleSolenoid grabberPiston2;
     frc::DoubleSolenoid wristPiston;
+    VL6180X_ToF intakeSensor { frc::I2C::Port::kMXP, 0x29 };
 #endif
     void configureMotors();
     bool tipped;
