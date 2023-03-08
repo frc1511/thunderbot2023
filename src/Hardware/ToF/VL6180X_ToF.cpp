@@ -14,17 +14,15 @@ VL6180X_ToF::VL6180X_ToF(frc::I2C::Port port, int deviceAddress)
 
     // Check model id.
     if (readRegister(REG_IDENTIFICATION_MODEL_ID) != 0xB4) {
+        // AAAAHH!!!
         return;
     }
 
-    // Read SYSTEM__FRESH_OUT_OF_RESET register.
-    if (!(readRegister(REG_SYSTEM_FRESH_OUT_OF_RESET) & 0x01)) {
-        // Ideally we'd reset the device by applying logic '0' to GPIO0, but we can't without that wired up.
-        return;
+    // Read SYSTEM_FRESH_OUT_OF_RESET register.
+    if (readRegister(REG_SYSTEM_FRESH_OUT_OF_RESET) & 0x01) {
+        // Clear the reset bit to start using the sensor.
+        writeRegister(REG_SYSTEM_FRESH_OUT_OF_RESET, 0x00);
     }
-
-    // Clear the reset bit to start using the sensor.
-    writeRegister(REG_SYSTEM_FRESH_OUT_OF_RESET, 0x00);
 
     isConnected = true;
 
@@ -69,6 +67,8 @@ VL6180X_ToF::VL6180X_ToF(frc::I2C::Port port, int deviceAddress)
     writeRegister(0x001b, 0x09);
     writeRegister(0x003e, 0x31);
     writeRegister(0x0014, 0x24);
+
+    // Hi Jeff!!!!
 }
 
 VL6180X_ToF::~VL6180X_ToF() {
@@ -86,22 +86,32 @@ int VL6180X_ToF::getDeviceAddress() {
 units::meter_t VL6180X_ToF::getRange() {
     if (!isConnected) return 42_m;
 
-    // Read range status register.
-    while (!(readRegister(REG_RESULT_RANGE_STATUS) & 0x01));
+    if (!isMeasuring) {
+        // Read range status register.
+        if (readRegister(REG_RESULT_RANGE_STATUS) & 0x01) {
+            // Start a range measurement.
+            writeRegister(REG_SYSRANGE_START, 0x01);
+            isMeasuring = true;
+        }
+    }
 
-    // Start a range measurement.
-    writeRegister(REG_SYSRANGE_START, 0x01);
+    if (isMeasuring) {
+        // Read interrupt status register.
+        if (readRegister(REG_RESULT_INTERRUPT_STATUS_GPIO) & 0x04) {
+            // Read range register (millimeters).
+            range = readRegister(REG_RESULT_RANGE_VAL);
 
-    // Read interrupt status register.
-    while (!(readRegister(REG_RESULT_INTERRUPT_STATUS_GPIO) & 0x04));
+            // Clear the interrupt.
+            writeRegister(REG_SYSTEM_INTERRUPT_CLEAR, 0x07);
 
-    // Read range register.
-    units::millimeter_t range(readRegister(REG_RESULT_RANGE_VAL));
+            isMeasuring = false;
+        }
+    }
 
-    // Clear the interrupt.
-    writeRegister(REG_SYSTEM_INTERRUPT_CLEAR, 0x07);
+    // Hi Byers!!!
 
-    return range;
+    // Return the most recent range measurement.
+    return units::millimeter_t(range);
 }
 
 void VL6180X_ToF::writeRegister(uint16_t reg, uint8_t data) {
@@ -111,8 +121,7 @@ void VL6180X_ToF::writeRegister(uint16_t reg, uint8_t data) {
     buffer[1] = uint8_t(reg & 0xFF);
     buffer[2] = data;
 
-    bool res = i2c.WriteBulk(buffer, 3);
-    if (res) fmt::print("Could not write! timeout!\n");
+    i2c.WriteBulk(buffer, 3);
 }
 
 uint8_t VL6180X_ToF::readRegister(uint16_t reg) {
@@ -124,8 +133,7 @@ uint8_t VL6180X_ToF::readRegister(uint16_t reg) {
     i2c.WriteBulk(buffer, 2);
 
     // Read the register.
-    bool res = i2c.ReadOnly(1, buffer);
-    if (res) fmt::print("Could not read! timeout!\n");
+    i2c.ReadOnly(1, buffer);
 
     return *buffer;
 }
