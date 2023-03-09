@@ -47,7 +47,7 @@
 #define DRIVE_AUTO_MAX_VEL         1.5_mps
 #define DRIVE_AUTO_MAX_ACCEL       3_mps_sq
 #define DRIVE_AUTO_MAX_ANG_VEL     3.14_rad_per_s
-#define DRIVE_AUTO_MAX_ANG_ACCEL   3.14_rad_per_s_sq
+#define DRIVE_AUTO_MAX_ANG_ACCEL   (3.14_rad_per_s_sq / 2)
 
 #define DRIVE_MANUAL_MAX_VEL       3_mps
 #define DRIVE_MANUAL_MAX_ANG_VEL   360_deg_per_s
@@ -60,9 +60,9 @@
 #define MOTION_PROFILE_PATH std::filesystem::path("/home/lvuser/trajectory_motion.csv")
 
 // Drivetrain X and Y PID values.
-#define DRIVE_XY_P 0.8
+#define DRIVE_XY_P 0.5
 #define DRIVE_XY_I 0.0
-#define DRIVE_XY_D 0.02
+#define DRIVE_XY_D 0.1
 
 // Drivetrain Theta PID values.
 #define DRIVE_THETA_P 6.0

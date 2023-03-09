@@ -36,11 +36,13 @@ void Autonomous::process() {
     selectedAutoMode = static_cast<AutoMode>(frc::SmartDashboard::GetNumber("Auto_Mode", 0.0));
 
     if (step == 0) {
-        drive->resetOdometry(testing_line.getInitialPose());
+        drive->resetOdometry(paths->at(Path::BARRIER_START).getInitialPose());//  testing_line.getInitialPose());
+        // drive->resetOdometry(testing_line.getInitialPose());
         step++;
     }
     else if (step == 1) {
-        drive->runTrajectory(&testing_line, actions);
+        drive->runTrajectory(&paths->at(Path::BARRIER_START), actions);
+        // drive->runTrajectory(&testing_line, actions);
         step++;
     }
     else if (step == 2 && drive->isFinished()) {
@@ -161,6 +163,7 @@ Autonomous::ScoreAction::ScoreAction(GamePiece* _gamePiece)
 Autonomous::ScoreAction::~ScoreAction() = default;
 
 Action::Result Autonomous::ScoreAction::process() {
+    /*
     if (step == 0) {
         gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH);
         step++;
@@ -171,8 +174,9 @@ Action::Result Autonomous::ScoreAction::process() {
     }
     else if (step == 2 && gamePiece->isFinishedScoring()) {
         step = 0;
+        */
         return Result::DONE;
-    }
+    // }
 
     return Result::WORKING;
 }
@@ -185,8 +189,8 @@ Autonomous::IntakeToConeAction::IntakeToConeAction(GamePiece* _gamePiece)
 Autonomous::IntakeToConeAction::~IntakeToConeAction() = default;
 
 Action::Result Autonomous::IntakeToConeAction::process() {
-    gamePiece->setGrabberAction(Grabber::Action::INTAKE);
-    gamePiece->setGrabberPosition(Grabber::Position::AGAPE);
+    // gamePiece->setGrabberAction(Grabber::Action::INTAKE);
+    // gamePiece->setGrabberPosition(Grabber::Position::AGAPE);
 
     return Result::DONE;
 }
@@ -199,9 +203,9 @@ Autonomous::IntakeWaitAction::IntakeWaitAction(GamePiece* _gamePiece)
 Autonomous::IntakeWaitAction::~IntakeWaitAction() = default;
 
 Action::Result Autonomous::IntakeWaitAction::process() {
-    if (gamePiece->getGamePieceType() != Grabber::GamePieceType::NONE) {
+    // if (gamePiece->getGamePieceType() != Grabber::GamePieceType::NONE) {
         return Result::DONE;
-    }
+    // }
 
     return Result::WORKING;
 }
@@ -214,7 +218,7 @@ Autonomous::LiftHighAction::LiftHighAction(GamePiece* _gamePiece)
 Autonomous::LiftHighAction::~LiftHighAction() = default;
 
 Action::Result Autonomous::LiftHighAction::process() {
-    gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH);
+    // gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH);
 
     return Result::DONE;
 }
@@ -227,6 +231,7 @@ Autonomous::BalanceAction::BalanceAction(Drive* _drive, WhooshWhoosh* _whooshWho
 Autonomous::BalanceAction::~BalanceAction() = default;
 
 Action::Result Autonomous::BalanceAction::process() {
+    /*
     // Drive forwards until tilted.
     if (step == 0) {
         if (whooshWhoosh->getTiltAngle() > 8_deg) {
@@ -255,6 +260,8 @@ Action::Result Autonomous::BalanceAction::process() {
     }
 
     return Result::WORKING;
+    */
+   return Result::DONE;
 }
 
 // --- Balance w/ Mobility Action ---

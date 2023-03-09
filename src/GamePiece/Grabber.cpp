@@ -119,13 +119,16 @@ void Grabber::process() {
     if (currentAction == Action::INTAKE) {
         leftIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, INTAKE_SPEED);
         rightIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, INTAKE_SPEED);
-        if (intakeSensor.getRange() < 200_mm) {
+        if (intakeSensorTripped) {
             finishIntaking = true;
         }
+        // Hi Chris!!!!!
     } 
     else if (currentAction == Action::OUTTAKE) {
         leftIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, -INTAKE_SPEED);
         rightIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, -INTAKE_SPEED);
+
+        // fishkill! fishkill!!!!!
     } 
     else if (currentAction == Action::IDLE) {
         // Stop the motors.
@@ -316,10 +319,14 @@ void Grabber::sendFeedback() {
 
     frc::SmartDashboard::PutBoolean("Grabber_PlacingGamePiece", placingGamePiece);
     frc::SmartDashboard::PutNumber("Grabber_PlacingGamePieceTimer_s", placingGamePieceTimer.Get().value());
+
+    units::meter_t intakeSensorRange = intakeSensor.getRange();
     
 #if WHICH_ROBOT == 2023
-    frc::SmartDashboard::PutNumber("Grabber_SensorIntake", units::millimeter_t(intakeSensor.getRange()).value());
+    frc::SmartDashboard::PutNumber("Grabber_SensorIntake", units::millimeter_t(intakeSensorRange).value());
 #endif
+
+    intakeSensorTripped = intakeSensorRange < 50_mm;
 
     frc::SmartDashboard::PutNumber("Grabber_TempRightIntake_F", rightIntakeMotor.getTemperature().value());
     frc::SmartDashboard::PutNumber("Grabber_TempLeftIntake_F", leftIntakeMotor.getTemperature().value());

@@ -65,6 +65,8 @@ Drive::Drive(WhooshWhoosh* _whooshWhoosh, RollingRaspberry* _rollingRaspberry)
 
     // Enable the trajectory drive controller.
     driveController.SetEnabled(true);
+
+    // driveController.SetTolerance(frc::Pose2d(5_in, 5_in, 5_deg));
 }
 
 Drive::~Drive() {
@@ -157,7 +159,7 @@ void Drive::resetToMode(MatchMode mode) {
         }
 
         // Reset the position and rotation on the field.
-        resetOdometry();
+        // resetOdometry();
     }
 }
 

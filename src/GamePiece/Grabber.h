@@ -80,4 +80,6 @@ private:
 
     std::function<void()> scoreCallback;
     std::function<void(GamePieceType)> acquireCallback;
+
+    bool intakeSensorTripped = false;
 };
