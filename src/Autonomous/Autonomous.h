@@ -70,31 +70,43 @@ private:
     GamePiece* gamePiece;
 
     enum class Path {
-        BARRIER_START,
+        BARRIER_1,
+        BARRIER_2,
+        BARRIER_3,
         BARRIER_FINAL_SCORE,
         BARRIER_FINAL_BALANCE,
         CENTER_START,
-        EDGE_START,
+        EDGE_1,
+        EDGE_2,
+        EDGE_3,
         EDGE_FINAL_SCORE,
         EDGE_FINAL_BALANCE,
     };
 
     const std::map<Path, CSVTrajectory> bluePaths {
-        { Path::BARRIER_START,         CSVTrajectory{ DEPLOY_DIR "ThunderAuto/barrier_start.csv",         false } },
+        { Path::BARRIER_1,             CSVTrajectory{ DEPLOY_DIR "ThunderAuto/barrier_1.csv",             false } },
+        { Path::BARRIER_2,             CSVTrajectory{ DEPLOY_DIR "ThunderAuto/barrier_2.csv",             false } },
+        { Path::BARRIER_3,             CSVTrajectory{ DEPLOY_DIR "ThunderAuto/barrier_3.csv",             false } },
         { Path::BARRIER_FINAL_SCORE,   CSVTrajectory{ DEPLOY_DIR "ThunderAuto/barrier_final_score.csv",   false } },
         { Path::BARRIER_FINAL_BALANCE, CSVTrajectory{ DEPLOY_DIR "ThunderAuto/barrier_final_balance.csv", false } },
         { Path::CENTER_START,          CSVTrajectory{ DEPLOY_DIR "ThunderAuto/center_start.csv",          false } },
-        { Path::EDGE_START,            CSVTrajectory{ DEPLOY_DIR "ThunderAuto/edge_start.csv",            false } },
+        { Path::EDGE_1,                CSVTrajectory{ DEPLOY_DIR "ThunderAuto/edge_1.csv",                false } },
+        { Path::EDGE_2,                CSVTrajectory{ DEPLOY_DIR "ThunderAuto/edge_2.csv",                false } },
+        { Path::EDGE_3,                CSVTrajectory{ DEPLOY_DIR "ThunderAuto/edge_3.csv",                false } },
         { Path::EDGE_FINAL_SCORE,      CSVTrajectory{ DEPLOY_DIR "ThunderAuto/edge_final_score.csv",      false } },
         { Path::EDGE_FINAL_BALANCE,    CSVTrajectory{ DEPLOY_DIR "ThunderAuto/edge_final_balance.csv",    false } },
     };
 
     const std::map<Path, CSVTrajectory> redPaths {
-        { Path::BARRIER_START,         CSVTrajectory{ DEPLOY_DIR "ThunderAuto/barrier_start.csv",         true } },
+        { Path::BARRIER_1,             CSVTrajectory{ DEPLOY_DIR "ThunderAuto/barrier_1.csv",             true } },
+        { Path::BARRIER_2,             CSVTrajectory{ DEPLOY_DIR "ThunderAuto/barrier_2.csv",             true } },
+        { Path::BARRIER_3,             CSVTrajectory{ DEPLOY_DIR "ThunderAuto/barrier_3.csv",             true } },
         { Path::BARRIER_FINAL_SCORE,   CSVTrajectory{ DEPLOY_DIR "ThunderAuto/barrier_final_score.csv",   true } },
         { Path::BARRIER_FINAL_BALANCE, CSVTrajectory{ DEPLOY_DIR "ThunderAuto/barrier_final_balance.csv", true } },
         { Path::CENTER_START,          CSVTrajectory{ DEPLOY_DIR "ThunderAuto/center_start.csv",          true } },
-        { Path::EDGE_START,            CSVTrajectory{ DEPLOY_DIR "ThunderAuto/edge_start.csv",            true } },
+        { Path::EDGE_1,                CSVTrajectory{ DEPLOY_DIR "ThunderAuto/edge_1.csv",                true } },
+        { Path::EDGE_2,                CSVTrajectory{ DEPLOY_DIR "ThunderAuto/edge_2.csv",                true } },
+        { Path::EDGE_3,                CSVTrajectory{ DEPLOY_DIR "ThunderAuto/edge_3.csv",                true } },
         { Path::EDGE_FINAL_SCORE,      CSVTrajectory{ DEPLOY_DIR "ThunderAuto/edge_final_score.csv",      true } },
         { Path::EDGE_FINAL_BALANCE,    CSVTrajectory{ DEPLOY_DIR "ThunderAuto/edge_final_balance.csv",    true } },
     };

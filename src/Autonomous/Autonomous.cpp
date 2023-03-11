@@ -36,12 +36,12 @@ void Autonomous::process() {
     selectedAutoMode = static_cast<AutoMode>(frc::SmartDashboard::GetNumber("Auto_Mode", 0.0));
 
     if (step == 0) {
-        drive->resetOdometry(paths->at(Path::BARRIER_START).getInitialPose());//  testing_line.getInitialPose());
+        drive->resetOdometry(paths->at(Path::BARRIER_1).getInitialPose());//  testing_line.getInitialPose());
         // drive->resetOdometry(testing_line.getInitialPose());
         step++;
     }
     else if (step == 1) {
-        drive->runTrajectory(&paths->at(Path::BARRIER_START), actions);
+        drive->runTrajectory(&paths->at(Path::BARRIER_1), actions);
         // drive->runTrajectory(&testing_line, actions);
         step++;
     }
@@ -93,10 +93,18 @@ void Autonomous::doNothing() {
 
 void Autonomous::barrier3GP() {
     if (step == 0) {
-        drive->runTrajectory(&paths->at(Path::BARRIER_START), actions);
+        drive->runTrajectory(&paths->at(Path::BARRIER_1), actions);
         step++;
     }
     else if (step == 1 && drive->isFinished()) {
+        drive->runTrajectory(&paths->at(Path::BARRIER_2), actions);
+        step++;
+    }
+    else if (step == 2 && drive->isFinished()) {
+        drive->runTrajectory(&paths->at(Path::BARRIER_3), actions);
+        step++;
+    }
+    else if (step == 3 && drive->isFinished()) {
         drive->runTrajectory(&paths->at(Path::BARRIER_FINAL_SCORE), actions);
         step++;
     }
@@ -104,10 +112,18 @@ void Autonomous::barrier3GP() {
 
 void Autonomous::barrier2GP_CS() {
     if (step == 0) {
-        drive->runTrajectory(&paths->at(Path::BARRIER_START), actions);
+        drive->runTrajectory(&paths->at(Path::BARRIER_1), actions);
         step++;
     }
     else if (step == 1 && drive->isFinished()) {
+        drive->runTrajectory(&paths->at(Path::BARRIER_2), actions);
+        step++;
+    }
+    else if (step == 2 && drive->isFinished()) {
+        drive->runTrajectory(&paths->at(Path::BARRIER_3), actions);
+        step++;
+    }
+    else if (step == 3 && drive->isFinished()) {
         drive->runTrajectory(&paths->at(Path::BARRIER_FINAL_BALANCE), actions);
         step++;
     }
@@ -135,10 +151,18 @@ void Autonomous::center1GP_CS() {
 
 void Autonomous::edge3GP() {
     if (step == 0) {
-        drive->runTrajectory(&paths->at(Path::EDGE_START), actions);
+        drive->runTrajectory(&paths->at(Path::EDGE_1), actions);
         step++;
     }
     else if (step == 1 && drive->isFinished()) {
+        drive->runTrajectory(&paths->at(Path::EDGE_2), actions);
+        step++;
+    }
+    else if (step == 2 && drive->isFinished()) {
+        drive->runTrajectory(&paths->at(Path::EDGE_3), actions);
+        step++;
+    }
+    else if (step == 3 && drive->isFinished()) {
         drive->runTrajectory(&paths->at(Path::EDGE_FINAL_SCORE), actions);
         step++;
     }
@@ -146,10 +170,18 @@ void Autonomous::edge3GP() {
 
 void Autonomous::edge2GP_CS() {
     if (step == 0) {
-        drive->runTrajectory(&paths->at(Path::EDGE_START), actions);
+        drive->runTrajectory(&paths->at(Path::EDGE_1), actions);
         step++;
     }
     else if (step == 1 && drive->isFinished()) {
+        drive->runTrajectory(&paths->at(Path::EDGE_2), actions);
+        step++;
+    }
+    else if (step == 2 && drive->isFinished()) {
+        drive->runTrajectory(&paths->at(Path::EDGE_3), actions);
+        step++;
+    }
+    else if (step == 3 && drive->isFinished()) {
         drive->runTrajectory(&paths->at(Path::EDGE_FINAL_BALANCE), actions);
         step++;
     }
