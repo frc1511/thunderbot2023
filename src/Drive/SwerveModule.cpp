@@ -27,7 +27,7 @@
 #define TURN_RADIAN_TO_ENCODER_FACTOR 10.1859
 
 // Drive encoder value after one foot.
-#define DRIVE_FOOT_TO_ENDODER_FACTOR 6.51
+#define DRIVE_FOOT_TO_ENDODER_FACTOR 6.52051607
 
 // The coefficient used to convert a distance in meters into a number of rotations of the NEO drive motors.
 #define DRIVE_METER_TO_ENCODER_FACTOR (DRIVE_FOOT_TO_ENDODER_FACTOR * 3.28084)

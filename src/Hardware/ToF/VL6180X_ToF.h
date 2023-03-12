@@ -4,6 +4,7 @@
 
 #include <units/length.h>
 #include <frc/I2C.h>
+#include <frc/Timer.h>
 
 class VL6180X_ToF {
 public:
@@ -28,6 +29,11 @@ private:
     * Reads an 8-bit value from a 16-bit register location over I2C.
     */
    uint8_t readRegister(uint16_t reg);
+
+   void initThings();
+
+   frc::Timer statusTimer;
+   frc::Timer measurementTimer;
 
    frc::I2C i2c;
    bool isConnected = false;

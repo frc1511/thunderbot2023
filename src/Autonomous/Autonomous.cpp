@@ -21,12 +21,12 @@ void Autonomous::resetToMode(MatchMode mode) {
 }
 
 void Autonomous::process() {
-    if (frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kRed) {
-        paths = &redPaths;
-    }
-    else {
+    // if (frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kRed) {
+    //     paths = &redPaths;
+    // }
+    // else {
         paths = &bluePaths;
-    }
+    // }
 
     // Autonomous delay.
     if (delayTimer.Get().value() <= frc::SmartDashboard::GetNumber("thunderdashboard_auto_start_delay", 0.0)) {
@@ -46,7 +46,12 @@ void Autonomous::process() {
         step++;
     }
     else if (step == 2 && drive->isFinished()) {
-        fmt::print("Auto finished!\n");
+        drive->resetOdometry(paths->at(Path::BARRIER_2).getInitialPose());//  testing_line.getInitialPose());
+        step++;
+    }
+    else if (step == 3) {
+        drive->runTrajectory(&paths->at(Path::BARRIER_2), actions);
+        // drive->runTrajectory(&testing_line, actions);
         step++;
     }
     else {

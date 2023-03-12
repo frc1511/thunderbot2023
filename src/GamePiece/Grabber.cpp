@@ -9,7 +9,7 @@
 Grabber::Grabber() 
 : leftIntakeMotor(HardwareManager::IOMap::CAN_GRABBER_INTAKE_LEFT),
   rightIntakeMotor(HardwareManager::IOMap::CAN_GRABBER_INTAKE_RIGHT)
-#if WHICH_ROBOT == 2023
+#if WHICH_ROBOT != 2022
   ,grabberPiston1(HardwareManager::IOMap::CAN_PCM, frc::PneumaticsModuleType::CTREPCM,
        HardwareManager::IOMap::PCM_GRABBER_PISTON_1_EXTEND,
        HardwareManager::IOMap::PCM_GRABBER_PISTON_1_RETRACT),
@@ -320,13 +320,15 @@ void Grabber::sendFeedback() {
     frc::SmartDashboard::PutBoolean("Grabber_PlacingGamePiece", placingGamePiece);
     frc::SmartDashboard::PutNumber("Grabber_PlacingGamePieceTimer_s", placingGamePieceTimer.Get().value());
 
+#if WHICH_ROBOT != 2022
     units::meter_t intakeSensorRange = intakeSensor.getRange();
     
-#if WHICH_ROBOT == 2023
     frc::SmartDashboard::PutNumber("Grabber_SensorIntake", units::millimeter_t(intakeSensorRange).value());
-#endif
 
     intakeSensorTripped = intakeSensorRange < 50_mm;
+#else
+    intakeSensorTripped = false;
+#endif
 
     frc::SmartDashboard::PutNumber("Grabber_TempRightIntake_F", rightIntakeMotor.getTemperature().value());
     frc::SmartDashboard::PutNumber("Grabber_TempLeftIntake_F", leftIntakeMotor.getTemperature().value());

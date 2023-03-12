@@ -69,7 +69,7 @@ private:
     bool finishIntaking;
     HardwareManager::GrabberIntakeMotor leftIntakeMotor;
     HardwareManager::GrabberIntakeMotor rightIntakeMotor;
-#if WHICH_ROBOT == 2023
+#if WHICH_ROBOT != 2022
     frc::DoubleSolenoid grabberPiston1;
     frc::DoubleSolenoid grabberPiston2;
     frc::DoubleSolenoid wristPiston;

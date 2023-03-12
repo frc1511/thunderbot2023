@@ -89,6 +89,8 @@ void Drive::resetToMode(MatchMode mode) {
     VelocityControlData lastControlData(controlData);
     controlData = { 0_mps, 0_mps, 0_rad_per_s, ControlFlag::NONE };
 
+    trajectoryThetaPIDController.Reset(getRotation().Radians());
+
     // Reset the rate limiters to 0.
     // driveRateLimiter.Reset(0_mps);
     // turnRateLimiter.Reset(0_rad_per_s);
@@ -515,7 +517,7 @@ void Drive::execTrajectory() {
     }
 
     // If the trajectory is done, then stop it.
-    if (time > trajectory->getDuration() && driveController.AtReference()) {
+    if (time > (trajectory->getDuration() + 2_s)) {// && driveController.AtReference()) { 
         driveMode = DriveMode::STOPPED;
         return;
     }

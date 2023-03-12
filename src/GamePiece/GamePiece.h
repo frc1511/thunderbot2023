@@ -110,7 +110,7 @@ private:
         { LiftPreset::HIGH_CUBE,        std::make_pair(17_deg,  20_in)    }, // High scoring position.
         { LiftPreset::HIGH_CUBE_PIVOT,  std::make_pair(17_deg,  0_m)      }, // High scoring position - only pivot.
 
-        { LiftPreset::BALCONY,          std::make_pair(20_deg,  38.25_in) }, // Balcony scoring position.
+        { LiftPreset::BALCONY,          std::make_pair(20_deg,  .43_m + 4_in) }, // Balcony scoring position.
         { LiftPreset::BALCONY_PIVOT,    std::make_pair(20_deg,  0_m)      }, // Balcony scoring position - only pivot.
         { LiftPreset::TRAVEL,           std::make_pair(-25_deg, 0_m)      }, // Travel position.
 

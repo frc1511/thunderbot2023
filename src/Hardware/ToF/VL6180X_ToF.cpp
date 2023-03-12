@@ -1,5 +1,6 @@
 #include <Hardware/ToF/VL6180X_ToF.h>
 #include <fmt/core.h>
+#include <frc/Errors.h>
 
 #define REG_IDENTIFICATION_MODEL_ID 0x00
 #define REG_SYSTEM_FRESH_OUT_OF_RESET 0x0016
@@ -11,19 +12,110 @@
 
 VL6180X_ToF::VL6180X_ToF(frc::I2C::Port port, int deviceAddress)
 : i2c(port, deviceAddress) {
+    initThings();
+    measurementTimer.Reset();
+}
 
-    // Check model id.
-    if (readRegister(REG_IDENTIFICATION_MODEL_ID) != 0xB4) {
-        // AAAAHH!!!
-        return;
+VL6180X_ToF::~VL6180X_ToF() { }
+
+frc::I2C::Port VL6180X_ToF::getI2CPort() {
+    return i2c.GetPort();
+}
+
+int VL6180X_ToF::getDeviceAddress() {
+    return i2c.GetDeviceAddress();
+}
+
+units::meter_t VL6180X_ToF::getRange() {
+    return 255_mm;
+    if (!isConnected) return 42_m;
+
+    if (readRegister(REG_SYSTEM_FRESH_OUT_OF_RESET) & 0x01) {
+        FRC_ReportError(42, "VL6180X_ToF SYSTEM__FRESH_OUT_OF_RESET");
+        initThings();
+        writeRegister(REG_SYSRANGE_START, 0x00);
     }
 
+    if (!isMeasuring) {
+        uint8_t status = readRegister(REG_RESULT_RANGE_STATUS);
+        // Read range status register.
+        if ((status & 0x01) == 0x01) {
+            // Start a range measurement.
+            writeRegister(REG_SYSRANGE_START, 0x01);
+            isMeasuring = true;
+            measurementTimer.Reset();
+            measurementTimer.Start();
+        }
+        else {
+            FRC_ReportError(42, "VL6180X_ToF STATUS ERROR {}", status);
+
+        }
+    }
+
+    if (isMeasuring) {
+        // Read interrupt status register.
+        if ((readRegister(REG_RESULT_INTERRUPT_STATUS_GPIO) & 0x04) == 0x04) {
+            // Read range register (millimeters).
+            range = readRegister(REG_RESULT_RANGE_VAL);
+
+            // Clear the interrupt.
+            writeRegister(REG_SYSTEM_INTERRUPT_CLEAR, 0x07);
+
+            isMeasuring = false;
+        }
+        else if (measurementTimer.Get() > 0.5_s) {
+            // AAAARRRGGGHHHHH!!!!
+            initThings();
+            writeRegister(REG_SYSRANGE_START, 0x00);
+            measurementTimer.Reset();
+            measurementTimer.Stop();
+            // frc::ReportError()
+            FRC_ReportError(42, "VL6180X_ToF Timed out reading measurement, resetting");
+            return 42_m;
+        }
+    }
+
+    // Hi Byers!!!
+
+    // Return the most recent range measurement.
+    return units::millimeter_t(range);
+}
+
+void VL6180X_ToF::writeRegister(uint16_t reg, uint8_t data) {
+    uint8_t buffer[3];
+
+    buffer[0] = uint8_t(reg >> 8);
+    buffer[1] = uint8_t(reg & 0xFF);
+    buffer[2] = data;
+
+    i2c.WriteBulk(buffer, 3);
+}
+
+uint8_t VL6180X_ToF::readRegister(uint16_t reg) {
+    uint8_t buffer[3];
+
+    // Prompt the sensor to read the register.
+    buffer[0] = uint8_t(reg >> 8);
+    buffer[1] = uint8_t(reg & 0xFF);
+    i2c.WriteBulk(buffer, 2);
+
+    // Read the register.
+    bool res = i2c.ReadOnly(1, &buffer[2]);
+    if (res) {
+        FRC_ReportError(42, "Read timed out!");
+    }
+
+    return buffer[2];
+}
+
+void VL6180X_ToF::initThings() {
     // Read SYSTEM_FRESH_OUT_OF_RESET register.
     if (readRegister(REG_SYSTEM_FRESH_OUT_OF_RESET) & 0x01) {
         // Clear the reset bit to start using the sensor.
         writeRegister(REG_SYSTEM_FRESH_OUT_OF_RESET, 0x00);
     }
 
+    isMeasuring = false;
     isConnected = true;
 
     // Apply the tuning settings.
@@ -69,71 +161,4 @@ VL6180X_ToF::VL6180X_ToF(frc::I2C::Port port, int deviceAddress)
     writeRegister(0x0014, 0x24);
 
     // Hi Jeff!!!!
-}
-
-VL6180X_ToF::~VL6180X_ToF() {
-
-}
-
-frc::I2C::Port VL6180X_ToF::getI2CPort() {
-    return i2c.GetPort();
-}
-
-int VL6180X_ToF::getDeviceAddress() {
-    return i2c.GetDeviceAddress();
-}
-
-units::meter_t VL6180X_ToF::getRange() {
-    if (!isConnected) return 42_m;
-
-    if (!isMeasuring) {
-        // Read range status register.
-        if (readRegister(REG_RESULT_RANGE_STATUS) & 0x01) {
-            // Start a range measurement.
-            writeRegister(REG_SYSRANGE_START, 0x01);
-            isMeasuring = true;
-        }
-    }
-
-    if (isMeasuring) {
-        // Read interrupt status register.
-        if (readRegister(REG_RESULT_INTERRUPT_STATUS_GPIO) & 0x04) {
-            // Read range register (millimeters).
-            range = readRegister(REG_RESULT_RANGE_VAL);
-
-            // Clear the interrupt.
-            writeRegister(REG_SYSTEM_INTERRUPT_CLEAR, 0x07);
-
-            isMeasuring = false;
-        }
-    }
-
-    // Hi Byers!!!
-
-    // Return the most recent range measurement.
-    return units::millimeter_t(range);
-}
-
-void VL6180X_ToF::writeRegister(uint16_t reg, uint8_t data) {
-    uint8_t buffer[3];
-
-    buffer[0] = uint8_t(reg >> 8);
-    buffer[1] = uint8_t(reg & 0xFF);
-    buffer[2] = data;
-
-    i2c.WriteBulk(buffer, 3);
-}
-
-uint8_t VL6180X_ToF::readRegister(uint16_t reg) {
-    uint8_t buffer[2];
-
-    // Prompt the sensor to read the register.
-    buffer[0] = uint8_t(reg >> 8);
-    buffer[1] = uint8_t(reg & 0xFF);
-    i2c.WriteBulk(buffer, 2);
-
-    // Read the register.
-    i2c.ReadOnly(1, buffer);
-
-    return *buffer;
 }

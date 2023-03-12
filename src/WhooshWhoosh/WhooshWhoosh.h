@@ -27,7 +27,7 @@ public:
     void sendFeedback() override;
     void process() override;
 
-    void setHeadingAngle(units::degree_t angle) { imu.SetGyroAngle(frc1511::ADIS16470_IMU::IMUAxis::kYaw, angle); }
+    void setHeadingAngle(units::degree_t angle);
 
     /**
      * Returns the yaw axis angle of the robot.

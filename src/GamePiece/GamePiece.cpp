@@ -38,7 +38,7 @@ void GamePiece::process() {
             }
             else {
                 // Only move the wrist if the lift is at the correct position.
-                grabber->setWristPosition(lift->isAtPosition() && liftPreset == LiftPreset::TIPPED_CONE);
+                grabber->setWristPosition(lift->isAtPosition() && (liftPreset == LiftPreset::TIPPED_CONE || liftPreset == LiftPreset::BALCONY));
             }
         }
         else {
@@ -65,6 +65,13 @@ void GamePiece::setLiftPreset(LiftPreset preset) {
     }
 
     const auto& [angle, extension] = presetMap.at(preset);
+
+    if (preset == LiftPreset::BALCONY) {
+        setWrist(true);
+    }
+    else if (preset != LiftPreset::TIPPED_CONE) {
+        setWrist(false);
+    }
 
     lift->setPosition(angle, extension);
     liftPreset = preset;

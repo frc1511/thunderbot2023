@@ -16,7 +16,14 @@ void WhooshWhoosh::resetToMode(MatchMode mode) {
     balancePIDController.Reset();
 }
 
-void WhooshWhoosh::process() { }
+void WhooshWhoosh::process() {
+}
+
+void WhooshWhoosh::setHeadingAngle(units::degree_t angle) {
+#ifdef HAS_IMU
+    imu.SetGyroAngle(frc1511::ADIS16470_IMU::IMUAxis::kYaw, angle);
+#endif
+}
 
 units::degree_t WhooshWhoosh::getHeadingAngle() {
 #ifdef HAS_IMU
