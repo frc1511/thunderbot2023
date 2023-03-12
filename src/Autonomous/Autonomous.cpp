@@ -5,6 +5,7 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc/DriverStation.h>
 #include <fmt/core.h>
+#include <string>
 
 Autonomous::Autonomous(WhooshWhoosh* _whooshWhoosh, Drive* _drive, GamePiece* _gamePiece)
 : whooshWhoosh(_whooshWhoosh), drive(_drive), gamePiece(_gamePiece) { }
@@ -57,6 +58,7 @@ void Autonomous::process() {
     else {
         return;
     }
+    return;
 
     switch (selectedAutoMode) {
         case AutoMode::DO_NOTHING:
@@ -98,18 +100,26 @@ void Autonomous::doNothing() {
 
 void Autonomous::barrier3GP() {
     if (step == 0) {
+        gamePiece->setGrabberPosition(Grabber::Position::OPEN);
+        gamePiece->overrideHasGamePiece(true);
+        step += (scoreAction.process() == Action::Result::DONE);
+    }
+    else if (step == 1) {
+        drive->resetOdometry(paths->at(Path::BARRIER_1).getInitialPose());
         drive->runTrajectory(&paths->at(Path::BARRIER_1), actions);
         step++;
     }
-    else if (step == 1 && drive->isFinished()) {
+    else if (step == 2 && drive->isFinished()) {
+        drive->resetOdometry(paths->at(Path::BARRIER_2).getInitialPose());
         drive->runTrajectory(&paths->at(Path::BARRIER_2), actions);
         step++;
     }
-    else if (step == 2 && drive->isFinished()) {
+    else if (step == 3 && drive->isFinished()) {
+        drive->resetOdometry(paths->at(Path::BARRIER_3).getInitialPose());
         drive->runTrajectory(&paths->at(Path::BARRIER_3), actions);
         step++;
     }
-    else if (step == 3 && drive->isFinished()) {
+    else if (step == 4 && drive->isFinished()) {
         drive->runTrajectory(&paths->at(Path::BARRIER_FINAL_SCORE), actions);
         step++;
     }
@@ -360,4 +370,23 @@ Action::Result Autonomous::BalanceMobilityAction::process() {
 void Autonomous::sendFeedback() {
     frc::SmartDashboard::PutNumber("Autonomous_Step", step);
     frc::SmartDashboard::PutBoolean("Autonomous_DriveFinished", drive->isFinished());
+
+    std::string buffer;
+
+    auto handleDashboardString = [&](AutoMode mode, const char* description) {
+        // Put mode index in buffer.
+        buffer += fmt::format(",{}", static_cast<int>(mode));
+        // Send description.
+        frc::SmartDashboard::PutString(fmt::format("thunderdashboard_auto_{}", static_cast<int>(mode)), description);
+    };
+
+    handleDashboardString(AutoMode::DO_NOTHING,     "Do Nothing");
+    handleDashboardString(AutoMode::BARRIER_3GP,    "Barrier: 3GP");
+    handleDashboardString(AutoMode::BARRIER_2GP_CS, "Barrier: 2GP+CS");
+    handleDashboardString(AutoMode::CENTER_1GP,     "Center: 1GP");
+    handleDashboardString(AutoMode::CENTER_1GP_CS,  "Center: 1GP+CS");
+    handleDashboardString(AutoMode::EDGE_3GP,       "Edge: 3GP");
+    handleDashboardString(AutoMode::EDGE_2GP_CS,    "Edge: 2GP");
+
+    frc::SmartDashboard::PutString("thunderdashboard_auto_list", buffer);
 }
