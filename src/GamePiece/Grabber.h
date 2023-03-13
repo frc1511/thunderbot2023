@@ -3,7 +3,6 @@
 #include <Basic/Mechanism.h>
 #include <frc/Timer.h>
 #include <Hardware/HardwareManager.h>
-#include <Hardware/ToF/VL6180X_ToF.h>
 #include <frc/DigitalInput.h>
 #include <frc/DoubleSolenoid.h>
 #include <frc/Solenoid.h>
@@ -73,7 +72,6 @@ private:
     frc::DoubleSolenoid grabberPiston1;
     frc::DoubleSolenoid grabberPiston2;
     frc::DoubleSolenoid wristPiston;
-    // VL6180X_ToF intakeSensor { frc::I2C::Port::kMXP, 0x29 };
 #endif
     frc::DigitalInput intakeSensor;
     void configureMotors();

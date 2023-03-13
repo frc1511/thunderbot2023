@@ -219,53 +219,11 @@ Action::Result Autonomous::ScoreAction::process() {
     }
     else if (step == 2 && gamePiece->isFinishedScoring()) {
         gamePiece->setLiftPreset(GamePiece::LiftPreset::INTAKE);
-        step = 0;
         return Result::DONE;
+        step = 0;
     }
 
     return Result::WORKING;
-}
-
-// --- Intake to Cone Action ---
-
-Autonomous::IntakeToConeAction::IntakeToConeAction(GamePiece* _gamePiece)
-: gamePiece(_gamePiece) { }
-
-Autonomous::IntakeToConeAction::~IntakeToConeAction() = default;
-
-Action::Result Autonomous::IntakeToConeAction::process() {
-    // gamePiece->setGrabberAction(Grabber::Action::INTAKE);
-    // gamePiece->setGrabberPosition(Grabber::Position::AGAPE);
-
-    return Result::DONE;
-}
-
-// --- Intake Wait Action ---
-
-Autonomous::IntakeWaitAction::IntakeWaitAction(GamePiece* _gamePiece)
-: gamePiece(_gamePiece) { }
-
-Autonomous::IntakeWaitAction::~IntakeWaitAction() = default;
-
-Action::Result Autonomous::IntakeWaitAction::process() {
-    // if (gamePiece->getGamePieceType() != Grabber::GamePieceType::NONE) {
-        return Result::DONE;
-    // }
-
-    return Result::WORKING;
-}
-
-// --- Lift to High Action ---
-
-Autonomous::LiftHighAction::LiftHighAction(GamePiece* _gamePiece)
-: gamePiece(_gamePiece) { }
-
-Autonomous::LiftHighAction::~LiftHighAction() = default;
-
-Action::Result Autonomous::LiftHighAction::process() {
-    // gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH);
-
-    return Result::DONE;
 }
 
 // --- Balance Action ---
@@ -369,13 +327,14 @@ void Autonomous::sendFeedback() {
     frc::SmartDashboard::PutNumber("Autonomous_Step", step);
     frc::SmartDashboard::PutBoolean("Autonomous_DriveFinished", drive->isFinished());
 
-    std::string buffer;
+    std::string buffer = "";
 
     auto handleDashboardString = [&](AutoMode mode, const char* description) {
+        int mode_index = static_cast<int>(mode);
         // Put mode index in buffer.
-        buffer += fmt::format(",{}", static_cast<int>(mode));
+        buffer += fmt::format(",{}", mode_index);
         // Send description.
-        frc::SmartDashboard::PutString(fmt::format("thunderdashboard_auto_{}", static_cast<int>(mode)), description);
+        frc::SmartDashboard::PutString(fmt::format("thunderdashboard_auto_{}", mode_index), description);
     };
 
     handleDashboardString(AutoMode::DO_NOTHING,     "Do Nothing");

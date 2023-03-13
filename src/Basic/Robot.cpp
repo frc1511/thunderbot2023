@@ -28,9 +28,9 @@ void Robot::AutonomousInit() {
 void Robot::AutonomousPeriodic() {
     autonomous.process();
     drive.process();
-    gamePiece.process();
     lift.process();
     grabber.process();
+    gamePiece.process();
 }
 
 void Robot::TeleopInit() {
@@ -40,9 +40,9 @@ void Robot::TeleopInit() {
 void Robot::TeleopPeriodic() {
     controls.process();
     drive.process();
-    gamePiece.process();
     lift.process();
     grabber.process();
+    gamePiece.process();
 }
 
 void Robot::DisabledInit() {

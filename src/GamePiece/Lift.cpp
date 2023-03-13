@@ -362,4 +362,11 @@ void Lift::sendFeedback() {
         frc::SmartDashboard::PutNumber("thunderdashboard_lift_pivot_target_percent", targetPivotPercent);
         frc::SmartDashboard::PutNumber("thunderdashboard_lift_extension_target_percent", targetExtensionPercent);
     }
+
+    frc::SmartDashboard::PutNumber("_Syscheck_Lift_Extension_m",       currentExtension.value());
+    frc::SmartDashboard::PutNumber("_Syscheck_Lift_PivotLeft_deg",     currentLeftAngle.value());
+    frc::SmartDashboard::PutNumber("_Syscheck_Lift_PivotRight_deg",    currentRightAngle.value());
+    frc::SmartDashboard::PutNumber("_Syscheck_Lift_EncoderRawExtension", extensionMotor.getEncoderPosition());
+    frc::SmartDashboard::PutNumber("_Syscheck_Lift_EncoderRawPivotLeft", pivotMotorLeft.getEncoderPosition());
+    frc::SmartDashboard::PutNumber("_Syscheck_Lift_EncoderRawPivotRight", pivotMotorRight.getEncoderPosition());
 }

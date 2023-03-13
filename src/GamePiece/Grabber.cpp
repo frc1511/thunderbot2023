@@ -289,6 +289,9 @@ void Grabber::configureMotors() {
 }
 
 void Grabber::sendFeedback() {
+    frc::SmartDashboard::PutBoolean("_Syscheck_Grabber_SensorIntake", intakeSensor.Get());
+    frc::SmartDashboard::PutBoolean("_Syscheck_Grabber_SensorIntakeTripped", intakeSensorTripped);
+
     std::string grabberAction = "";
     switch (currentAction) {
         case Action::INTAKE:
@@ -336,17 +339,9 @@ void Grabber::sendFeedback() {
 
     frc::SmartDashboard::PutBoolean("Grabber_PlacingGamePiece", placingGamePiece);
     frc::SmartDashboard::PutNumber("Grabber_PlacingGamePieceTimer_s", placingGamePieceTimer.Get().value());
-
-// #if WHICH_ROBOT != 2022
-//     units::meter_t intakeSensorRange = intakeSensor.getRange();
     
     frc::SmartDashboard::PutBoolean("Grabber_SensorIntake", intakeSensor.Get());
     frc::SmartDashboard::PutBoolean("Grabber_SensorIntakeTripped", intakeSensorTripped);
-
-//     intakeSensorTripped = intakeSensorRange < 50_mm;
-// #else
-//     intakeSensorTripped = false;
-// #endif
 
     frc::SmartDashboard::PutNumber("Grabber_TempRightIntake_F", rightIntakeMotor.getTemperature().value());
     frc::SmartDashboard::PutNumber("Grabber_TempLeftIntake_F", leftIntakeMotor.getTemperature().value());

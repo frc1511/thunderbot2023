@@ -130,45 +130,6 @@ private:
     };
 
     /**
-     * An action that scores the prepares the grabber to intake a cone.
-     */
-    class IntakeToConeAction : public Action {
-    public:
-        IntakeToConeAction(GamePiece* gamePiece);
-        ~IntakeToConeAction();
-
-        Result process() override;
-    private:
-        GamePiece* gamePiece;
-    };
-
-    /**
-     * An action that waits for the grabber to intake a GamePiece.
-     */
-    class IntakeWaitAction : public Action {
-    public:
-        IntakeWaitAction(GamePiece* gamePiece);
-        ~IntakeWaitAction();
-
-        Result process() override;
-    private:
-        GamePiece* gamePiece;
-    };
-
-    /**
-     * Puts the lift in the high position.
-     */
-    class LiftHighAction : public Action {
-    public:
-        LiftHighAction(GamePiece* gamePiece);
-        ~LiftHighAction();
-
-        Result process() override;
-    private:
-        GamePiece* gamePiece;
-    };
-
-    /**
      * Balances the robot on the charge station.
      */
     class BalanceAction : public Action {
@@ -199,9 +160,6 @@ private:
     };
 
     ScoreAction scoreAction { gamePiece };
-    IntakeToConeAction intakeToConeAction { gamePiece };
-    IntakeWaitAction intakeWaitAction { gamePiece };
-    LiftHighAction liftHighAction { gamePiece };
     BalanceAction balanceAction { drive, whooshWhoosh };
     BalanceMobilityAction balanceMobilityAction { drive, whooshWhoosh };
 
@@ -210,10 +168,7 @@ private:
      */
     std::map<u_int32_t, Action*> actions {
         { 1 << 0, &scoreAction },
-        { 1 << 1, &intakeToConeAction },
-        { 1 << 2, &intakeWaitAction },
-        { 1 << 3, &liftHighAction },
-        { 1 << 4, &balanceAction },
-        { 1 << 5, &balanceMobilityAction },
+        { 1 << 1, &balanceAction },
+        { 1 << 2, &balanceMobilityAction },
     };
 };

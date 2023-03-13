@@ -30,8 +30,6 @@ private:
     */
    uint8_t readRegister(uint16_t reg);
 
-   void initThings();
-
    frc::Timer statusTimer;
    frc::Timer measurementTimer;
 
