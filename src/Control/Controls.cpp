@@ -281,11 +281,13 @@ void Controls::doAux() {
     }
 
     if (prepareCone || prepareCube) {
-        // Move the lift to the correct intake position.
-        gamePiece->setLiftPreset(GamePiece::LiftPreset::INTAKE);
+        if (gamePiece->getLiftPreset() != GamePiece::LiftPreset::BALCONY) {
+            // Move the lift to the correct intake position.
+            gamePiece->setLiftPreset(GamePiece::LiftPreset::INTAKE);
 
-        // Set the wrist to the upright position.
-        gamePiece->setWrist(false);
+            // Set the wrist to the upright position.
+            gamePiece->setWrist(false);
+        }
     }
     else if (prepareTippedCone) {
         // Move the lift to the correct intake position.
@@ -352,6 +354,8 @@ void Controls::doAux() {
     // Spins the wheels on the grabber outward to outtake a gamepiece.
     else if (outtake) {
         gamePiece->setGrabberAction(Grabber::Action::OUTTAKE);
+        gamePiece->overrideHasGamePiece(false);
+        gamePiece->setGrabberPosition(Grabber::Position::AGAPE);
     }
     //If the grabber is neither intaking nor outtaking, the action is set to idle.
     else {

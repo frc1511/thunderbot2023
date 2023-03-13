@@ -20,6 +20,7 @@ Grabber::Grabber()
        HardwareManager::IOMap::PCM_GRABBER_WRIST_EXTEND,
        HardwareManager::IOMap::PCM_GRABBER_WRIST_RETRACT)
 #endif
+  ,intakeSensor(HardwareManager::IOMap::DIO_GRABBER_INTAKE)
    {
 
     configureMotors();
@@ -48,6 +49,22 @@ void Grabber::doPersistentConfiguration() {
 }
 
 void Grabber::process() {
+    if (intakeSensor.Get()) {
+        intakeSensorTimer.Start();
+        if (intakeSensorTimer.Get() >= 60_ms) {
+            intakeSensorTripped = true;
+        }
+        else {
+            intakeSensorTripped = false;
+        }
+    }
+    else {
+        intakeSensorTimer.Reset();
+        intakeSensorTimer.Stop();
+        intakeSensorTripped = false;
+    }
+
+
     // If we are going through the actions of placing a GamePiece.
     if (placingGamePiece) {
         // Cube: Outake for 0.5 seconds, then stop.
@@ -320,15 +337,16 @@ void Grabber::sendFeedback() {
     frc::SmartDashboard::PutBoolean("Grabber_PlacingGamePiece", placingGamePiece);
     frc::SmartDashboard::PutNumber("Grabber_PlacingGamePieceTimer_s", placingGamePieceTimer.Get().value());
 
-#if WHICH_ROBOT != 2022
-    units::meter_t intakeSensorRange = intakeSensor.getRange();
+// #if WHICH_ROBOT != 2022
+//     units::meter_t intakeSensorRange = intakeSensor.getRange();
     
-    frc::SmartDashboard::PutNumber("Grabber_SensorIntake", units::millimeter_t(intakeSensorRange).value());
+    frc::SmartDashboard::PutBoolean("Grabber_SensorIntake", intakeSensor.Get());
+    frc::SmartDashboard::PutBoolean("Grabber_SensorIntakeTripped", intakeSensorTripped);
 
-    intakeSensorTripped = intakeSensorRange < 50_mm;
-#else
-    intakeSensorTripped = false;
-#endif
+//     intakeSensorTripped = intakeSensorRange < 50_mm;
+// #else
+//     intakeSensorTripped = false;
+// #endif
 
     frc::SmartDashboard::PutNumber("Grabber_TempRightIntake_F", rightIntakeMotor.getTemperature().value());
     frc::SmartDashboard::PutNumber("Grabber_TempLeftIntake_F", leftIntakeMotor.getTemperature().value());

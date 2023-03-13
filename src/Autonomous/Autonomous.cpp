@@ -36,28 +36,7 @@ void Autonomous::process() {
 
     selectedAutoMode = static_cast<AutoMode>(frc::SmartDashboard::GetNumber("Auto_Mode", 0.0));
 
-    if (step == 0) {
-        drive->resetOdometry(paths->at(Path::BARRIER_1).getInitialPose());//  testing_line.getInitialPose());
-        // drive->resetOdometry(testing_line.getInitialPose());
-        step++;
-    }
-    else if (step == 1) {
-        drive->runTrajectory(&paths->at(Path::BARRIER_1), actions);
-        // drive->runTrajectory(&testing_line, actions);
-        step++;
-    }
-    else if (step == 2 && drive->isFinished()) {
-        drive->resetOdometry(paths->at(Path::BARRIER_2).getInitialPose());//  testing_line.getInitialPose());
-        step++;
-    }
-    else if (step == 3) {
-        drive->runTrajectory(&paths->at(Path::BARRIER_2), actions);
-        // drive->runTrajectory(&testing_line, actions);
-        step++;
-    }
-    else {
-        return;
-    }
+    barrier3GP();
     return;
 
     switch (selectedAutoMode) {
@@ -96,6 +75,8 @@ void Autonomous::doNothing() {
     // Good function.
     // Very good function. - jeff downs
     // Very bad function. - jeff ups
+
+    // Well technically it's doing something - chris(2023)
 }
 
 void Autonomous::barrier3GP() {
@@ -105,23 +86,41 @@ void Autonomous::barrier3GP() {
         step += (scoreAction.process() == Action::Result::DONE);
     }
     else if (step == 1) {
-        drive->resetOdometry(paths->at(Path::BARRIER_1).getInitialPose());
+        auto init = paths->at(Path::BARRIER_1).getInitialPose();
+        drive->resetOdometry(frc::Pose2d(init.X(), init.Y(), init.Rotation().Degrees() - 90_deg));
         drive->runTrajectory(&paths->at(Path::BARRIER_1), actions);
         step++;
     }
+    else if (step == 2 && !drive->isFinished()) {
+        if (drive->getTrajectoryTime() > 2_s && drive->getTrajectoryTime() < 2.2_s) {
+            gamePiece->setGrabberPosition(Grabber::Position::AGAPE);
+            gamePiece->setGrabberAction(Grabber::Action::INTAKE);
+        }
+    }
     else if (step == 2 && drive->isFinished()) {
-        drive->resetOdometry(paths->at(Path::BARRIER_2).getInitialPose());
+        // drive->resetOdometry(paths->at(Path::BARRIER_2).getInitialPose());
         drive->runTrajectory(&paths->at(Path::BARRIER_2), actions);
+        gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH);
         step++;
     }
     else if (step == 3 && drive->isFinished()) {
-        drive->resetOdometry(paths->at(Path::BARRIER_3).getInitialPose());
+        step += (scoreAction.process() == Action::Result::DONE);
+    }
+    else if (step == 4) {
+        // drive->resetOdometry(paths->at(Path::BARRIER_3).getInitialPose());
         drive->runTrajectory(&paths->at(Path::BARRIER_3), actions);
         step++;
     }
-    else if (step == 4 && drive->isFinished()) {
-        drive->runTrajectory(&paths->at(Path::BARRIER_FINAL_SCORE), actions);
+    else if (step == 5 && drive->isFinished()) {
+        // drive->resetOdometry(paths->at(Path::BARRIER_3).getInitialPose());
+        drive->runTrajectory(&paths->at(Path::BARRIER_FINAL_BALANCE), actions);
         step++;
+    }
+    else if (step == 6 && drive->isFinished()) {
+        // drive->runTrajectory(&paths->at(Path::BARRIER_FINAL_SCORE), actions);
+        // step++;
+        auto pose = drive->getEstimatedPose();
+        drive->resetOdometry(frc::Pose2d(pose.X(), pose.Y(), pose.Rotation().Degrees() + 90_deg));
     }
 }
 
@@ -210,7 +209,6 @@ Autonomous::ScoreAction::ScoreAction(GamePiece* _gamePiece)
 Autonomous::ScoreAction::~ScoreAction() = default;
 
 Action::Result Autonomous::ScoreAction::process() {
-    /*
     if (step == 0) {
         gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH);
         step++;
@@ -220,10 +218,10 @@ Action::Result Autonomous::ScoreAction::process() {
         step++;
     }
     else if (step == 2 && gamePiece->isFinishedScoring()) {
+        gamePiece->setLiftPreset(GamePiece::LiftPreset::INTAKE);
         step = 0;
-        */
         return Result::DONE;
-    // }
+    }
 
     return Result::WORKING;
 }

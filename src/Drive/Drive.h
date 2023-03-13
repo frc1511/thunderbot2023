@@ -46,8 +46,8 @@
 
 #define DRIVE_AUTO_MAX_VEL         1.5_mps
 #define DRIVE_AUTO_MAX_ACCEL       3_mps_sq
-#define DRIVE_AUTO_MAX_ANG_VEL     3.14_rad_per_s
-#define DRIVE_AUTO_MAX_ANG_ACCEL   (3.14_rad_per_s_sq / 2)
+#define DRIVE_AUTO_MAX_ANG_VEL     6.28_rad_per_s
+#define DRIVE_AUTO_MAX_ANG_ACCEL   3.14_rad_per_s_sq
 
 #define DRIVE_MANUAL_MAX_VEL       3_mps
 #define DRIVE_MANUAL_MAX_ANG_VEL   360_deg_per_s
@@ -107,6 +107,8 @@ public:
      * Control flags are used to control the behavior of the drivetrain.
      */
     void manualControlRelRotation(double xPct, double yPct, double angPct, unsigned flags);
+
+    units::second_t getTrajectoryTime() { return trajectoryTimer.Get(); }
 
     /**
      * Controls the speeds of the drivetrain using percentages of the max speed

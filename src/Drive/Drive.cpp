@@ -267,12 +267,12 @@ void Drive::runTrajectory(const Trajectory* _trajectory, const std::map<u_int32_
     trajectoryTimer.Start();
 
     // Get the initial pose of the robot.
-    frc::Pose2d initialPose(trajectory->getInitialPose());
-    // Adjust the rotation because everything about this robot is 90 degrees off D:
-    initialPose = frc::Pose2d(initialPose.X(), initialPose.Y(), (initialPose.Rotation().Degrees() - 90_deg));
+    // frc::Pose2d initialPose(trajectory->getInitialPose());
+    // // Adjust the rotation because everything about this robot is 90 degrees off D:
+    // initialPose = frc::Pose2d(initialPose.X(), initialPose.Y(), (initialPose.Rotation().Degrees() - 90_deg));
 
-    // Reset the odometry to the initial pose.
-    resetOdometry(initialPose);
+    // // Reset the odometry to the initial pose.
+    // resetOdometry(initialPose);
 }
 
 void Drive::goToPose(frc::Pose2d pose) {

@@ -73,13 +73,16 @@ private:
     frc::DoubleSolenoid grabberPiston1;
     frc::DoubleSolenoid grabberPiston2;
     frc::DoubleSolenoid wristPiston;
-    VL6180X_ToF intakeSensor { frc::I2C::Port::kMXP, 0x29 };
+    // VL6180X_ToF intakeSensor { frc::I2C::Port::kMXP, 0x29 };
 #endif
+    frc::DigitalInput intakeSensor;
     void configureMotors();
     bool tipped;
 
     std::function<void()> scoreCallback;
     std::function<void(GamePieceType)> acquireCallback;
+
+    frc::Timer intakeSensorTimer;
 
     bool intakeSensorTripped = false;
 };
