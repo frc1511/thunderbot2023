@@ -149,19 +149,21 @@ private:
      */
     class BalanceMobilityAction : public Action {
     public:
-        BalanceMobilityAction(Drive* drive, WhooshWhoosh* whooshWhoosh);
+        BalanceMobilityAction(Drive* drive, WhooshWhoosh* whooshWhoosh, BalanceAction* balanceAction);
         ~BalanceMobilityAction();
 
         Result process() override;
     private:
         Drive* drive;
         WhooshWhoosh* whooshWhoosh;
+        BalanceAction* balanceAction;
         int step = 0;
+        frc::Timer stopTimer;
     };
 
     ScoreAction scoreAction { gamePiece };
     BalanceAction balanceAction { drive, whooshWhoosh };
-    BalanceMobilityAction balanceMobilityAction { drive, whooshWhoosh };
+    BalanceMobilityAction balanceMobilityAction { drive, whooshWhoosh, &balanceAction };
 
     /**
      * A map of the actions that are available to each autonomous mode.
@@ -171,4 +173,6 @@ private:
         { 1 << 1, &balanceAction },
         { 1 << 2, &balanceMobilityAction },
     };
+
+    frc::Timer liftTimer;
 };

@@ -3,7 +3,7 @@
 #include <thread>
 #include <chrono>
 
-#define BALANCE_P 0.1364 // 1.5 m/s at 11 deg
+#define BALANCE_P 0.033 // 1m/s at 4deg
 #define BALANCE_I 0.0
 #define BALANCE_D 0.0
 
@@ -41,14 +41,14 @@ units::radians_per_second_t WhooshWhoosh::getHeadingRate() {
 
 units::degree_t WhooshWhoosh::getTiltAngle() {
 #ifdef HAS_IMU
-    return imu.GetAngle(frc1511::ADIS16470_IMU::kRoll);
+    return imu.GetAngle(frc1511::ADIS16470_IMU::kPitch);
 #endif
     return 0_deg;
 }
 
 units::radians_per_second_t WhooshWhoosh::getTiltRate() {
 #ifdef HAS_IMU
-    return imu.GetRate(frc1511::ADIS16470_IMU::kRoll);
+    return imu.GetRate(frc1511::ADIS16470_IMU::kPitch);
 #endif
     return 0_deg_per_s;
 }

@@ -25,7 +25,7 @@ CSVTrajectory::CSVTrajectory(std::filesystem::path path, bool inverted) {
 
         if (inverted) {
             xPos = FIELD_X - xPos;
-            rotation = frc::Rotation2d(rotation.Degrees() + 180_deg);
+            rotation = frc::Rotation2d(180_deg - rotation.Degrees());
         }
 
         frc::Pose2d pose(xPos, yPos, rotation);

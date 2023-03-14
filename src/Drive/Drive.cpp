@@ -105,7 +105,7 @@ void Drive::resetToMode(MatchMode mode) {
          * Coast all motors in disabled (good for transportation, however can
          * lead to some runaway robots).
          */
-        setIdleMode(ThunderCANMotorController::IdleMode::COAST);
+        setIdleMode(ThunderCANMotorController::IdleMode::BRAKE);
 
         teleopTimer.Stop();
         trajectoryTimer.Stop();
@@ -540,7 +540,7 @@ void Drive::execTrajectory() {
     frc::Twist2d twist(currentPose.Log(state.pose));
 
     // The angle at which the robot should be driving at.
-    frc::Rotation2d heading(units::math::atan2(twist.dy, twist.dx) - 90_deg);// + 90_deg);
+    frc::Rotation2d heading(units::math::atan2(twist.dy, twist.dx) - 90_deg);// - 90_deg);
 
     /**
      * Calculate the chassis velocities based on the error between the current
