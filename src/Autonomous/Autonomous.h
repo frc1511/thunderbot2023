@@ -30,40 +30,35 @@ public:
 private:
     enum class AutoMode {
         DO_NOTHING     = 0,
-        BARRIER_3GP    = 1,
+        BARRIER_2GP    = 1,
         BARRIER_2GP_CS = 2,
         CENTER_1GP     = 3,
         CENTER_1GP_CS  = 4,
-        EDGE_3GP       = 5,
-        EDGE_2GP_CS    = 6,
+        EDGE_1GP       = 5,
+        EDGE_1GP_MOB   = 6,
     };
 
     AutoMode selectedAutoMode = AutoMode::DO_NOTHING;
 
     void doNothing();
-    void barrier3GP();
-    void barrier2GP_CS();
-    void center1GP();
-    void center1GP_CS();
-    void edge3GP();
-    void edge2GP_CS();
+    void barrier2GP(bool withCS);
+    void center1GP(bool withCS);
+    void edge1GP(bool withMob);
 
     const std::map<AutoMode, const char*> autoModeNames {
         { AutoMode::DO_NOTHING,     "Do Nothing"      },
-        { AutoMode::BARRIER_3GP,    "Barrier: 3GP"    },
+        { AutoMode::BARRIER_2GP,    "Barrier: 2GP"    },
         { AutoMode::BARRIER_2GP_CS, "Barrier: 2GP+CS" },
         { AutoMode::CENTER_1GP,     "Center: 1GP"     },
         { AutoMode::CENTER_1GP_CS,  "Center: 1GP+CS"  },
-        { AutoMode::EDGE_3GP,       "Edge: 3GP"       },
-        { AutoMode::EDGE_2GP_CS,    "Edge: 2GP+CS"    },
+        { AutoMode::EDGE_1GP,       "Edge: 1GP"       },
+        { AutoMode::EDGE_1GP_MOB,   "Edge: 1GP+MOB"   },
     };
 
     frc::Timer delayTimer,
                autoTimer;
 
     int step = 0;
-
-    LinearTrajectory traverseChargeStationTrajectory { frc::Pose2d(5.35_m, 2.7_m, 0_deg), frc::Pose2d(5.35_m, 2.7_m + (2 * DIST_TO_CS_CENTER), 0_deg), 1.5_mps, 2_mps_sq };
 
     WhooshWhoosh* whooshWhoosh;
     Drive* drive;
@@ -75,7 +70,6 @@ private:
         BARRIER_3,
         BARRIER_FINAL_SCORE,
         BARRIER_FINAL_BALANCE,
-        CENTER_START,
         EDGE_1,
         EDGE_2,
         EDGE_3,
@@ -89,7 +83,6 @@ private:
         { Path::BARRIER_3,             CSVTrajectory{ DEPLOY_DIR "ThunderAuto/barrier_3.csv",             false } },
         { Path::BARRIER_FINAL_SCORE,   CSVTrajectory{ DEPLOY_DIR "ThunderAuto/barrier_final_score.csv",   false } },
         { Path::BARRIER_FINAL_BALANCE, CSVTrajectory{ DEPLOY_DIR "ThunderAuto/barrier_final_balance.csv", false } },
-        { Path::CENTER_START,          CSVTrajectory{ DEPLOY_DIR "ThunderAuto/center_start.csv",          false } },
         { Path::EDGE_1,                CSVTrajectory{ DEPLOY_DIR "ThunderAuto/edge_1.csv",                false } },
         { Path::EDGE_2,                CSVTrajectory{ DEPLOY_DIR "ThunderAuto/edge_2.csv",                false } },
         { Path::EDGE_3,                CSVTrajectory{ DEPLOY_DIR "ThunderAuto/edge_3.csv",                false } },
@@ -103,7 +96,6 @@ private:
         { Path::BARRIER_3,             CSVTrajectory{ DEPLOY_DIR "ThunderAuto/barrier_3.csv",             true } },
         { Path::BARRIER_FINAL_SCORE,   CSVTrajectory{ DEPLOY_DIR "ThunderAuto/barrier_final_score.csv",   true } },
         { Path::BARRIER_FINAL_BALANCE, CSVTrajectory{ DEPLOY_DIR "ThunderAuto/barrier_final_balance.csv", true } },
-        { Path::CENTER_START,          CSVTrajectory{ DEPLOY_DIR "ThunderAuto/center_start.csv",          true } },
         { Path::EDGE_1,                CSVTrajectory{ DEPLOY_DIR "ThunderAuto/edge_1.csv",                true } },
         { Path::EDGE_2,                CSVTrajectory{ DEPLOY_DIR "ThunderAuto/edge_2.csv",                true } },
         { Path::EDGE_3,                CSVTrajectory{ DEPLOY_DIR "ThunderAuto/edge_3.csv",                true } },
@@ -165,6 +157,8 @@ private:
     BalanceAction balanceAction { drive, whooshWhoosh };
     BalanceMobilityAction balanceMobilityAction { drive, whooshWhoosh, &balanceAction };
 
+    frc::Timer liftTimer;
+
     /**
      * A map of the actions that are available to each autonomous mode.
      */
@@ -173,6 +167,4 @@ private:
         { 1 << 1, &balanceAction },
         { 1 << 2, &balanceMobilityAction },
     };
-
-    frc::Timer liftTimer;
 };
