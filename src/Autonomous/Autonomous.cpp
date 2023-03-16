@@ -145,6 +145,7 @@ void Autonomous::barrier2GP(bool withCS) {
 }
 
 void Autonomous::center1GP(bool withCS) {
+    // This will be such a HUGE help at FLR this week! Best of luck and great work so far - you got this! CG
     // Score preloaded cube high, reset odometry.
     if (step == 0) {
         gamePiece->setGrabberPosition(Grabber::Position::OPEN);
