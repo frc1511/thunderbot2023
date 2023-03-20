@@ -155,6 +155,10 @@ bool GamePiece::isFinishedIntaking() {
     return grabber->isFinishedIntaking();
 }
 
+void GamePiece::overrideLiftKindaBroken() {
+    lift->resetLiftBrokenKinda();
+}
+
 void GamePiece::intakeGamePiece() {
     grabber->intakeGamePiece();
 }

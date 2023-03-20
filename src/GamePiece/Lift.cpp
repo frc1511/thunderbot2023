@@ -19,7 +19,7 @@
 #define MAX_PIVOT_ANGLE 20_deg
 
 // The encoder value at the maximum angle of the arm.
-#define MAX_PIVOT_ENCODER 89
+#define MAX_PIVOT_ENCODER 92
 
 // The maximum extension length of the arm (delta from starting position).
 #define MAX_EXTENSION_LENGTH 38.25_in
@@ -59,7 +59,7 @@ Lift::Lift()
     pivotRightPIDController.Reset(-47_deg);
     extensionPIDController.Reset(0_m);
     targetExtension = 0_m;
-    targetAngle = -40_deg;
+    targetAngle = -42_deg;
     controlType = ControlType::POSITION;
 }
 
@@ -100,6 +100,21 @@ void Lift::doPersistentConfiguration() {
 }
 
 void Lift::process() {
+    if (pivotMotorLeft.getOutputCurrent() > 60_A || pivotMotorRight.getOutputCurrent() > 60_A) {
+        liftCurrentTimer.Start();
+
+        if (liftCurrentTimer.Get() > 1_s) {
+            liftBrokenALot = true;
+        }
+    }
+    else {
+        liftCurrentTimer.Reset();
+        liftCurrentTimer.Stop();
+    }
+    if (std::abs(pivotMotorLeft.getEncoderPosition() - pivotMotorRight.getEncoderPosition()) > 15) {
+        liftBrokenKinda = true;
+    }
+
     if (controlType == ControlType::MANUAL) {
         // Limits for the manual control of the lift.
         if (extensionSensor.Get() && manualExtensionSpeed > 0) {
@@ -184,8 +199,15 @@ void Lift::process() {
     double pivotPercent = (currentRightPivot - MIN_PIVOT_ANGLE) / (MAX_PIVOT_ANGLE - MIN_PIVOT_ANGLE);
 
     // Control the pivot motors.
-    pivotMotorLeft.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, rightPivotPercentOutput + pivotPercent * PIVOT_FF);
-    pivotMotorRight.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, rightPivotPercentOutput + pivotPercent * PIVOT_FF);
+    // if (liftBrokenKinda || liftBrokenALot) {
+        // pivotMotorLeft.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, 0);
+        // pivotMotorRight.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, 0);
+    //     newTargetExtension = 0_m;
+    // // }
+    // else {
+        pivotMotorLeft.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, rightPivotPercentOutput + pivotPercent * PIVOT_FF);
+        pivotMotorRight.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, rightPivotPercentOutput + pivotPercent * PIVOT_FF);
+    // }
 
     double extensionPercentOutput = extensionPIDController.Calculate(DENORMALIZE_EXTENSION_POSITION(currentExtension, currentExtensionOffset), DENORMALIZE_EXTENSION_POSITION(newTargetExtension, currentExtensionOffset));
     extensionPercentOutput = std::clamp(extensionPercentOutput, -1.0, 1.0);
@@ -219,6 +241,10 @@ void Lift::setPosition(units::degree_t angle, units::meter_t extension) {
     targetExtension = extension;
 }
 
+void Lift::resetLiftBrokenKinda() {
+    liftBrokenKinda = false;
+}
+
 bool Lift::isAtPosition(){
     if (controlType == ControlType::POSITION){
         return atPosition;
@@ -229,7 +255,7 @@ bool Lift::isAtPosition(){
 Lift::LiftState Lift::getCurrentState() {
     // Left and right pivot encoder positions.
     double leftEncoderPosition = pivotMotorLeft.getEncoderPosition();
-    double rightEncoderPosition = pivotMotorRight.getEncoderPosition();
+    double rightEncoderPosition = pivotMotorLeft.getEncoderPosition();
 
     // Percentages of the pivot range of motion.
     double leftPercent = leftEncoderPosition / MAX_PIVOT_ENCODER;
@@ -369,4 +395,7 @@ void Lift::sendFeedback() {
     frc::SmartDashboard::PutNumber("_Syscheck_Lift_EncoderRawExtension", extensionMotor.getEncoderPosition());
     frc::SmartDashboard::PutNumber("_Syscheck_Lift_EncoderRawPivotLeft", pivotMotorLeft.getEncoderPosition());
     frc::SmartDashboard::PutNumber("_Syscheck_Lift_EncoderRawPivotRight", pivotMotorRight.getEncoderPosition());
+
+    frc::SmartDashboard::PutBoolean("thunderdashboard_lift_broken_kinda", liftBrokenKinda);
+    frc::SmartDashboard::PutBoolean("thunderdashboard_lift_broken_a_lot", liftBrokenALot);
 }

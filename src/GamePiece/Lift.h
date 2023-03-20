@@ -50,6 +50,8 @@ public:
     // Set the arm angle (from horizontal) and extension length.
     void setPosition(units::degree_t angle, units::meter_t extensionLength);
 
+    void resetLiftBrokenKinda();
+
 private:
     double manualPivotSpeed;
     double manualExtensionSpeed;
@@ -110,4 +112,9 @@ private:
 
     double _targetPivotPosition = 0;
     double _targetExtensionPosition = 0;
+
+    bool liftBrokenKinda = false; // When the current spikes.
+    bool liftBrokenALot = false; // When the encoders differ.
+
+    frc::Timer liftCurrentTimer;
 };

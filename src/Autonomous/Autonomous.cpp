@@ -22,7 +22,9 @@ void Autonomous::resetToMode(MatchMode mode) {
 }
 
 void Autonomous::process() {
-    if (frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kRed) {
+    selectedAutoMode = static_cast<AutoMode>(frc::SmartDashboard::GetNumber("Auto_Mode", 0.0));
+
+    if (frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kRed && selectedAutoMode != AutoMode::CENTER_1GP && selectedAutoMode != AutoMode::CENTER_1GP_CS) {
         paths = &redPaths;
     }
     else {
@@ -33,8 +35,6 @@ void Autonomous::process() {
     if (delayTimer.Get().value() <= frc::SmartDashboard::GetNumber("thunderdashboard_auto_start_delay", 0.0)) {
         return;
     }
-
-    selectedAutoMode = static_cast<AutoMode>(frc::SmartDashboard::GetNumber("Auto_Mode", 0.0));
 
     switch (selectedAutoMode) {
         case AutoMode::DO_NOTHING:
@@ -175,6 +175,7 @@ void Autonomous::edge1GP(bool withMob) {
         step += (scoreAction.process() == Action::Result::DONE);
     }
     else if (step >= 1 && step <= 5) {
+        if (!withMob) step = 100;
         step++; // Give it some time...
     }
     // Reset odometry and drive to field cone 1.
@@ -268,7 +269,7 @@ Action::Result Autonomous::BalanceMobilityAction::process() {
             step++;
         }
         else {
-            drive->velocityControlAbsRotation(1.7_mps, 0.0_mps, 90_deg, Drive::ControlFlag::FIELD_CENTRIC);
+            drive->velocityControlAbsRotation(2.0_mps, 0.0_mps, 90_deg, Drive::ControlFlag::FIELD_CENTRIC);
         }
     }
     // Check when grounded on other side.

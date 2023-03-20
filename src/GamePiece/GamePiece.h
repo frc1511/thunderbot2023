@@ -88,6 +88,8 @@ public:
 
     Grabber::Position getGrabberPosition() { return grabber->getPosition(); }
 
+    void overrideLiftKindaBroken();
+
 private:
     Grabber* grabber;
     Lift* lift;
@@ -98,20 +100,20 @@ private:
         { LiftPreset::TIPPED_CONE,      std::make_pair(-28_deg, 0.168_m)  }, // Tipped over cone intake position.
         { LiftPreset::GROUND,           std::make_pair(-25_deg, 0.1_m)    }, // Low scoring position.
 
-        { LiftPreset::MID_CONE,         std::make_pair(16_deg,  0.59_m - 1_in)   }, // Mid scoring position.
-        { LiftPreset::MID_CONE_PIVOT,   std::make_pair(16_deg,  0_m)      }, // Mid scoring position - only pivot.
+        { LiftPreset::MID_CONE,         std::make_pair(15_deg,  0.59_m - 6_in)   }, // Mid scoring position.
+        { LiftPreset::MID_CONE_PIVOT,   std::make_pair(15_deg,  0_m)      }, // Mid scoring position - only pivot.
 
         { LiftPreset::MID_CUBE,         std::make_pair(10_deg,  0_m)      }, // Mid scoring position.
         { LiftPreset::MID_CUBE_PIVOT,   std::make_pair(10_deg,  0_m)      }, // Mid scoring position - only pivot.
 
-        { LiftPreset::HIGH_CONE,        std::make_pair(20_deg,  38.25_in) }, // High scoring position.
-        { LiftPreset::HIGH_CONE_PIVOT,  std::make_pair(20_deg,  0_m)      }, // High scoring position - only pivot.
+        { LiftPreset::HIGH_CONE,        std::make_pair(18_deg,  38.25_in) }, // High scoring position.
+        { LiftPreset::HIGH_CONE_PIVOT,  std::make_pair(18_deg,  0_m)      }, // High scoring position - only pivot.
 
         { LiftPreset::HIGH_CUBE,        std::make_pair(17_deg,  20_in)    }, // High scoring position.
         { LiftPreset::HIGH_CUBE_PIVOT,  std::make_pair(17_deg,  0_m)      }, // High scoring position - only pivot.
 
-        { LiftPreset::BALCONY,          std::make_pair(20_deg,  .43_m + 4_in) }, // Balcony scoring position.
-        { LiftPreset::BALCONY_PIVOT,    std::make_pair(20_deg,  0_m)      }, // Balcony scoring position - only pivot.
+        { LiftPreset::BALCONY,          std::make_pair(18_deg,  .43_m + 4_in) }, // Balcony scoring position.
+        { LiftPreset::BALCONY_PIVOT,    std::make_pair(18_deg,  0_m)      }, // Balcony scoring position - only pivot.
         { LiftPreset::TRAVEL,           std::make_pair(-25_deg, 0_m)      }, // Travel position.
 
         { LiftPreset::AUTO_JANKY,       std::make_pair(7_deg, 0.52_m + 1_in)   },

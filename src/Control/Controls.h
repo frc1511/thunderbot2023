@@ -50,5 +50,6 @@ private:
 
     bool manualWrist = false;
 
-
+    bool callaDisable = false;
+    bool haileyDisable = false;
 };

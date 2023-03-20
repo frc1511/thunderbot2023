@@ -24,11 +24,11 @@ std::map<Grabber::GamePieceType, std::pair<cv::Scalar, cv::Scalar>> gamePieceHSV
 };
 
 IntakeCamera::IntakeCamera() {
-    visionThread = std::thread([this] { threadMain(); });
+    // visionThread = std::thread([this] { threadMain(); });
 }
 
 IntakeCamera::~IntakeCamera() {
-    visionThread.join();
+    // visionThread.join();
 }
 
 void IntakeCamera::setTarget(Grabber::GamePieceType target) {

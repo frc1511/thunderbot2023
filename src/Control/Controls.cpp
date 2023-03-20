@@ -24,13 +24,17 @@ void Controls::process() {
     auxController.setLightbarColor(0, 255, 0);
 
     doSwitchPanel();
-    doDrive();
-
-    if (manualAux) {
-        doAuxManual();
+    if (!callaDisable) {
+        doDrive();
     }
-    else {
-        doAux();
+
+    if (!haileyDisable) {
+        if (manualAux) {
+            doAuxManual();
+        }
+        else {
+            doAux();
+        }
     }
 }
 
@@ -422,14 +426,22 @@ void Controls::doAuxManual() {
 }
 
 void Controls::doSwitchPanel() {
-    settings.isCraterMode = switchPanel.GetRawButton(1);
+    settings.isCraterMode = switchPanel.GetRawButton(6);
     driveRobotCentric = switchPanel.GetRawButton(2);
-    driveRecording = switchPanel.GetRawButton(3);
-    manualAux = switchPanel.GetRawButton(4);
+    // callaDisable = switchPanel.GetRawButton(3);
+    // if (switchPanel.GetRawButtonPressed(4)) {
+
+    // }
+    // haileyDisable = switchPanel.GetRawButton(4);
+    // driveRecording = switchPanel.GetRawButton(3);
+    manualAux = switchPanel.GetRawButton(5);
+    if (switchPanel.GetRawButton(12)) {
+        gamePiece->overrideLiftKindaBroken();
+    }
 
     int ledMode = frc::SmartDashboard::GetNumber("thunderdashboard_led_mode", 0.0);
 
-    if (switchPanel.GetRawButton(6)) {
+    if (switchPanel.GetRawButton(1)) {
         blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::OFF);
     }
     else if (ledMode == 0) {

@@ -540,7 +540,14 @@ void Drive::execTrajectory() {
     frc::Twist2d twist(currentPose.Log(state.pose));
 
     // The angle at which the robot should be driving at.
-    frc::Rotation2d heading(units::math::atan2(twist.dy, twist.dx) - 90_deg);// - 90_deg);
+    frc::Rotation2d heading;
+    if (frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kRed) {
+        heading = frc::Rotation2d(units::math::atan2(twist.dy, twist.dx) + 90_deg);
+    }
+    else {
+        heading = frc::Rotation2d(units::math::atan2(twist.dy, twist.dx) - 90_deg);
+    }
+    
 
     /**
      * Calculate the chassis velocities based on the error between the current
@@ -733,4 +740,6 @@ void Drive::sendFeedback() {
 
     frc::SmartDashboard::PutNumber("thunderdashboard_score_grid",        alignedGrid);
     frc::SmartDashboard::PutNumber("thunderdashboard_score_grid_column", aligningGridNode % 3);
+
+    frc::SmartDashboard::PutBoolean("thunderdashboard_gyro", !imuCalibrated);
 }
