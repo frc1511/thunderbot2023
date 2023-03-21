@@ -359,7 +359,6 @@ void Controls::doAux() {
     else if (outtake) {
         gamePiece->setGrabberAction(Grabber::Action::OUTTAKE);
         gamePiece->overrideHasGamePiece(false);
-        gamePiece->setGrabberPosition(Grabber::Position::AGAPE);
     }
     //If the grabber is neither intaking nor outtaking, the action is set to idle.
     else {

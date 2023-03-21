@@ -7,6 +7,7 @@
 #include <frc/DoubleSolenoid.h>
 #include <frc/Solenoid.h>
 #include <functional>
+#include <wpi/DataLog.h>
 
 class Grabber : public Mechanism {
 public:
@@ -83,4 +84,7 @@ private:
     frc::Timer intakeSensorTimer;
 
     bool intakeSensorTripped = false;
+
+    wpi::log::DoubleLogEntry intakeLeftCurrentEntry;
+    wpi::log::DoubleLogEntry intakeRightCurrentEntry;
 };

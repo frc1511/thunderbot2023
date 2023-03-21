@@ -1,5 +1,6 @@
 #include <GamePiece/Grabber.h>
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/DataLogManager.h>
 
 // The max amperage of the intake motors.
 #define INTAKE_MAX_AMPERAGE 20_A
@@ -20,8 +21,9 @@ Grabber::Grabber()
        HardwareManager::IOMap::PCM_GRABBER_WRIST_EXTEND,
        HardwareManager::IOMap::PCM_GRABBER_WRIST_RETRACT)
 #endif
-  ,intakeSensor(HardwareManager::IOMap::DIO_GRABBER_INTAKE)
-   {
+  ,intakeSensor(HardwareManager::IOMap::DIO_GRABBER_INTAKE),
+  intakeLeftCurrentEntry(frc::DataLogManager::GetLog(), "/Grabber/CurrentLeft"),
+  intakeRightCurrentEntry(frc::DataLogManager::GetLog(), "/Grabber/CurrentRight") {
 
     configureMotors();
 }
@@ -351,4 +353,8 @@ void Grabber::sendFeedback() {
     // Dashboard feedback.
     frc::SmartDashboard::PutNumber("thunderdashboard_grabber_position", static_cast<int>(currentPosition));
     frc::SmartDashboard::PutNumber("thunderdashboard_gamepiece", static_cast<int>(gamePieceType));
+
+    // Log data.
+    intakeLeftCurrentEntry.Append(leftIntakeMotor.getOutputCurrent().value());
+    intakeRightCurrentEntry.Append(rightIntakeMotor.getOutputCurrent().value());
 }

@@ -13,6 +13,7 @@
 #include <units/angle.h>
 #include <units/angular_velocity.h>
 #include <units/angular_acceleration.h>
+#include <wpi/DataLog.h>
 
 // --- PID Values ---
 
@@ -117,4 +118,19 @@ private:
     bool liftBrokenALot = false; // When the encoders differ.
 
     frc::Timer liftCurrentTimer;
+
+    wpi::log::DoubleLogEntry pivotLeftEncoderEntry;
+    wpi::log::DoubleLogEntry pivotRightEncoderEntry;
+    wpi::log::DoubleLogEntry extensionEncoderEntry;
+
+    wpi::log::DoubleLogEntry pivotLeftAngleEntry;
+    wpi::log::DoubleLogEntry pivotRightAngleEntry;
+    wpi::log::DoubleLogEntry extensionLengthEntry;
+
+    wpi::log::BooleanLogEntry homeSensorEntry;
+    wpi::log::BooleanLogEntry extensionSensorEntry;
+
+    wpi::log::DoubleLogEntry pivotLeftCurrentEntry;
+    wpi::log::DoubleLogEntry pivotRightCurrentEntry;
+    wpi::log::DoubleLogEntry extensionCurrentEntry;
 };

@@ -2,6 +2,8 @@
 #include <fmt/core.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc/DriverStation.h>
+#include <frc/DataLogManager.h>
+#include <wpi/DataLog.h>
 
 void Robot::RobotInit() {
     // Send feedback every 40 ms.
@@ -13,6 +15,8 @@ void Robot::RobotInit() {
         frc::SmartDashboard::PutNumber("thunderdashboard_match_remaining", frc::DriverStation::GetMatchTime());
 
     }, 40_ms);
+
+    frc::DataLogManager::Start();
 }
 
 void Robot::RobotPeriodic() {

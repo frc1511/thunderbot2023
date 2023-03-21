@@ -3,6 +3,7 @@
 #include <frc/geometry/Twist2d.h>
 #include <Util/Parser.h>
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/DataLogManager.h>
 #include <fmt/core.h>
 
 #define PIVOT_FF 0.0//0.05
@@ -51,7 +52,18 @@ Lift::Lift()
   pivotMotorLeft(HardwareManager::IOMap::CAN_LIFT_PIVOT_LEFT), 
   pivotMotorRight(HardwareManager::IOMap::CAN_LIFT_PIVOT_RIGHT),
   homeSensor(HardwareManager::IOMap::DIO_LIFT_HOME),
-  extensionSensor(HardwareManager::IOMap::DIO_LIFT_EXTENSION) {
+  extensionSensor(HardwareManager::IOMap::DIO_LIFT_EXTENSION),
+  pivotLeftEncoderEntry(frc::DataLogManager::GetLog(), "/Lift/EncoderPivotLeft"),
+  pivotRightEncoderEntry(frc::DataLogManager::GetLog(), "/Lift/EncoderPivotRight"),
+  extensionEncoderEntry(frc::DataLogManager::GetLog(), "/Lift/EncoderExtension"),
+  pivotLeftAngleEntry(frc::DataLogManager::GetLog(), "/Lift/AnglePivotLeft"),
+  pivotRightAngleEntry(frc::DataLogManager::GetLog(), "/Lift/AnglePivotRight"),
+  extensionLengthEntry(frc::DataLogManager::GetLog(), "/Lift/LengthExtension"),
+  homeSensorEntry(frc::DataLogManager::GetLog(), "/Lift/SensorHome"),
+  extensionSensorEntry(frc::DataLogManager::GetLog(), "/Lift/SensorExtension"),
+  pivotLeftCurrentEntry(frc::DataLogManager::GetLog(), "/Lift/CurrentPivotLeft"),
+  pivotRightCurrentEntry(frc::DataLogManager::GetLog(), "/Lift/CurrentPivotRight"),
+  extensionCurrentEntry(frc::DataLogManager::GetLog(), "/Lift/CurrentExtension") {
 
     configureMotors();
 
@@ -398,4 +410,17 @@ void Lift::sendFeedback() {
 
     frc::SmartDashboard::PutBoolean("thunderdashboard_lift_broken_kinda", liftBrokenKinda);
     frc::SmartDashboard::PutBoolean("thunderdashboard_lift_broken_a_lot", liftBrokenALot);
+
+    // Log data.
+    pivotLeftEncoderEntry.Append(pivotMotorLeft.getEncoderPosition());
+    pivotRightEncoderEntry.Append(pivotMotorRight.getEncoderPosition());
+    extensionEncoderEntry.Append(extensionMotor.getEncoderPosition());
+    pivotLeftAngleEntry.Append(currentLeftAngle.value());
+    pivotRightAngleEntry.Append(currentRightAngle.value());
+    extensionLengthEntry.Append(currentExtension.value());
+    homeSensorEntry.Append(homeSensor.Get());
+    extensionSensorEntry.Append(extensionSensor.Get());
+    pivotLeftCurrentEntry.Append(pivotMotorLeft.getOutputCurrent().value());
+    pivotRightCurrentEntry.Append(pivotMotorRight.getOutputCurrent().value());
+    extensionCurrentEntry.Append(extensionMotor.getOutputCurrent().value());
 }
