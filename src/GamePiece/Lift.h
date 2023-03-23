@@ -53,6 +53,8 @@ public:
 
     void resetLiftBrokenKinda();
 
+    void setActive(bool isActive);
+
 private:
     double manualPivotSpeed;
     double manualExtensionSpeed;
@@ -83,6 +85,8 @@ private:
 
     // Sensor detecting if the lift is at the extension limit (fully extended).
     frc::DigitalInput extensionSensor;
+
+    bool active = true;
 
     // Profiled PID Controllers for the pivot.
     // frc::ProfiledPIDController<units::degrees> pivotLeftPIDController {
@@ -116,8 +120,6 @@ private:
 
     bool liftBrokenKinda = false; // When the current spikes.
     bool liftBrokenALot = false; // When the encoders differ.
-
-    frc::Timer liftCurrentTimer;
 
     wpi::log::DoubleLogEntry pivotLeftEncoderEntry;
     wpi::log::DoubleLogEntry pivotRightEncoderEntry;

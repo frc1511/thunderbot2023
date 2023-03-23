@@ -434,6 +434,10 @@ void Controls::doSwitchPanel() {
     // haileyDisable = switchPanel.GetRawButton(4);
     // driveRecording = switchPanel.GetRawButton(3);
     manualAux = switchPanel.GetRawButton(5);
+
+    // Switch 7 disables the lift.
+    gamePiece->setLiftActive(!switchPanel.GetRawButton(7));
+
     if (switchPanel.GetRawButton(12)) {
         gamePiece->overrideLiftKindaBroken();
     }

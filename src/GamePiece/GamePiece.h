@@ -90,6 +90,8 @@ public:
 
     void overrideLiftKindaBroken();
 
+    void setLiftActive(bool active);
+
 private:
     Grabber* grabber;
     Lift* lift;

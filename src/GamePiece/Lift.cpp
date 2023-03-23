@@ -112,16 +112,11 @@ void Lift::doPersistentConfiguration() {
 }
 
 void Lift::process() {
-    if (pivotMotorLeft.getOutputCurrent() > 60_A || pivotMotorRight.getOutputCurrent() > 60_A) {
-        liftCurrentTimer.Start();
-
-        if (liftCurrentTimer.Get() > 1_s) {
-            liftBrokenALot = true;
-        }
+    if (pivotMotorLeft.getTemperature() > 80_degC || pivotMotorRight.getTemperature() > 80_degC) {
+        liftBrokenALot = true;
     }
     else {
-        liftCurrentTimer.Reset();
-        liftCurrentTimer.Stop();
+        liftBrokenALot = false;
     }
     if (std::abs(pivotMotorLeft.getEncoderPosition() - pivotMotorRight.getEncoderPosition()) > 15) {
         liftBrokenKinda = true;
@@ -211,15 +206,15 @@ void Lift::process() {
     double pivotPercent = (currentRightPivot - MIN_PIVOT_ANGLE) / (MAX_PIVOT_ANGLE - MIN_PIVOT_ANGLE);
 
     // Control the pivot motors.
-    // if (liftBrokenKinda || liftBrokenALot) {
-        // pivotMotorLeft.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, 0);
-        // pivotMotorRight.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, 0);
-    //     newTargetExtension = 0_m;
-    // // }
-    // else {
+    if (liftBrokenALot || !active) {
+        pivotMotorLeft.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, 0);
+        pivotMotorRight.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, 0);
+        newTargetExtension = 0_m;
+    }
+    else {
         pivotMotorLeft.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, rightPivotPercentOutput + pivotPercent * PIVOT_FF);
         pivotMotorRight.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, rightPivotPercentOutput + pivotPercent * PIVOT_FF);
-    // }
+    }
 
     double extensionPercentOutput = extensionPIDController.Calculate(DENORMALIZE_EXTENSION_POSITION(currentExtension, currentExtensionOffset), DENORMALIZE_EXTENSION_POSITION(newTargetExtension, currentExtensionOffset));
     extensionPercentOutput = std::clamp(extensionPercentOutput, -1.0, 1.0);
@@ -255,6 +250,10 @@ void Lift::setPosition(units::degree_t angle, units::meter_t extension) {
 
 void Lift::resetLiftBrokenKinda() {
     liftBrokenKinda = false;
+}
+
+void Lift::setActive(bool isActive) {
+    active = isActive;
 }
 
 bool Lift::isAtPosition(){
