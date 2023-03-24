@@ -8,10 +8,11 @@ class Drive;
 class GamePiece;
 class UltraBrickMode;
 class BlinkyBlinky;
+class Autonomous;
 
 class Controls : public Mechanism {
 public:
-    Controls(Drive* drive, GamePiece* gamePiece, UltraBrickMode* ultraBrickMode, BlinkyBlinky* blinkyBlinky);
+    Controls(Drive* drive, GamePiece* gamePiece, UltraBrickMode* ultraBrickMode, BlinkyBlinky* blinkyBlinky, Autonomous* autonomous);
     ~Controls();
 
     void resetToMode(MatchMode mode) override;
@@ -19,6 +20,7 @@ public:
     void sendFeedback() override;
 
     void processInDisabled();
+    void processInAutonomous();
     bool getShouldPersistConfig();
 
 private:
@@ -26,6 +28,7 @@ private:
     GamePiece* gamePiece;
     UltraBrickMode* ultraBrickMode;
     BlinkyBlinky* blinkyBlinky;
+    Autonomous* autonomous;
     HardwareManager::DriveGameController driveController { ThunderGameController::Controller::DRIVER };
     HardwareManager::AuxGameController auxController { ThunderGameController::Controller::AUX };
     frc::GenericHID switchPanel {2};

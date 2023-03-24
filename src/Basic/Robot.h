@@ -48,9 +48,9 @@ private:
     Lift lift;
     GamePiece gamePiece { &grabber, &lift};
     UltraBrickMode ultraBrickMode;
-    BlinkyBlinky blinkyBlinky;
-    Controls controls { &drive, &gamePiece, &ultraBrickMode, &blinkyBlinky };
+    BlinkyBlinky blinkyBlinky { &whooshWhoosh };
     Autonomous autonomous { &whooshWhoosh, &drive, &gamePiece };
+    Controls controls { &drive, &gamePiece, &ultraBrickMode, &blinkyBlinky, &autonomous };
 
     IntakeCamera intakeCamera;
 

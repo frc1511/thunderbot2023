@@ -30,6 +30,7 @@ void Robot::AutonomousInit() {
 }
 
 void Robot::AutonomousPeriodic() {
+    controls.processInAutonomous();
     autonomous.process();
     drive.process();
     gamePiece.process();

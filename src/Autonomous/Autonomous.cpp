@@ -63,6 +63,27 @@ void Autonomous::process() {
     }
 }
 
+bool Autonomous::isBalancing() {
+    if (getCurrentMode() != MatchMode::AUTO) {
+        return false;
+    }
+
+    switch (selectedAutoMode) {
+        case AutoMode::BARRIER_2GP_CS:
+        case AutoMode::EDGE_2GP_CS:
+            return step >= 18;
+        case AutoMode::CENTER_1GP_CS:
+            return step >= 2;
+        default:
+            return false;
+    }
+    return false;
+
+
+
+    // Hi Larry!!!
+}
+
 void Autonomous::doNothing() {
     // If it does nothing is it doing something or nothing? - trevor(2020)
         //it does something because it is doing nothing - ishan(2022)

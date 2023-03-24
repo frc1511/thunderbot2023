@@ -10,9 +10,11 @@
 
 #define LED_TOTAL 60
 
+class WhooshWhoosh;
+
 class BlinkyBlinky : public Mechanism {
 public:
-    BlinkyBlinky();
+    BlinkyBlinky(WhooshWhoosh* whooshWhoosh);
     ~BlinkyBlinky();
 
     void sendFeedback() override;
@@ -28,7 +30,8 @@ public:
         HAS_GAMEPIECE,
         CRATER_MODE,
         CALIBRATING,
-        DISABLED,
+        HOME_DEPOT,
+        BALANCING,
         CUSTOM,
     };
 
@@ -38,6 +41,8 @@ public:
 
 private:
     frc::AddressableLED strip { HardwareManager::IOMap::PWM_BLINKY_BLINKY };
+
+    WhooshWhoosh* whooshWhoosh;
 
     std::array<frc::AddressableLED::LEDData, LED_TOTAL> stripBuffer;
 
@@ -53,6 +58,7 @@ private:
     void interpolateHue(int lowHue, int highHue, int offset);
 
     void rainbow();
+    void balancing();
 
     LEDMode ledMode = LEDMode::ALLIANCE;
 

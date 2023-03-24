@@ -1,6 +1,7 @@
 #include <Control/Controls.h>
 #include <Drive/Drive.h>
 #include <GamePiece/GamePiece.h>
+#include <Autonomous/Autonomous.h>
 #include <cmath>
 #include <numbers>
 #include <Drive/UltraBrickMode.h>
@@ -9,8 +10,8 @@
 
 #define AXIS_DEADZONE 0.1
 
-Controls::Controls(Drive* _drive, GamePiece* _gamePiece, UltraBrickMode* _ultraBrickMode, BlinkyBlinky* _blinkyBlinky)
-: drive(_drive), gamePiece(_gamePiece), ultraBrickMode(_ultraBrickMode), blinkyBlinky(_blinkyBlinky) { }
+Controls::Controls(Drive* _drive, GamePiece* _gamePiece, UltraBrickMode* _ultraBrickMode, BlinkyBlinky* _blinkyBlinky, Autonomous* _autonomous)
+: drive(_drive), gamePiece(_gamePiece), ultraBrickMode(_ultraBrickMode), blinkyBlinky(_blinkyBlinky), autonomous(_autonomous) { }
 
 Controls::~Controls() { }
 
@@ -53,6 +54,10 @@ void Controls::processInDisabled() {
     if (calIMU) {
         drive->calibrateIMU();
     }
+}
+
+void Controls::processInAutonomous() {
+    doSwitchPanel();
 }
 
 bool Controls::getShouldPersistConfig() {
@@ -455,7 +460,14 @@ void Controls::doSwitchPanel() {
             blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::CALIBRATING);
         }
         else if (getCurrentMode() == MatchMode::DISABLED || doUltraBrickMode) {
-            blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::DISABLED);
+            blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::HOME_DEPOT);
+
+            if (getCurrentMode() == MatchMode::DISABLED && getLastMode() == MatchMode::AUTO) {
+                blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::RAINBOW);
+            }
+        }
+        else if (autonomous->isBalancing()) {
+            blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::BALANCING);
         }
         else if (!switchPanel.GetRawButton(6)) {
             if (gamePiece->getGamePieceType() != Grabber::GamePieceType::NONE) {

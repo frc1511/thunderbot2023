@@ -25,6 +25,8 @@ public:
     void sendFeedback() override;
     void resetToMode(MatchMode mode) override;
 
+    bool isBalancing();
+
 private:
     enum class AutoMode {
         DO_NOTHING     = 0,
