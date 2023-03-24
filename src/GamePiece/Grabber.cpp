@@ -6,6 +6,7 @@
 #define INTAKE_MAX_AMPERAGE 20_A
 
 #define INTAKE_SPEED 1.0
+#define OUTTAKE_SPEED -0.6
 
 Grabber::Grabber() 
 : leftIntakeMotor(HardwareManager::IOMap::CAN_GRABBER_INTAKE_LEFT),
@@ -144,8 +145,8 @@ void Grabber::process() {
         // Hi Chris!!!!!
     } 
     else if (currentAction == Action::OUTTAKE) {
-        leftIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, -INTAKE_SPEED);
-        rightIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, -INTAKE_SPEED);
+        leftIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, OUTTAKE_SPEED);
+        rightIntakeMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, OUTTAKE_SPEED);
 
         // fishkill! fishkill!!!!!
     } 
