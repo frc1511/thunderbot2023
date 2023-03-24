@@ -28,38 +28,49 @@ public:
 private:
     enum class AutoMode {
         DO_NOTHING     = 0,
-        BARRIER_2GP    = 1,
-        BARRIER_2GP_CS = 2,
-        BARRIER_3GP    = 3,
-        BARRIER_MOB    = 4,
-        CENTER_1GP     = 5,
-        CENTER_1GP_CS  = 6,
-        EDGE_2GP       = 7,
-        EDGE_2GP_CS    = 8,
-        EDGE_3GP       = 9,
-        EDGE_MOB       = 10,
+        DRIVE_FORWARDS = 1,
+        SCORE          = 2,
+        BARRIER_2GP    = 3,
+        BARRIER_2GP_CS = 4,
+        BARRIER_3GP    = 5,
+        CENTER_1GP     = 6,
+        CENTER_1GP_CS  = 7,
+        EDGE_2GP       = 8,
+        EDGE_2GP_CS    = 9,
+        EDGE_3GP       = 10,
     };
 
     AutoMode selectedAutoMode = AutoMode::DO_NOTHING;
 
+    // Does nothing or something.
     void doNothing();
+    // Barrier autos.
     void barrier();
+    void barrierFinish2GPCS();
+    void barrierFinish3GP();
+    // Center autos.
     void center();
+    // Edge autos.
     void edge();
+    void edgeFinish2GPCS();
+    void edgeFinish3GP();
+    // Drives forwards for a bit.
     void driveForwards();
+    // Scores a cube and then we are happy.
+    void score();
 
     const std::map<AutoMode, const char*> autoModeNames {
         { AutoMode::DO_NOTHING,     "Do Nothing"      },
+        { AutoMode::DRIVE_FORWARDS, "Drive Forwards"  },
+        { AutoMode::SCORE,          "Score"           },
         { AutoMode::BARRIER_2GP,    "Barrier: 2GP"    },
         { AutoMode::BARRIER_2GP_CS, "Barrier: 2GP+CS" },
         { AutoMode::BARRIER_3GP,    "Barrier: 3GP"    },
-        { AutoMode::BARRIER_MOB,    "Barrier: MOB"    },
         { AutoMode::CENTER_1GP,     "Center: 1GP"     },
         { AutoMode::CENTER_1GP_CS,  "Center: 1GP+CS"  },
         { AutoMode::EDGE_2GP,       "Edge: 2GP"       },
         { AutoMode::EDGE_2GP_CS,    "Edge: 2GP+CS"    },
         { AutoMode::EDGE_3GP,       "Edge: 3GP"       },
-        { AutoMode::EDGE_MOB,       "Edge: MOB"       },
     };
 
     frc::Timer delayTimer,

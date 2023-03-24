@@ -40,13 +40,16 @@ void Autonomous::process() {
         case AutoMode::DO_NOTHING:
             doNothing();
             break;
+        case AutoMode::DRIVE_FORWARDS:
+            driveForwards();
+            break;
+        case AutoMode::SCORE:
+            score();
+            break;
         case AutoMode::BARRIER_2GP:
         case AutoMode::BARRIER_2GP_CS:
         case AutoMode::BARRIER_3GP:
             barrier();
-            break;
-        case AutoMode::BARRIER_MOB:
-            driveForwards();
             break;
         case AutoMode::CENTER_1GP:
         case AutoMode::CENTER_1GP_CS:
@@ -57,11 +60,7 @@ void Autonomous::process() {
         case AutoMode::EDGE_3GP:
             edge();
             break;
-        case AutoMode::EDGE_MOB:
-            driveForwards();
-            break;
     }
-
 }
 
 void Autonomous::doNothing() {
@@ -131,19 +130,37 @@ void Autonomous::barrier() {
         }
     }
     else if (step == 15 && drive->isFinished()) {
-        if (selectedAutoMode == AutoMode::BARRIER_2GP_CS) {
-            drive->runTrajectory(&paths->at(Path::BARRIER_FINAL_BALANCE), actions);
-            step++;
-        }
-        else {
-            step++;
+        step++;
+    }
+    else if (step >= 16) {
+        switch (selectedAutoMode) {
+            case AutoMode::BARRIER_2GP_CS:
+                barrierFinish2GPCS();
+                break;
+            case AutoMode::BARRIER_3GP:
+                barrierFinish3GP();
+                break;
+            default:
+                break;
         }
     }
-    else if (step == 16 && drive->isFinished()) {
-        gamePiece->setGrabberAction(Grabber::Action::IDLE);
-        auto pose = drive->getEstimatedPose();
-        drive->resetOdometry(frc::Pose2d(pose.X(), pose.Y(), pose.Rotation().Degrees() + 90_deg));
+}
+
+void Autonomous::barrierFinish2GPCS() {
+    if (step == 16) {
+        drive->runTrajectory(&paths->at(Path::BARRIER_FINAL_BALANCE), actions);
+        step++;
     }
+    else if (step == 17 && drive->isFinished()) {
+        step++;
+    }
+    else if (step == 18) {
+        balanceAction.process();
+    }
+}
+
+void Autonomous::barrierFinish3GP() {
+    // Nothing right now D:
 }
 
 void Autonomous::center() {
@@ -177,13 +194,13 @@ void Autonomous::center() {
 }
 
 void Autonomous::edge() {
+    // Score preloaded cube high.
     if (step == 0) {
         gamePiece->setGrabberPosition(Grabber::Position::OPEN);
         gamePiece->overrideHasGamePiece(true);
         step += (scoreAction.process() == Action::Result::DONE);
     }
     else if (step >= 1 && step <= 5) {
-        if (selectedAutoMode != AutoMode::EDGE_MOB) step = 100;
         step++; // Give it some time...
     }
     // Reset odometry and drive to field cone 1.
@@ -193,6 +210,73 @@ void Autonomous::edge() {
         drive->runTrajectory(&paths->at(Path::EDGE_1), actions);
         step++;
     }
+    // Start intaking cone while driving.
+    else if (step == 7 && !drive->isFinished()) {
+        if (drive->getTrajectoryTime() > 2_s && drive->getTrajectoryTime() < 2.1_s) {
+            gamePiece->setGrabberPosition(Grabber::Position::AGAPE);
+            gamePiece->setGrabberAction(Grabber::Action::INTAKE);
+        }
+    }
+    // Stop intaking, drive back to grid with acquired cone.
+    else if (step == 7 && drive->isFinished()) {
+        gamePiece->overrideHasGamePiece(true);
+        gamePiece->setGrabberAction(Grabber::Action::IDLE);
+        drive->runTrajectory(&paths->at(Path::EDGE_2), actions);
+        gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH);
+        step++;
+    }
+    // Score cone.
+    else if (step == 8 && drive->isFinished()) {
+        gamePiece->setGrabberPosition(Grabber::Position::OPEN);
+        step += (scoreAction.process() == Action::Result::DONE);
+    }
+    else if (step >= 9 && step <= 13) {
+        step++; // Give it some time...
+    }
+    // Drive to field cone 2.
+    else if (step == 14) {
+        drive->runTrajectory(&paths->at(Path::EDGE_3), actions);
+        step++;
+    }
+    // Start intaking cone while driving.
+    else if (step == 15 && !drive->isFinished()) {
+        if (drive->getTrajectoryTime() > 2_s && drive->getTrajectoryTime() < 2.1_s) {
+            gamePiece->setGrabberPosition(Grabber::Position::AGAPE);
+            gamePiece->setGrabberAction(Grabber::Action::INTAKE);
+        }
+    }
+    else if (step == 15 && drive->isFinished()) {
+        step++;
+    }
+    else if (step >= 16) {
+        switch (selectedAutoMode) {
+            case AutoMode::EDGE_2GP_CS:
+                edgeFinish2GPCS();
+                break;
+            case AutoMode::EDGE_3GP:
+                edgeFinish3GP();
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+void Autonomous::edgeFinish2GPCS() {
+    if (step == 16) {
+        drive->runTrajectory(&paths->at(Path::EDGE_FINAL_BALANCE), actions);
+        step++;
+    }
+    else if (step == 17 && drive->isFinished()) {
+        step++;
+    }
+    else if (step == 18) {
+        balanceAction.process();
+    }
+}
+
+void Autonomous::edgeFinish3GP() {
+    // Nothing right now D:
 }
 
 void Autonomous::driveForwards() {
@@ -207,6 +291,18 @@ void Autonomous::driveForwards() {
         drive->velocityControlAbsRotation(0.0_mps, 0_mps, 0_deg, Drive::ControlFlag::FIELD_CENTRIC);
         step++;
         // Hi Trevor!!!!
+    }
+}
+
+void Autonomous::score() {
+    if (step == 0) {
+        gamePiece->setGrabberPosition(Grabber::Position::OPEN);
+        gamePiece->overrideHasGamePiece(true);
+        step += (scoreAction.process() == Action::Result::DONE);
+    }
+    else if (step == 1) {
+        // All good :D
+        drive->resetOdometry(frc::Pose2d(0_m, 0_m, 180_deg));
     }
 }
 
@@ -230,6 +326,7 @@ Action::Result Autonomous::ScoreAction::process() {
         step++;
     }
     else if (step == 7 && gamePiece->isFinishedScoring()) {
+        gamePiece->overrideHasGamePiece(false);
         gamePiece->setLiftPreset(GamePiece::LiftPreset::INTAKE);
         gamePiece->setGrabberAction(Grabber::Action::IDLE);
         step = 0;
