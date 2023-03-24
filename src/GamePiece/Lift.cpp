@@ -206,7 +206,7 @@ void Lift::process() {
     double pivotPercent = (currentRightPivot - MIN_PIVOT_ANGLE) / (MAX_PIVOT_ANGLE - MIN_PIVOT_ANGLE);
 
     // Control the pivot motors.
-    if (liftBrokenALot || !active) {
+    if (liftBrokenALot || !settings.liftActive) {
         pivotMotorLeft.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, 0);
         pivotMotorRight.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, 0);
         newTargetExtension = 0_m;
@@ -250,10 +250,6 @@ void Lift::setPosition(units::degree_t angle, units::meter_t extension) {
 
 void Lift::resetLiftBrokenKinda() {
     liftBrokenKinda = false;
-}
-
-void Lift::setActive(bool isActive) {
-    active = isActive;
 }
 
 bool Lift::isAtPosition(){

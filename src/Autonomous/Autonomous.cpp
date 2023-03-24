@@ -41,22 +41,24 @@ void Autonomous::process() {
             doNothing();
             break;
         case AutoMode::BARRIER_2GP:
-            barrier2GP(false);
-            break;
         case AutoMode::BARRIER_2GP_CS:
-            barrier2GP(true);
+        case AutoMode::BARRIER_3GP:
+            barrier();
+            break;
+        case AutoMode::BARRIER_MOB:
+            driveForwards();
             break;
         case AutoMode::CENTER_1GP:
-            center1GP(false);
-            break;
         case AutoMode::CENTER_1GP_CS:
-            center1GP(true);
+            center();
             break;
-        case AutoMode::EDGE_1GP:
-            edge1GP(false);
+        case AutoMode::EDGE_2GP:
+        case AutoMode::EDGE_2GP_CS:
+        case AutoMode::EDGE_3GP:
+            edge();
             break;
-        case AutoMode::EDGE_1GP_MOB:
-            edge1GP(false);
+        case AutoMode::EDGE_MOB:
+            driveForwards();
             break;
     }
 
@@ -76,7 +78,7 @@ void Autonomous::doNothing() {
     // Well technically it's doing something - chris(2023)
 }
 
-void Autonomous::barrier2GP(bool withCS) {
+void Autonomous::barrier() {
     // Score preloaded cube high.
     if (step == 0) {
         gamePiece->setGrabberPosition(Grabber::Position::OPEN);
@@ -129,7 +131,7 @@ void Autonomous::barrier2GP(bool withCS) {
         }
     }
     else if (step == 15 && drive->isFinished()) {
-        if (withCS) {
+        if (selectedAutoMode == AutoMode::BARRIER_2GP_CS) {
             drive->runTrajectory(&paths->at(Path::BARRIER_FINAL_BALANCE), actions);
             step++;
         }
@@ -144,19 +146,25 @@ void Autonomous::barrier2GP(bool withCS) {
     }
 }
 
-void Autonomous::center1GP(bool withCS) {
+void Autonomous::center() {
     // This will be such a HUGE help at FLR this week! Best of luck and great work so far - you got this! CG
     // Score preloaded cube high, reset odometry.
     if (step == 0) {
-        gamePiece->setGrabberPosition(Grabber::Position::OPEN);
-        gamePiece->overrideHasGamePiece(true);
-        step += (scoreAction.process() == Action::Result::DONE);
+        if (settings.liftActive) {
+            gamePiece->setGrabberPosition(Grabber::Position::OPEN);
+            gamePiece->overrideHasGamePiece(true);
+            step += (scoreAction.process() == Action::Result::DONE);
+
+            liftTimer.Reset();
+            liftTimer.Start();
+        }
+        else {
+            step = 2;
+            // Hi Ishan!!!
+        }
 
         auto init = paths->at(Path::BARRIER_1).getInitialPose();
         drive->resetOdometry(frc::Pose2d(init.X(), init.Y(), init.Rotation().Degrees() - 90_deg));
-
-        liftTimer.Reset();
-        liftTimer.Start();
     }
     // Wait a little bit for the lift.
     else if (step == 1 && liftTimer.Get() >= 0.5_s) {
@@ -168,14 +176,14 @@ void Autonomous::center1GP(bool withCS) {
     }
 }
 
-void Autonomous::edge1GP(bool withMob) {
+void Autonomous::edge() {
     if (step == 0) {
         gamePiece->setGrabberPosition(Grabber::Position::OPEN);
         gamePiece->overrideHasGamePiece(true);
         step += (scoreAction.process() == Action::Result::DONE);
     }
     else if (step >= 1 && step <= 5) {
-        if (!withMob) step = 100;
+        if (selectedAutoMode != AutoMode::EDGE_MOB) step = 100;
         step++; // Give it some time...
     }
     // Reset odometry and drive to field cone 1.
@@ -184,6 +192,21 @@ void Autonomous::edge1GP(bool withMob) {
         drive->resetOdometry(frc::Pose2d(init.X(), init.Y(), init.Rotation().Degrees() - 90_deg));
         drive->runTrajectory(&paths->at(Path::EDGE_1), actions);
         step++;
+    }
+}
+
+void Autonomous::driveForwards() {
+    if (step == 0) {
+        gamePiece->overrideHasGamePiece(false);
+        mobilityTimer.Reset();
+        mobilityTimer.Start();
+        drive->velocityControlAbsRotation(0.3_mps, 0_mps, 0_deg, Drive::ControlFlag::FIELD_CENTRIC);
+        step++;
+    }
+    else if (step == 1 && mobilityTimer.Get() >= 5_s) {
+        drive->velocityControlAbsRotation(0.0_mps, 0_mps, 0_deg, Drive::ControlFlag::FIELD_CENTRIC);
+        step++;
+        // Hi Trevor!!!!
     }
 }
 

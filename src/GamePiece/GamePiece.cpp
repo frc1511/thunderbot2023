@@ -159,10 +159,6 @@ void GamePiece::overrideLiftKindaBroken() {
     lift->resetLiftBrokenKinda();
 }
 
-void GamePiece::setLiftActive(bool active) {
-    lift->setActive(active);
-}
-
 void GamePiece::intakeGamePiece() {
     grabber->intakeGamePiece();
 }

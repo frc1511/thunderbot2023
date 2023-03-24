@@ -12,8 +12,6 @@
 
 #define DEPLOY_DIR "/home/lvuser/deploy/"
 
-#define DIST_TO_CS_CENTER ((0.95_m / 2.0) + (80.4_in / 2.0))
-
 class WhooshWhoosh;
 class Drive;
 class GamePiece;
@@ -32,31 +30,42 @@ private:
         DO_NOTHING     = 0,
         BARRIER_2GP    = 1,
         BARRIER_2GP_CS = 2,
-        CENTER_1GP     = 3,
-        CENTER_1GP_CS  = 4,
-        EDGE_1GP       = 5,
-        EDGE_1GP_MOB   = 6,
+        BARRIER_3GP    = 3,
+        BARRIER_MOB    = 4,
+        CENTER_1GP     = 5,
+        CENTER_1GP_CS  = 6,
+        EDGE_2GP       = 7,
+        EDGE_2GP_CS    = 8,
+        EDGE_3GP       = 9,
+        EDGE_MOB       = 10,
     };
 
     AutoMode selectedAutoMode = AutoMode::DO_NOTHING;
 
     void doNothing();
-    void barrier2GP(bool withCS);
-    void center1GP(bool withCS);
-    void edge1GP(bool withMob);
+    void barrier();
+    void center();
+    void edge();
+    void driveForwards();
 
     const std::map<AutoMode, const char*> autoModeNames {
         { AutoMode::DO_NOTHING,     "Do Nothing"      },
         { AutoMode::BARRIER_2GP,    "Barrier: 2GP"    },
         { AutoMode::BARRIER_2GP_CS, "Barrier: 2GP+CS" },
+        { AutoMode::BARRIER_3GP,    "Barrier: 3GP"    },
+        { AutoMode::BARRIER_MOB,    "Barrier: MOB"    },
         { AutoMode::CENTER_1GP,     "Center: 1GP"     },
         { AutoMode::CENTER_1GP_CS,  "Center: 1GP+CS"  },
-        { AutoMode::EDGE_1GP,       "Edge: 1GP"       },
-        { AutoMode::EDGE_1GP_MOB,   "Edge: 1GP+MOB"   },
+        { AutoMode::EDGE_2GP,       "Edge: 2GP"       },
+        { AutoMode::EDGE_2GP_CS,    "Edge: 2GP+CS"    },
+        { AutoMode::EDGE_3GP,       "Edge: 3GP"       },
+        { AutoMode::EDGE_MOB,       "Edge: MOB"       },
     };
 
     frc::Timer delayTimer,
                autoTimer;
+
+    frc::Timer mobilityTimer;
 
     int step = 0;
 

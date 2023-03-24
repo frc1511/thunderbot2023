@@ -436,7 +436,7 @@ void Controls::doSwitchPanel() {
     manualAux = switchPanel.GetRawButton(5);
 
     // Switch 7 disables the lift.
-    gamePiece->setLiftActive(!switchPanel.GetRawButton(7));
+    settings.liftActive = !switchPanel.GetRawButton(7);
 
     if (switchPanel.GetRawButton(12)) {
         gamePiece->overrideLiftKindaBroken();
