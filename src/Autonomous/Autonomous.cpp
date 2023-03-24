@@ -130,6 +130,8 @@ void Autonomous::barrier() {
         }
     }
     else if (step == 15 && drive->isFinished()) {
+        gamePiece->overrideHasGamePiece(true);
+        gamePiece->setGrabberAction(Grabber::Action::IDLE);
         step++;
     }
     else if (step >= 16) {
@@ -160,7 +162,21 @@ void Autonomous::barrierFinish2GPCS() {
 }
 
 void Autonomous::barrierFinish3GP() {
-    // Nothing right now D:
+    if (step == 16) {
+        drive->runTrajectory(&paths->at(Path::BARRIER_FINAL_SCORE), actions);
+        gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH);
+        step++;
+    }
+    else if (step == 17 && drive->isFinished()) {
+        step++;
+    }
+    else if (step == 18) {
+        step += (scoreAction.process() == Action::Result::DONE);
+    }
+    else if (step == 19) {
+        gamePiece->overrideHasGamePiece(false);
+        drive->resetOdometry(frc::Pose2d(0_m, 0_m, 180_deg));
+    }
 }
 
 void Autonomous::center() {
@@ -227,7 +243,6 @@ void Autonomous::edge() {
     }
     // Score cone.
     else if (step == 8 && drive->isFinished()) {
-        gamePiece->setGrabberPosition(Grabber::Position::OPEN);
         step += (scoreAction.process() == Action::Result::DONE);
     }
     else if (step >= 9 && step <= 13) {
@@ -246,6 +261,8 @@ void Autonomous::edge() {
         }
     }
     else if (step == 15 && drive->isFinished()) {
+        gamePiece->overrideHasGamePiece(true);
+        gamePiece->setGrabberAction(Grabber::Action::IDLE);
         step++;
     }
     else if (step >= 16) {
@@ -276,7 +293,21 @@ void Autonomous::edgeFinish2GPCS() {
 }
 
 void Autonomous::edgeFinish3GP() {
-    // Nothing right now D:
+    if (step == 16) {
+        drive->runTrajectory(&paths->at(Path::EDGE_FINAL_SCORE), actions);
+        gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH);
+        step++;
+    }
+    else if (step == 17 && drive->isFinished()) {
+        step++;
+    }
+    else if (step == 18) {
+        step += (scoreAction.process() == Action::Result::DONE);
+    }
+    else if (step == 19) {
+        gamePiece->overrideHasGamePiece(false);
+        drive->resetOdometry(frc::Pose2d(0_m, 0_m, 180_deg));
+    }
 }
 
 void Autonomous::driveForwards() {
