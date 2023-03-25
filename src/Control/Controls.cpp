@@ -290,10 +290,12 @@ void Controls::doAux() {
     }
 
     if (prepareCone || prepareCube) {
-        if (gamePiece->getLiftPreset() != GamePiece::LiftPreset::BALCONY) {
+        if (gamePiece->getLiftPreset() != GamePiece::LiftPreset::BALCONY && gamePiece->getLiftPreset() != GamePiece::LiftPreset::SLIDE) {
             // Move the lift to the correct intake position.
             gamePiece->setLiftPreset(GamePiece::LiftPreset::INTAKE);
+        }
 
+        if (gamePiece->getLiftPreset() != GamePiece::LiftPreset::BALCONY) {
             // Set the wrist to the upright position.
             gamePiece->setWrist(false);
         }
@@ -330,12 +332,25 @@ void Controls::doAux() {
     }
     // Moves the lift to the mid grid position.
     if (liftMid) {
-        // Toggle between the mid and mid pivot positions.
-        if (onlyPivot) {
-            gamePiece->setLiftPreset(GamePiece::LiftPreset::MID_PIVOT);
+        // If we don't have a GamePiece, go to the slide position.
+        if (gamePiece->getGamePieceType() == Grabber::GamePieceType::NONE) {
+            // Toggle between the slide and slide pivot positions.
+            if (onlyPivot) {
+                gamePiece->setLiftPreset(GamePiece::LiftPreset::SLIDE_PIVOT);
+            }
+            else {
+                gamePiece->setLiftPreset(GamePiece::LiftPreset::SLIDE);
+            }
         }
+        // If we do, go to the mid position.
         else {
-            gamePiece->setLiftPreset(GamePiece::LiftPreset::MID);
+            // Toggle between the mid and mid pivot positions.
+            if (onlyPivot) {
+                gamePiece->setLiftPreset(GamePiece::LiftPreset::MID_PIVOT);
+            }
+            else {
+                gamePiece->setLiftPreset(GamePiece::LiftPreset::MID);
+            }
         }
     }
     if (liftLow) {

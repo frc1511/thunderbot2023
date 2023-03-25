@@ -34,12 +34,8 @@ private:
         SCORE          = 2,
         BARRIER_2GP    = 3,
         BARRIER_2GP_CS = 4,
-        BARRIER_3GP    = 5,
-        CENTER_1GP     = 6,
-        CENTER_1GP_CS  = 7,
-        EDGE_2GP       = 8,
-        EDGE_2GP_CS    = 9,
-        EDGE_3GP       = 10,
+        CENTER_1GP_CS  = 5,
+        EDGE_2GP       = 6,
     };
 
     AutoMode selectedAutoMode = AutoMode::DO_NOTHING;
@@ -67,12 +63,8 @@ private:
         { AutoMode::SCORE,          "Score"           },
         { AutoMode::BARRIER_2GP,    "Barrier: 2GP"    },
         { AutoMode::BARRIER_2GP_CS, "Barrier: 2GP+CS" },
-        { AutoMode::BARRIER_3GP,    "Barrier: 3GP"    },
-        { AutoMode::CENTER_1GP,     "Center: 1GP"     },
         { AutoMode::CENTER_1GP_CS,  "Center: 1GP+CS"  },
         { AutoMode::EDGE_2GP,       "Edge: 2GP"       },
-        { AutoMode::EDGE_2GP_CS,    "Edge: 2GP+CS"    },
-        { AutoMode::EDGE_3GP,       "Edge: 3GP"       },
     };
 
     frc::Timer delayTimer,
@@ -137,10 +129,13 @@ private:
         ScoreAction(GamePiece* gamePiece);
         ~ScoreAction();
 
+        void setLevel(int lvl);
+
         Result process() override;
     private:
         GamePiece* gamePiece;
         int step = 0;
+        int lvl = 2;
     };
 
     /**
@@ -173,6 +168,7 @@ private:
         BalanceAction* balanceAction;
         int step = 0;
         frc::Timer stopTimer;
+        frc::Timer forwardsTimer;
     };
 
     ScoreAction scoreAction { gamePiece };

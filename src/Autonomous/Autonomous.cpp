@@ -24,7 +24,7 @@ void Autonomous::resetToMode(MatchMode mode) {
 void Autonomous::process() {
     selectedAutoMode = static_cast<AutoMode>(frc::SmartDashboard::GetNumber("Auto_Mode", 0.0));
 
-    if (frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kRed && selectedAutoMode != AutoMode::CENTER_1GP && selectedAutoMode != AutoMode::CENTER_1GP_CS) {
+    if (frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kRed && selectedAutoMode != AutoMode::CENTER_1GP_CS) {
         paths = &redPaths;
     }
     else {
@@ -48,16 +48,12 @@ void Autonomous::process() {
             break;
         case AutoMode::BARRIER_2GP:
         case AutoMode::BARRIER_2GP_CS:
-        case AutoMode::BARRIER_3GP:
             barrier();
             break;
-        case AutoMode::CENTER_1GP:
         case AutoMode::CENTER_1GP_CS:
             center();
             break;
         case AutoMode::EDGE_2GP:
-        case AutoMode::EDGE_2GP_CS:
-        case AutoMode::EDGE_3GP:
             edge();
             break;
     }
@@ -70,7 +66,6 @@ bool Autonomous::isBalancing() {
 
     switch (selectedAutoMode) {
         case AutoMode::BARRIER_2GP_CS:
-        case AutoMode::EDGE_2GP_CS:
             return step >= 18;
         case AutoMode::CENTER_1GP_CS:
             return step >= 2;
@@ -101,6 +96,12 @@ void Autonomous::doNothing() {
 void Autonomous::barrier() {
     // Score preloaded cube high.
     if (step == 0) {
+        if (selectedAutoMode == AutoMode::BARRIER_2GP_CS) {
+            scoreAction.setLevel(0);
+        }
+        else {
+            scoreAction.setLevel(2);
+        }
         gamePiece->setGrabberPosition(Grabber::Position::OPEN);
         gamePiece->overrideHasGamePiece(true);
         step += (scoreAction.process() == Action::Result::DONE);
@@ -110,6 +111,7 @@ void Autonomous::barrier() {
     }
     // Reset odometry and drive to field cone 1.
     else if (step == 6) {
+        scoreAction.setLevel(2);
         auto init = paths->at(Path::BARRIER_1).getInitialPose();
         drive->resetOdometry(frc::Pose2d(init.X(), init.Y(), init.Rotation().Degrees() - 90_deg));
         drive->runTrajectory(&paths->at(Path::BARRIER_1), actions);
@@ -160,10 +162,8 @@ void Autonomous::barrier() {
             case AutoMode::BARRIER_2GP_CS:
                 barrierFinish2GPCS();
                 break;
-            case AutoMode::BARRIER_3GP:
-                barrierFinish3GP();
-                break;
             default:
+                drive->resetOdometry(frc::Pose2d(0_m, 0_m, 300_deg));
                 break;
         }
     }
@@ -259,8 +259,12 @@ void Autonomous::edge() {
         gamePiece->overrideHasGamePiece(true);
         gamePiece->setGrabberAction(Grabber::Action::IDLE);
         drive->runTrajectory(&paths->at(Path::EDGE_2), actions);
-        gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH);
         step++;
+    }
+    else if (step == 8 && !drive->isFinished()) {
+        if (drive->getTrajectoryTime() > 2.5_s && drive->getTrajectoryTime() < 2.6_s) {
+            gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH);
+        }
     }
     // Score cone.
     else if (step == 8 && drive->isFinished()) {
@@ -268,6 +272,7 @@ void Autonomous::edge() {
     }
     else if (step >= 9 && step <= 13) {
         step++; // Give it some time...
+        step = 100;
     }
     // Drive to field cone 2.
     else if (step == 14) {
@@ -285,18 +290,7 @@ void Autonomous::edge() {
         gamePiece->overrideHasGamePiece(true);
         gamePiece->setGrabberAction(Grabber::Action::IDLE);
         step++;
-    }
-    else if (step >= 16) {
-        switch (selectedAutoMode) {
-            case AutoMode::EDGE_2GP_CS:
-                edgeFinish2GPCS();
-                break;
-            case AutoMode::EDGE_3GP:
-                edgeFinish3GP();
-                break;
-            default:
-                break;
-        }
+        drive->resetOdometry(frc::Pose2d(0_m, 0_m, 180_deg));
     }
 }
 
@@ -336,13 +330,17 @@ void Autonomous::driveForwards() {
         gamePiece->overrideHasGamePiece(false);
         mobilityTimer.Reset();
         mobilityTimer.Start();
-        drive->velocityControlAbsRotation(0.3_mps, 0_mps, 0_deg, Drive::ControlFlag::FIELD_CENTRIC);
+        drive->velocityControlAbsRotation(0_mps, 0.6_mps, 0_deg, Drive::ControlFlag::FIELD_CENTRIC);
         step++;
     }
-    else if (step == 1 && mobilityTimer.Get() >= 5_s) {
+    else if (step == 1 && mobilityTimer.Get() >= 3_s) {
         drive->velocityControlAbsRotation(0.0_mps, 0_mps, 0_deg, Drive::ControlFlag::FIELD_CENTRIC);
         step++;
         // Hi Trevor!!!!
+    }
+    else if (step == 2) {
+        drive->velocityControlRelRotation(0.0_mps, 0_mps, 0_deg_per_s, Drive::ControlFlag::FIELD_CENTRIC);
+        step++;
     }
 }
 
@@ -365,9 +363,21 @@ Autonomous::ScoreAction::ScoreAction(GamePiece* _gamePiece)
 
 Autonomous::ScoreAction::~ScoreAction() = default;
 
+void Autonomous::ScoreAction::setLevel(int _lvl) {
+    lvl = _lvl;
+}
+
 Action::Result Autonomous::ScoreAction::process() {
     if (step == 0) {
-        gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH);
+        if (lvl == 2) {
+            gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH);
+        }
+        else if (lvl == 1) {
+            gamePiece->setLiftPreset(GamePiece::LiftPreset::MID);
+        }
+        else if (lvl == 0) {
+            gamePiece->setLiftPreset(GamePiece::LiftPreset::INTAKE);
+        }
         step++;
     }
     else if (step == 1 && gamePiece->liftAtPosition()) {
@@ -402,7 +412,7 @@ Action::Result Autonomous::BalanceAction::process() {
             step++;
         }
         else {
-            drive->velocityControlAbsRotation(-1.4_mps, 0_mps, 90_deg, Drive::ControlFlag::FIELD_CENTRIC);
+            drive->velocityControlAbsRotation(-1.7_mps, 0_mps, 90_deg, Drive::ControlFlag::FIELD_CENTRIC);
         }
     }
     // Enable balancing.
@@ -419,9 +429,14 @@ Action::Result Autonomous::BalanceAction::process() {
         if (units::math::abs(antiTiltVel) <= 0.1_mps) {
             antiTiltVel = 0.0_mps;
             flags |= Drive::ControlFlag::BRICK;
+            step++;
         }
 
         drive->velocityControlAbsRotation(-antiTiltVel, 0_mps, 90_deg, flags);
+    }
+    else if (step == 2) {
+        drive->resetOdometry(frc::Pose2d(0_m, 0_m, 180_deg));
+        step++;
     }
 
     return Result::WORKING;
@@ -435,16 +450,14 @@ Autonomous::BalanceMobilityAction::BalanceMobilityAction(Drive* _drive, WhooshWh
 Autonomous::BalanceMobilityAction::~BalanceMobilityAction() = default;
 
 Action::Result Autonomous::BalanceMobilityAction::process() {
-    // Drive forwards until almost off charge station.
     if (step == 0) {
         if (whooshWhoosh->getTiltAngle() >= 10_deg) {
             step++;
         }
         else {
-            drive->velocityControlAbsRotation(2.0_mps, 0.0_mps, 90_deg, Drive::ControlFlag::FIELD_CENTRIC);
+            drive->velocityControlAbsRotation(2_mps, 0.0_mps, 90_deg, Drive::ControlFlag::FIELD_CENTRIC);
         }
     }
-    // Check when grounded on other side.
     else if (step == 1) {
         if (whooshWhoosh->getTiltAngle() < 0_deg) {
             step++;
@@ -454,24 +467,29 @@ Action::Result Autonomous::BalanceMobilityAction::process() {
         }
     }
     else if (step == 2) {
-        if (units::math::abs(whooshWhoosh->getTiltAngle()) <= 0.1_deg) {
+        if (units::math::abs(whooshWhoosh->getTiltAngle()) <= 1.5_deg) {
             step++;
         }
         else {
             drive->velocityControlAbsRotation(0.9_mps, 0.0_mps, 90_deg, Drive::ControlFlag::FIELD_CENTRIC);
         }
     }
-    // Drive back on the Charge Station.
     else if (step == 3) {
         stopTimer.Reset();
         stopTimer.Start();
-        drive->velocityControlAbsRotation(0.2_mps, 0.0_mps, 90_deg, Drive::ControlFlag::FIELD_CENTRIC);
+        drive->velocityControlAbsRotation(0.3_mps, 0.0_mps, 90_deg, Drive::ControlFlag::FIELD_CENTRIC);
         step++;
     }
-    else if (step == 4 && (stopTimer.Get() > 1_s)) {
+    else if (step == 4 && (stopTimer.Get() > 1.2_s)) {
+        forwardsTimer.Reset();
+        forwardsTimer.Start();
         step++;
     }
     else if (step == 5) {
+        drive->velocityControlAbsRotation(-1.7_mps, 0.0_mps, 90_deg, Drive::ControlFlag::FIELD_CENTRIC);
+        step += forwardsTimer.Get() > 1.5_s;
+    }
+    else if (step == 6) {
         balanceAction->process();
     }
 

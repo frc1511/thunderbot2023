@@ -517,7 +517,7 @@ void Drive::execTrajectory() {
     }
 
     // If the trajectory is done, then stop it.
-    if (time > (trajectory->getDuration() + 2_s)) {// && driveController.AtReference()) { 
+    if (time > (trajectory->getDuration() + 0.2_s)) {// && driveController.AtReference()) { 
         driveMode = DriveMode::STOPPED;
         return;
     }

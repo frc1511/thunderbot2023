@@ -191,6 +191,12 @@ void GamePiece::sendFeedback() {
         case LiftPreset::HIGH_PIVOT:
             liftPresetString = "High Pivot";
             break;
+        case LiftPreset::SLIDE:
+            liftPresetString = "Slide";
+            break;
+        case LiftPreset::SLIDE_PIVOT:
+            liftPresetString = "Slide Pivot";
+            break;
         case LiftPreset::BALCONY:
             liftPresetString = "Balcony";
             break;

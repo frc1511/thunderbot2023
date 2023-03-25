@@ -112,7 +112,7 @@ void BlinkyBlinky::balancing() {
     double tiltPct = 1.0 - std::clamp(tiltDeg / 14.0, 0.0, 1.0);
 
     // Interpolate between Green and Red based on tilt amplitude.
-    setColor(frc::Color::FromHSV(tiltPct * 100, 255, 128));
+    setColor(frc::Color::FromHSV(tiltPct * 70, 255, 128));
 }
 
 void BlinkyBlinky::sendFeedback() {

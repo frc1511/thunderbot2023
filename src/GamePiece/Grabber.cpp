@@ -6,7 +6,7 @@
 #define INTAKE_MAX_AMPERAGE 20_A
 
 #define INTAKE_SPEED 1.0
-#define OUTTAKE_SPEED -0.6
+#define OUTTAKE_SPEED -0.8
 
 Grabber::Grabber() 
 : leftIntakeMotor(HardwareManager::IOMap::CAN_GRABBER_INTAKE_LEFT),
