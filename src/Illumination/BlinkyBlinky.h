@@ -39,6 +39,8 @@ public:
 
     void setCustomColor(frc::Color color);
 
+    void playScoreAnimation();
+
 private:
     frc::AddressableLED strip { HardwareManager::IOMap::PWM_BLINKY_BLINKY };
 
@@ -65,4 +67,7 @@ private:
     int rainbowOffset = 0;
 
     frc::Color customColor;
+
+    bool scoreAnimation = false;
+    frc::Timer scoreAnimationTimer;
 };

@@ -36,12 +36,14 @@ private:
         BARRIER_2GP_CS = 4,
         CENTER_1GP_CS  = 5,
         EDGE_2GP       = 6,
+        SCORE_BACKUP   = 7,
     };
 
     AutoMode selectedAutoMode = AutoMode::DO_NOTHING;
 
     // Does nothing or something.
     void doNothing();
+    void scoreBackup();
     // Barrier autos.
     void barrier();
     void barrierFinish2GPCS();

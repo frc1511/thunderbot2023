@@ -48,6 +48,9 @@ void GamePiece::process() {
 }
 
 void GamePiece::setLiftPreset(LiftPreset preset) {
+    if (preset == LiftPreset::GROUND) {
+        preset = getGamePieceType() == Grabber::GamePieceType::CUBE ? LiftPreset::GROUND_CUBE : LiftPreset::GROUND_CONE;
+    }
     if (preset == LiftPreset::MID) {
         preset = getGamePieceType() == Grabber::GamePieceType::CUBE ? LiftPreset::MID_CUBE : LiftPreset::MID_CONE;
     }
@@ -90,6 +93,9 @@ void GamePiece::setWristManual(bool tipped) {
 
 GamePiece::LiftPreset GamePiece::getLiftPreset() {
     switch (liftPreset) {
+        case LiftPreset::GROUND_CONE:
+        case LiftPreset::GROUND_CUBE:
+            return LiftPreset::GROUND;
         case LiftPreset::MID_CONE:
         case LiftPreset::MID_CUBE:
             return LiftPreset::MID;
@@ -178,6 +184,12 @@ void GamePiece::sendFeedback() {
             break;
         case LiftPreset::GROUND:
             liftPresetString = "Ground";
+            break;
+        case LiftPreset::GROUND_CONE:
+            liftPresetString = "Ground Cone";
+            break;
+        case LiftPreset::GROUND_CUBE:
+            liftPresetString = "Ground Cube";
             break;
         case LiftPreset::MID:
             liftPresetString = "Mid";

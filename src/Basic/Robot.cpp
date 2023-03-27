@@ -31,7 +31,9 @@ void Robot::AutonomousInit() {
 
 void Robot::AutonomousPeriodic() {
     controls.processInAutonomous();
+    #if WHICH_ROBOT == 2023
     autonomous.process();
+    #endif
     drive.process();
     gamePiece.process();
     lift.process();

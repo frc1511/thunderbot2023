@@ -49,14 +49,24 @@ private:
     GamePiece gamePiece { &grabber, &lift};
     UltraBrickMode ultraBrickMode;
     BlinkyBlinky blinkyBlinky { &whooshWhoosh };
+#if WHICH_ROBOT == 2023
     Autonomous autonomous { &whooshWhoosh, &drive, &gamePiece };
-    Controls controls { &drive, &gamePiece, &ultraBrickMode, &blinkyBlinky, &autonomous };
+#endif
+    Controls controls { &drive, &gamePiece, &ultraBrickMode, &blinkyBlinky
+    #if WHICH_ROBOT == 2023
+    , &autonomous
+    #endif
+    };
 
     IntakeCamera intakeCamera;
 
     // Every mechanism on the robot.
     std::vector<Mechanism*> allMechanisms {
-        &whooshWhoosh, &drive, &gamePiece, &controls, &rollingRaspberry, &grabber, &lift, &ultraBrickMode, &autonomous, &blinkyBlinky, &intakeCamera
+        &whooshWhoosh, &drive, &gamePiece, &controls, &rollingRaspberry, &grabber, &lift, &ultraBrickMode,
+#if WHICH_ROBOT == 2023
+        &autonomous,
+#endif
+        &blinkyBlinky, &intakeCamera
     };
 
     // Mechanisms that are run universally when the robot is running.

@@ -3,6 +3,7 @@
 #include <Basic/Mechanism.h>
 #include <Hardware/HardwareManager.h>
 #include <frc/GenericHID.h>
+#include <Hardware/IOMap.h>
 
 class Drive;
 class GamePiece;
@@ -12,7 +13,11 @@ class Autonomous;
 
 class Controls : public Mechanism {
 public:
-    Controls(Drive* drive, GamePiece* gamePiece, UltraBrickMode* ultraBrickMode, BlinkyBlinky* blinkyBlinky, Autonomous* autonomous);
+    Controls(Drive* drive, GamePiece* gamePiece, UltraBrickMode* ultraBrickMode, BlinkyBlinky* blinkyBlinky
+#if WHICH_ROBOT == 2023
+    , Autonomous* autonomous
+#endif
+    );
     ~Controls();
 
     void resetToMode(MatchMode mode) override;
@@ -28,7 +33,9 @@ private:
     GamePiece* gamePiece;
     UltraBrickMode* ultraBrickMode;
     BlinkyBlinky* blinkyBlinky;
+#if WHICH_ROBOT == 2023
     Autonomous* autonomous;
+#endif
     HardwareManager::DriveGameController driveController { ThunderGameController::Controller::DRIVER };
     HardwareManager::AuxGameController auxController { ThunderGameController::Controller::AUX };
     frc::GenericHID switchPanel {2};

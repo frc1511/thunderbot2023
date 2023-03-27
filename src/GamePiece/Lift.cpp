@@ -20,7 +20,7 @@
 #define MAX_PIVOT_ANGLE 20_deg
 
 // The encoder value at the maximum angle of the arm.
-#define MAX_PIVOT_ENCODER 92
+#define MAX_PIVOT_ENCODER 93
 
 // The maximum extension length of the arm (delta from starting position).
 #define MAX_EXTENSION_LENGTH 38.25_in
@@ -323,6 +323,10 @@ void Lift::configureMotors() {
     extensionMotor.configP(EXTENSION_P);
     extensionMotor.configI(EXTENSION_I);
     extensionMotor.configD(EXTENSION_D);
+
+    pivotMotorLeft.setEncoderPosition(0);
+    pivotMotorRight.setEncoderPosition(0);
+    extensionMotor.setEncoderPosition(0);
 }
 
 void Lift::sendFeedback() {

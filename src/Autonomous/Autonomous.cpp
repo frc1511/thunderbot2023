@@ -56,6 +56,9 @@ void Autonomous::process() {
         case AutoMode::EDGE_2GP:
             edge();
             break;
+        case AutoMode::SCORE_BACKUP:
+            scoreBackup();
+            break;
     }
 }
 
@@ -155,18 +158,19 @@ void Autonomous::barrier() {
     else if (step == 15 && drive->isFinished()) {
         gamePiece->overrideHasGamePiece(true);
         gamePiece->setGrabberAction(Grabber::Action::IDLE);
+        drive->resetOdometry(frc::Pose2d(0_m, 0_m, -60_deg - 90_deg));
         step++;
     }
-    else if (step >= 16) {
-        switch (selectedAutoMode) {
-            case AutoMode::BARRIER_2GP_CS:
-                barrierFinish2GPCS();
-                break;
-            default:
-                drive->resetOdometry(frc::Pose2d(0_m, 0_m, 300_deg));
-                break;
-        }
-    }
+    // else if (step >= 16) {
+    //     switch (selectedAutoMode) {
+    //         case AutoMode::BARRIER_2GP_CS:
+    //             barrierFinish2GPCS();
+    //             break;
+    //         default:
+    //             drive->resetOdometry(frc::Pose2d(0_m, 0_m, -60_deg));
+    //             break;
+    //     }
+    // }
 }
 
 void Autonomous::barrierFinish2GPCS() {
@@ -272,7 +276,7 @@ void Autonomous::edge() {
     }
     else if (step >= 9 && step <= 13) {
         step++; // Give it some time...
-        step = 100;
+        step = 15;
     }
     // Drive to field cone 2.
     else if (step == 14) {
@@ -280,14 +284,14 @@ void Autonomous::edge() {
         step++;
     }
     // Start intaking cone while driving.
-    else if (step == 15 && !drive->isFinished()) {
-        if (drive->getTrajectoryTime() > 2_s && drive->getTrajectoryTime() < 2.1_s) {
-            gamePiece->setGrabberPosition(Grabber::Position::AGAPE);
-            gamePiece->setGrabberAction(Grabber::Action::INTAKE);
-        }
-    }
+    // else if (step == 15 && !drive->isFinished()) {
+    //     if (drive->getTrajectoryTime() > 2_s && drive->getTrajectoryTime() < 2.1_s) {
+    //         gamePiece->setGrabberPosition(Grabber::Position::AGAPE);
+    //         gamePiece->setGrabberAction(Grabber::Action::INTAKE);
+    //     }
+    // }
     else if (step == 15 && drive->isFinished()) {
-        gamePiece->overrideHasGamePiece(true);
+        gamePiece->overrideHasGamePiece(false);
         gamePiece->setGrabberAction(Grabber::Action::IDLE);
         step++;
         drive->resetOdometry(frc::Pose2d(0_m, 0_m, 180_deg));
@@ -339,6 +343,35 @@ void Autonomous::driveForwards() {
         // Hi Trevor!!!!
     }
     else if (step == 2) {
+        drive->velocityControlRelRotation(0.0_mps, 0_mps, 0_deg_per_s, Drive::ControlFlag::FIELD_CENTRIC);
+        step++;
+    }
+}
+
+void Autonomous::scoreBackup() {
+    if (step == 0) {
+        gamePiece->setGrabberPosition(Grabber::Position::OPEN);
+        gamePiece->overrideHasGamePiece(true);
+        step += (scoreAction.process() == Action::Result::DONE);
+    }
+    else if (step == 1) {
+        // All good :D
+        drive->resetOdometry(frc::Pose2d(0_m, 0_m, 180_deg));
+        step++;
+    }
+    else if (step == 2) {
+        gamePiece->overrideHasGamePiece(false);
+        mobilityTimer.Reset();
+        mobilityTimer.Start();
+        drive->velocityControlAbsRotation(0_mps, 0.6_mps, 0_deg, Drive::ControlFlag::FIELD_CENTRIC);
+        step++;
+    }
+    else if (step == 3 && mobilityTimer.Get() >= 6_s) {
+        drive->velocityControlAbsRotation(0.0_mps, 0_mps, 0_deg, Drive::ControlFlag::FIELD_CENTRIC);
+        step++;
+        // Hi Trevor!!!!
+    }
+    else if (step == 4) {
         drive->velocityControlRelRotation(0.0_mps, 0_mps, 0_deg_per_s, Drive::ControlFlag::FIELD_CENTRIC);
         step++;
     }

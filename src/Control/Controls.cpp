@@ -10,8 +10,16 @@
 
 #define AXIS_DEADZONE 0.1
 
-Controls::Controls(Drive* _drive, GamePiece* _gamePiece, UltraBrickMode* _ultraBrickMode, BlinkyBlinky* _blinkyBlinky, Autonomous* _autonomous)
-: drive(_drive), gamePiece(_gamePiece), ultraBrickMode(_ultraBrickMode), blinkyBlinky(_blinkyBlinky), autonomous(_autonomous) { }
+Controls::Controls(Drive* _drive, GamePiece* _gamePiece, UltraBrickMode* _ultraBrickMode, BlinkyBlinky* _blinkyBlinky
+#if WHICH_ROBOT == 2023
+, Autonomous* _autonomous
+#endif
+)
+: drive(_drive), gamePiece(_gamePiece), ultraBrickMode(_ultraBrickMode), blinkyBlinky(_blinkyBlinky)
+#if WHICH_ROBOT == 2023
+, autonomous(_autonomous)
+#endif
+ { }
 
 Controls::~Controls() { }
 
@@ -212,11 +220,11 @@ void Controls::doDrive() {
 
     // Hi Peter!!!
     if (xySlowMode){
-        finalXVel *= .5;
-        finalYVel *= .5;
+        finalXVel *= .428571439;
+        finalYVel *= .428571439;
     }
     if (angSlowMode){
-        finalAngVel *= .5;
+        finalAngVel *= .35;
     }
 
     auto isManualControl = [&]() -> bool {
@@ -368,6 +376,7 @@ void Controls::doAux() {
     if (score) {
         if (gamePiece->getGamePieceType() != Grabber::GamePieceType::NONE) {
             gamePiece->placeGamePiece();
+            blinkyBlinky->playScoreAnimation();
         }
     }
 
@@ -464,6 +473,7 @@ void Controls::doSwitchPanel() {
 
     int ledMode = frc::SmartDashboard::GetNumber("thunderdashboard_led_mode", 0.0);
 
+#if WHICH_ROBOT == 2023
     if (switchPanel.GetRawButton(1)) {
         blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::OFF);
     }
@@ -517,6 +527,7 @@ void Controls::doSwitchPanel() {
     else {
         blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::OFF);
     }
+#endif
 }
 
 void Controls::sendFeedback() {

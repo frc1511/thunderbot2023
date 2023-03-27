@@ -16,41 +16,63 @@ void BlinkyBlinky::resetToMode(MatchMode mode) {
 }
 
 void BlinkyBlinky::process() {
-    switch (ledMode) {
-        case LEDMode::OFF:
-            // Turn the LEDs off D:
-            setColor(frc::Color::kBlack);
-            break;
-        case LEDMode::RAINBOW:
-            rainbow();
-            break;
-        case LEDMode::HAS_GAMEPIECE:
+    if (scoreAnimation) {
+        double percent = scoreAnimationTimer.Get() / 0.25_s;
+        if (percent >= 1.0) {
+            scoreAnimation = false;
+            scoreAnimationTimer.Stop();
+        }
+        else {
             setColor(frc::Color::kRed);
-            break;
-        case LEDMode::ALLIANCE:
-            setColor(frc::DriverStation::GetAlliance() == frc::DriverStation::kBlue ? frc::Color::kBlue : frc::Color::kRed);
-            break;
-        case LEDMode::CONE:
-            setColor(frc::Color::kYellow);
-            break;
-        case LEDMode::CUBE:
-            setColor(frc::Color::kPurple);
-            break;
-        case LEDMode::CRATER_MODE:
-            setColor(frc::Color::kGreen);
-            break;
-        case LEDMode::CALIBRATING:
-            setColor(frc::Color::kCornflowerBlue);
-            break;
-        case LEDMode::HOME_DEPOT:
-            setColor(frc::Color(255, 27, 0));
-            break;
-        case LEDMode::BALANCING:
-            balancing();
-            break;
-        case LEDMode::CUSTOM:
-            setColor(customColor);
-            break;
+            int end = static_cast<int>(percent * 30.0);
+            int start = std::clamp(end - 10.0, 0.0, 30.0);
+
+            for (int i = start; i < end; i++) {
+                setPixel(i, frc::Color::kYellow);
+            }
+            for (int i = LED_TOTAL - start - 1; i > LED_TOTAL - end - 1; i--) {
+                setPixel(i, frc::Color::kYellow);
+            }
+        }
+    }
+
+    if (!scoreAnimation) {
+        switch (ledMode) {
+            case LEDMode::OFF:
+                // Turn the LEDs off D:
+                setColor(frc::Color::kBlack);
+                break;
+            case LEDMode::RAINBOW:
+                rainbow();
+                break;
+            case LEDMode::HAS_GAMEPIECE:
+                setColor(frc::Color::kRed);
+                break;
+            case LEDMode::ALLIANCE:
+                setColor(frc::DriverStation::GetAlliance() == frc::DriverStation::kBlue ? frc::Color::kBlue : frc::Color::kRed);
+                break;
+            case LEDMode::CONE:
+                setColor(frc::Color(255, 100, 0));
+                break;
+            case LEDMode::CUBE:
+                setColor(frc::Color::kPurple);
+                break;
+            case LEDMode::CRATER_MODE:
+                setColor(frc::Color::kGreen);
+                break;
+            case LEDMode::CALIBRATING:
+                setColor(frc::Color::kCornflowerBlue);
+                break;
+            case LEDMode::HOME_DEPOT:
+                setColor(frc::Color(255, 27, 0));
+                break;
+            case LEDMode::BALANCING:
+                balancing();
+                break;
+            case LEDMode::CUSTOM:
+                setColor(customColor);
+                break;
+        }
     }
 
     strip.SetData(stripBuffer);
@@ -67,6 +89,12 @@ void BlinkyBlinky::setLEDMode(LEDMode mode) {
 
 void BlinkyBlinky::setCustomColor(frc::Color color) {
     customColor = color;
+}
+
+void BlinkyBlinky::playScoreAnimation() {
+    scoreAnimation = true;
+    scoreAnimationTimer.Reset();
+    scoreAnimationTimer.Start();
 }
 
 void BlinkyBlinky::setPixel(std::size_t index, frc::Color color) {

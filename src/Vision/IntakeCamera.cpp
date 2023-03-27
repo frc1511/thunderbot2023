@@ -24,7 +24,7 @@ std::map<Grabber::GamePieceType, std::pair<cv::Scalar, cv::Scalar>> gamePieceHSV
 };
 
 IntakeCamera::IntakeCamera() {
-    // visionThread = std::thread([this] { threadMain(); });
+    visionThread = std::thread([this] { threadMain(); });
 }
 
 IntakeCamera::~IntakeCamera() {
@@ -43,7 +43,7 @@ void IntakeCamera::threadMain() {
     camera.SetResolution(640, 480);
 
     cs::CvSink cvSink = frc::CameraServer::GetVideo();
-    cs::CvSource outputStream = frc::CameraServer::PutVideo("intake_camera", 640, 480);
+    cs::CvSource outputStream = frc::CameraServer::PutVideo("intake_camera", 426, 320);
 
     cv::Mat frame, frame_threshold;
 
@@ -65,6 +65,7 @@ void IntakeCamera::threadMain() {
             fmt::print("Failed to grab frame from intake_camera\n");
             continue;
         }
+        /*
 
         cv::cvtColor(frame, frame_threshold, cv::COLOR_BGR2HSV);
 
@@ -82,6 +83,7 @@ void IntakeCamera::threadMain() {
             cv::rectangle(frame, rect, cv::Scalar(0, 255, 0), 2);
         }
 
+        */
         outputStream.PutFrame(frame);
         // fmt::print("Sent frame, {}, {}, {}\n", cvSink.GetError(), outputStream.IsEnabled(), outputStream.IsConnected());
     }
