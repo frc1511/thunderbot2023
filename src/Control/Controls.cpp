@@ -90,7 +90,8 @@ void Controls::doDrive() {
     double yVel = driveController.getLeftYAxis();
     double angVel = driveController.getRightXAxis();
     bool xySlowMode = driveController.getLeftBumper();
-    bool angSlowMode = driveController.getRightBumper();
+    bool rotSlowMode = driveController.getRightBumper();
+    bool rotSlowerIThinkIDKReallyCallaJustWantedThisForSomeReasonSoHereItIsIGuess = driveController.getRightTrigger() > AXIS_DEADZONE;
     bool toggleUltraBrickMode = driveController.getButton(DriveButton::SQUARE, ThunderGameController::ButtonState::PRESSED);
 
     double xAng = driveController.getAxis(DriveAxis::RIGHT_X);
@@ -221,10 +222,13 @@ void Controls::doDrive() {
     // Hi Peter!!!
     if (xySlowMode){
         finalXVel *= .428571439;
-        finalYVel *= .428571439;
+        finalYVel *= .427928372; // LOL
     }
-    if (angSlowMode){
-        finalAngVel *= .35;
+    if (rotSlowMode){
+        finalAngVel *= .5;
+    }
+    else if (rotSlowerIThinkIDKReallyCallaJustWantedThisForSomeReasonSoHereItIsIGuess) {
+        finalAngVel *= .4;
     }
 
     auto isManualControl = [&]() -> bool {
