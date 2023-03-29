@@ -468,6 +468,7 @@ void Controls::doAuxManual() {
 #define SWITCH_CRATER_MODE 6
 #define SWITCH_LIFT_DISABLE 7
 #define SWITCH_KITT_MODE 8
+#define SWITCH_FIRE_MODE 9
 
 void Controls::doSwitchPanel() {
     bool ledDisable = switchPanel.GetRawButton(SWITCH_LED_DISABLE);
@@ -478,6 +479,7 @@ void Controls::doSwitchPanel() {
     settings.isCraterMode = switchPanel.GetRawButton(SWITCH_CRATER_MODE);
     settings.liftActive = !switchPanel.GetRawButton(SWITCH_LIFT_DISABLE) && !switchPanel.GetRawButton(SWITCH_HAILEY_DISABLE);
     bool kittMode = switchPanel.GetRawButton(SWITCH_KITT_MODE);
+    bool fireMode = switchPanel.GetRawButton(SWITCH_FIRE_MODE);
 
     // If re-enabling the lift, make sure that the PID controller doesn't freak out.
     if (switchPanel.GetRawButtonReleased(SWITCH_LIFT_DISABLE) || switchPanel.GetRawButtonReleased(SWITCH_HAILEY_DISABLE)) {
@@ -494,6 +496,9 @@ void Controls::doSwitchPanel() {
     }
     else if (kittMode) {
         blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::KNIGHT_RIDER);
+    }
+    else if (fireMode) {
+        blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::FIRE);
     }
     else if (ledMode == 0) {
         if (settings.isCraterMode) {

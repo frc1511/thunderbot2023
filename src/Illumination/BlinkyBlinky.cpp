@@ -1,12 +1,15 @@
 #include <Illumination/BlinkyBlinky.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <WhooshWhoosh/WhooshWhoosh.h>
+#include <random>
 
 BlinkyBlinky::BlinkyBlinky(WhooshWhoosh* _whooshWhoosh)
 : whooshWhoosh(_whooshWhoosh) {
     strip.SetLength(LED_TOTAL);
     strip.SetData(stripBuffer);
     strip.Start();
+    
+	srand((unsigned)time(nullptr));
 }
 
 BlinkyBlinky::~BlinkyBlinky() = default;
@@ -44,6 +47,9 @@ void BlinkyBlinky::process() {
                 break;
             case LEDMode::HAS_GAMEPIECE:
                 setColor(frc::Color::kRed);
+                break;
+            case LEDMode::FIRE:
+                fire();
                 break;
             case LEDMode::ALLIANCE:
                 setColor(frc::DriverStation::GetAlliance() == frc::DriverStation::kBlue ? frc::Color::kBlue : frc::Color::kRed);
@@ -145,7 +151,7 @@ void BlinkyBlinky::balancing() {
     double tiltPct = 1.0 - std::clamp(tiltDeg / 14.0, 0.0, 1.0);
 
     // Interpolate between Green and Red based on tilt amplitude.
-    setColor(frc::Color::FromHSV(tiltPct * 70, 255, 128));
+    setColor(frc::Color::FromHSV(tiltPct * 45, 255, 128));
 }
 
 void BlinkyBlinky::kitt() {
@@ -185,6 +191,27 @@ void BlinkyBlinky::kitt() {
     setMirroredPixel(pixel, frc::Color::kRed);
 }
 
+void BlinkyBlinky::fire() {
+    fireIter += fireDir;
+
+    if (fireIter >= fireLoops || fireIter <= 0) {
+        fireDir = -fireDir;
+        fireLoops = FIRE_MAX_LOOPS * (0.3 + (static_cast<double>(rand() % 70) / 100.0));
+        fireRange = (LED_STRIP - 1) * (0.5 + (static_cast<double>(rand() % 50) / 100.0));
+    }
+
+    double percent = fireIter / fireLoops;
+
+    int pixel = static_cast<int>(percent * fireRange);
+
+    for (int i = 0; i < pixel; i++) {
+        setMirroredPixel(i, frc::Color::FromHSV((static_cast<double>(i) / pixel) * 5.0, 1.0 / (static_cast<double>(i) / pixel), 128));
+    }
+    for (int i = pixel; i < LED_TOTAL - 1; i++) {
+        setMirroredPixel(i, frc::Color::kBlack);
+    }
+}
+
 void BlinkyBlinky::sendFeedback() {
     const char* modeString = "";
     switch (ledMode) {
@@ -203,6 +230,9 @@ void BlinkyBlinky::sendFeedback() {
         case LEDMode::HAS_GAMEPIECE:
             modeString = "has gamepiece";
             break;
+        case LEDMode::FIRE:
+            modeString = "fire";
+            break;
         case LEDMode::ALLIANCE:
             modeString = "alliance";
             break;
@@ -214,6 +244,9 @@ void BlinkyBlinky::sendFeedback() {
             break;
         case LEDMode::HOME_DEPOT:
             modeString = "home depot";
+            break;
+        case LEDMode::KNIGHT_RIDER:
+            modeString = "knight rider";
             break;
         case LEDMode::BALANCING:
             modeString = "balancing";
