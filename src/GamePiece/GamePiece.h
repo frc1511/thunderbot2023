@@ -94,6 +94,8 @@ public:
 
     void overrideLiftKindaBroken();
 
+    void resetLiftPIDController();
+
 private:
     Grabber* grabber;
     Lift* lift;

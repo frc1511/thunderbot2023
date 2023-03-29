@@ -42,6 +42,8 @@ public:
     void process() override;
     void sendFeedback() override;
 
+    void resetPIDController();
+
     // Manually set the speed of the motor to control the angle of the lift.
     void setManualPivotSpeed(double speed);
 

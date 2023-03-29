@@ -165,6 +165,10 @@ void GamePiece::overrideLiftKindaBroken() {
     lift->resetLiftBrokenKinda();
 }
 
+void GamePiece::resetLiftPIDController() {
+    lift->resetPIDController();
+}
+
 void GamePiece::intakeGamePiece() {
     grabber->intakeGamePiece();
 }

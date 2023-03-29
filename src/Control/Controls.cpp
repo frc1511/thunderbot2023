@@ -33,7 +33,10 @@ void Controls::process() {
     auxController.setLightbarColor(0, 255, 0);
 
     doSwitchPanel();
-    if (!callaDisable) {
+    if (callaDisable) {
+        drive->manualControlRelRotation(0, 0, 0, Drive::ControlFlag::BRICK);
+    }
+    else {
         doDrive();
     }
 
@@ -457,31 +460,39 @@ void Controls::doAuxManual() {
     gamePiece->setManualExtensionSpeed(extendLift);
 }
 
+#define SWITCH_LED_DISABLE 1
+#define SWITCH_ROBOT_CENTRIC 2
+#define SWITCH_CALLA_DISABLE 3
+#define SWITCH_HAILEY_DISABLE 4
+#define SWITCH_MANUAL_AUX 5
+#define SWITCH_CRATER_MODE 6
+#define SWITCH_LIFT_DISABLE 7
+#define SWITCH_KITT_MODE 8
+
 void Controls::doSwitchPanel() {
-    settings.isCraterMode = switchPanel.GetRawButton(6);
-    driveRobotCentric = switchPanel.GetRawButton(2);
-    // callaDisable = switchPanel.GetRawButton(3);
-    // if (switchPanel.GetRawButtonPressed(4)) {
+    bool ledDisable = switchPanel.GetRawButton(SWITCH_LED_DISABLE);
+    driveRobotCentric = switchPanel.GetRawButton(SWITCH_ROBOT_CENTRIC);
+    callaDisable = switchPanel.GetRawButton(SWITCH_CALLA_DISABLE);
+    haileyDisable = switchPanel.GetRawButton(SWITCH_HAILEY_DISABLE);
+    manualAux = switchPanel.GetRawButton(SWITCH_MANUAL_AUX);
+    settings.isCraterMode = switchPanel.GetRawButton(SWITCH_CRATER_MODE);
+    settings.liftActive = !switchPanel.GetRawButton(SWITCH_LIFT_DISABLE) && !switchPanel.GetRawButton(SWITCH_HAILEY_DISABLE);
+    bool kittMode = switchPanel.GetRawButton(SWITCH_KITT_MODE);
 
-    // }
-    // haileyDisable = switchPanel.GetRawButton(4);
-    // driveRecording = switchPanel.GetRawButton(3);
-    manualAux = switchPanel.GetRawButton(5);
-
-    // Switch 7 disables the lift.
-    settings.liftActive = !switchPanel.GetRawButton(7);
-
-    if (switchPanel.GetRawButton(12)) {
-        gamePiece->overrideLiftKindaBroken();
+    // If re-enabling the lift, make sure that the PID controller doesn't freak out.
+    if (switchPanel.GetRawButtonReleased(SWITCH_LIFT_DISABLE) || switchPanel.GetRawButtonReleased(SWITCH_HAILEY_DISABLE)) {
+        gamePiece->resetLiftPIDController();
     }
+
+    // doSwitchPanel() is the perfect place for Blinky Blinky controls, don't you think??
 
     int ledMode = frc::SmartDashboard::GetNumber("thunderdashboard_led_mode", 0.0);
 
 #if WHICH_ROBOT == 2023
-    if (switchPanel.GetRawButton(1)) {
+    if (ledDisable) {
         blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::OFF);
     }
-    else if (switchPanel.GetRawButton(8)) {
+    else if (kittMode) {
         blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::KNIGHT_RIDER);
     }
     else if (ledMode == 0) {

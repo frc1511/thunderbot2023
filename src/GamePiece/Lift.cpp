@@ -80,6 +80,8 @@ Lift::~Lift() {
 }
 
 void Lift::resetToMode(MatchMode mode) {
+    resetPIDController();
+
     controlType = ControlType::POSITION;
     manualPivotSpeed = 0;
     manualExtensionSpeed = 0;
@@ -224,6 +226,11 @@ void Lift::process() {
     atPosition = isAtPosition(currentLeftPivot, newTargetAngle, 3_deg) &&
                  isAtPosition(currentRightPivot, newTargetAngle, 3_deg) &&
                  isAtPosition(currentExtension, newTargetExtension, 2_in);
+}
+
+void Lift::resetPIDController() {
+    auto [extension, leftAngle, rightAngle, extensionOffset] = getCurrentState();
+    pivotRightPIDController.Reset(rightAngle);
 }
 
 void Lift::setManualPivotSpeed(double speed) {
