@@ -9,6 +9,10 @@
 #include <map>
 
 #define LED_TOTAL 60
+#define LED_STRIP 30
+
+#define KITT_TIME 0.8_s
+#define KITT_LOOPS (0.8_s / 20_ms)
 
 class WhooshWhoosh;
 
@@ -30,6 +34,7 @@ public:
         HAS_GAMEPIECE,
         CRATER_MODE,
         CALIBRATING,
+        KNIGHT_RIDER,
         HOME_DEPOT,
         BALANCING,
         CUSTOM,
@@ -50,10 +55,12 @@ private:
 
     enum class Strip : std::size_t {
         LEFT = 0,
-        RIGHT = 30,
+        RIGHT = LED_STRIP,
     };
 
     void setPixel(std::size_t index, frc::Color color);
+    // Sets a pixel at index to color and mirrors it on the second strip.
+    void setMirroredPixel(std::size_t index, frc::Color color);
     void setColor(frc::Color color);
     void setStrip(Strip strip, frc::Color color);
 
@@ -61,10 +68,13 @@ private:
 
     void rainbow();
     void balancing();
+    void kitt();
 
     LEDMode ledMode = LEDMode::ALLIANCE;
 
     int rainbowOffset = 0;
+    int kittIter = 0;
+    int kittDir = 1;
 
     frc::Color customColor;
 

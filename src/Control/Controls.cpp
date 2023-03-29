@@ -481,6 +481,9 @@ void Controls::doSwitchPanel() {
     if (switchPanel.GetRawButton(1)) {
         blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::OFF);
     }
+    else if (switchPanel.GetRawButton(8)) {
+        blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::KNIGHT_RIDER);
+    }
     else if (ledMode == 0) {
         if (settings.isCraterMode) {
             blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::CRATER_MODE);
@@ -488,12 +491,15 @@ void Controls::doSwitchPanel() {
         else if (!drive->isIMUCalibrated()) {
             blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::CALIBRATING);
         }
-        else if (getCurrentMode() == MatchMode::DISABLED || doUltraBrickMode) {
-            blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::HOME_DEPOT);
+        else if (getCurrentMode() == MatchMode::DISABLED) {
+            blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::KNIGHT_RIDER);
 
             if (getCurrentMode() == MatchMode::DISABLED && getLastMode() == MatchMode::AUTO) {
                 blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::RAINBOW);
             }
+        }
+        else if (doUltraBrickMode) {
+            blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::HOME_DEPOT);
         }
         else if (autonomous->isBalancing()) {
             blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::BALANCING);

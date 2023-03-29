@@ -24,14 +24,11 @@ void BlinkyBlinky::process() {
         }
         else {
             setColor(frc::Color::kRed);
-            int end = static_cast<int>(percent * 30.0);
-            int start = std::clamp(end - 10.0, 0.0, 30.0);
+            int end = static_cast<int>(percent * LED_STRIP);
+            int start = std::clamp(end - 10.0, 0.0, (double)LED_STRIP);
 
             for (int i = start; i < end; i++) {
-                setPixel(i, frc::Color::kYellow);
-            }
-            for (int i = LED_TOTAL - start - 1; i > LED_TOTAL - end - 1; i--) {
-                setPixel(i, frc::Color::kYellow);
+                setMirroredPixel(i, frc::Color::kYellow);
             }
         }
     }
@@ -66,6 +63,9 @@ void BlinkyBlinky::process() {
             case LEDMode::HOME_DEPOT:
                 setColor(frc::Color(255, 27, 0));
                 break;
+            case LEDMode::KNIGHT_RIDER:
+                kitt();
+                break;
             case LEDMode::BALANCING:
                 balancing();
                 break;
@@ -99,6 +99,11 @@ void BlinkyBlinky::playScoreAnimation() {
 
 void BlinkyBlinky::setPixel(std::size_t index, frc::Color color) {
     stripBuffer.at(index).SetLED(color);
+}
+
+void BlinkyBlinky::setMirroredPixel(std::size_t index, frc::Color color) {
+    setPixel(index, color);
+    setPixel(LED_TOTAL - 1 - index, color);
 }
 
 void BlinkyBlinky::setColor(frc::Color color) {
@@ -141,6 +146,43 @@ void BlinkyBlinky::balancing() {
 
     // Interpolate between Green and Red based on tilt amplitude.
     setColor(frc::Color::FromHSV(tiltPct * 70, 255, 128));
+}
+
+void BlinkyBlinky::kitt() {
+    kittIter += kittDir;
+
+    // Reverse direction when reaches end.
+    if (kittIter >= KITT_LOOPS || kittIter <= 0) {
+        kittDir = -kittDir;
+    }
+
+    double percent = kittIter / KITT_LOOPS;
+
+    int pixel = static_cast<int>(percent * (LED_STRIP - 1));
+
+    double fadeRange = LED_STRIP * 0.3;
+
+    setColor(frc::Color::kBlack);
+
+    // Fade up.
+    for (int i = pixel; i <= (pixel + fadeRange > LED_STRIP - 1 ? LED_STRIP - 1 : pixel + fadeRange); i++) {
+        double percent = static_cast<double>(i - pixel) / fadeRange;
+
+        double value = (1 / percent) * 128;
+
+        setMirroredPixel(i, frc::Color::FromHSV(percent * 5, value * 0.5 + 192, value));
+    }
+    // Fade down.
+    for (int i = pixel; i >= (pixel - fadeRange < 0 ? 0 : pixel - fadeRange); i--) {
+        double percent = static_cast<double>(pixel - i) / fadeRange;
+
+        double value = (1 / percent) * 128;
+
+        setMirroredPixel(i, frc::Color::FromHSV(percent * 5, value * 0.5 + 192, value));
+    }
+
+    // Middle.
+    setMirroredPixel(pixel, frc::Color::kRed);
 }
 
 void BlinkyBlinky::sendFeedback() {
