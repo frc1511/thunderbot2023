@@ -483,6 +483,11 @@ Autonomous::BalanceMobilityAction::BalanceMobilityAction(Drive* _drive, WhooshWh
 Autonomous::BalanceMobilityAction::~BalanceMobilityAction() = default;
 
 Action::Result Autonomous::BalanceMobilityAction::process() {
+    if (drive->getEstimatedPose().X() > 7.5_m) {
+        drive->velocityControlAbsRotation(0_mps, 0_mps, 90_deg, Drive::ControlFlag::BRICK);
+        return Action::Result::WORKING;
+    }
+
     if (step == 0) {
         if (whooshWhoosh->getTiltAngle() >= 10_deg) {
             step++;
@@ -500,7 +505,7 @@ Action::Result Autonomous::BalanceMobilityAction::process() {
         }
     }
     else if (step == 2) {
-        if (units::math::abs(whooshWhoosh->getTiltAngle()) <= 1.5_deg) {
+        if (units::math::abs(whooshWhoosh->getTiltAngle()) <= 3_deg) {
             step++;
         }
         else {
@@ -513,14 +518,14 @@ Action::Result Autonomous::BalanceMobilityAction::process() {
         drive->velocityControlAbsRotation(0.3_mps, 0.0_mps, 90_deg, Drive::ControlFlag::FIELD_CENTRIC);
         step++;
     }
-    else if (step == 4 && (stopTimer.Get() > 1.2_s)) {
+    else if (step == 4 && (stopTimer.Get() > 3.5_s)) {
         forwardsTimer.Reset();
         forwardsTimer.Start();
         step++;
     }
     else if (step == 5) {
         drive->velocityControlAbsRotation(-1.7_mps, 0.0_mps, 90_deg, Drive::ControlFlag::FIELD_CENTRIC);
-        step += forwardsTimer.Get() > 1.5_s;
+        step += forwardsTimer.Get() > 0.5_s;
     }
     else if (step == 6) {
         balanceAction->process();

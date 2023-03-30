@@ -196,18 +196,27 @@ void BlinkyBlinky::fire() {
 
     if (fireIter >= fireLoops || fireIter <= 0) {
         fireDir = -fireDir;
-        fireLoops = FIRE_MAX_LOOPS * (0.3 + (static_cast<double>(rand() % 70) / 100.0));
-        fireRange = (LED_STRIP - 1) * (0.5 + (static_cast<double>(rand() % 50) / 100.0));
+        fireLoops = FIRE_MAX_LOOPS * ((30 + (static_cast<double>(rand() % 70))) / 100.0);
+        fireRange = (LED_STRIP - 1) * ((50 + (static_cast<double>(rand() % 50))) / 100.0);
+        if (fireDir == 1) {
+            fireIter = fireLoops;
+        }
+        else {
+            fireIter = 0;
+        }
+        fmt::print("fireRange: {}, fireLoops: {}\n", fireRange, fireLoops);
     }
 
     double percent = fireIter / fireLoops;
+    percent = std::clamp(percent, 0.0, 1.0);
 
-    int pixel = static_cast<int>(percent * fireRange);
+    // int pixel = static_cast<int>(percent * fireRange);
+    int pixel = fireRange;
 
     for (int i = 0; i < pixel; i++) {
-        setMirroredPixel(i, frc::Color::FromHSV((static_cast<double>(i) / pixel) * 5.0, 1.0 / (static_cast<double>(i) / pixel), 128));
+        setMirroredPixel(i, frc::Color::FromHSV((static_cast<double>(i) / (LED_STRIP - 1)) * 5.0, 255 /*(1.0 / (static_cast<double>(i) / pixel)) * 255*/, 128));
     }
-    for (int i = pixel; i < LED_TOTAL - 1; i++) {
+    for (int i = pixel; i < LED_STRIP; i++) {
         setMirroredPixel(i, frc::Color::kBlack);
     }
 }

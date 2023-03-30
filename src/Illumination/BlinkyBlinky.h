@@ -14,7 +14,7 @@
 #define KITT_TIME 0.8_s
 #define KITT_LOOPS (KITT_TIME / 20_ms)
 
-#define FIRE_TIME 0.3_s
+#define FIRE_TIME 7_s
 #define FIRE_MAX_LOOPS (FIRE_TIME / 20_ms)
 
 class WhooshWhoosh;

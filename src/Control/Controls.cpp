@@ -77,9 +77,10 @@ bool Controls::getShouldPersistConfig() {
     using DriveButton = HardwareManager::DriveGameController::Button;
     using AuxButton = HardwareManager::AuxGameController::Button;
 
-    return settings.isCraterMode
+    return settings.isCraterMode;/*
         && driveController.getButton(DriveButton::TRIANGLE) && driveController.getDPad() == ThunderGameController::DPad::DOWN
         && auxController.getButton(AuxButton::CROSS) && auxController.getDPad() == ThunderGameController::DPad::UP;
+        */
 }
 
 void Controls::doDrive() {

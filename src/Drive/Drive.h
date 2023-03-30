@@ -298,8 +298,8 @@ private:
     // The swerve modules on the robot.
     wpi::array<SwerveModule*, 4> swerveModules {
       new SwerveModule(HardwareManager::IOMap::CAN_SWERVE_DRIVE_MOTOR_FL, HardwareManager::IOMap::CAN_SWERVE_ROT_MOTOR_FL, HardwareManager::IOMap::CAN_SWERVE_ROT_CAN_CODER_FL, true),
-      new SwerveModule(HardwareManager::IOMap::CAN_SWERVE_DRIVE_MOTOR_BL, HardwareManager::IOMap::CAN_SWERVE_ROT_MOTOR_BL, HardwareManager::IOMap::CAN_SWERVE_ROT_CAN_CODER_BL, true),
-      new SwerveModule(HardwareManager::IOMap::CAN_SWERVE_DRIVE_MOTOR_BR, HardwareManager::IOMap::CAN_SWERVE_ROT_MOTOR_BR, HardwareManager::IOMap::CAN_SWERVE_ROT_CAN_CODER_BR, true),
+      new SwerveModule(HardwareManager::IOMap::CAN_SWERVE_DRIVE_MOTOR_BL, HardwareManager::IOMap::CAN_SWERVE_ROT_MOTOR_BL, HardwareManager::IOMap::CAN_SWERVE_ROT_CAN_CODER_BL, false),
+      new SwerveModule(HardwareManager::IOMap::CAN_SWERVE_DRIVE_MOTOR_BR, HardwareManager::IOMap::CAN_SWERVE_ROT_MOTOR_BR, HardwareManager::IOMap::CAN_SWERVE_ROT_CAN_CODER_BR, false),
       new SwerveModule(HardwareManager::IOMap::CAN_SWERVE_DRIVE_MOTOR_FR, HardwareManager::IOMap::CAN_SWERVE_ROT_MOTOR_FR, HardwareManager::IOMap::CAN_SWERVE_ROT_CAN_CODER_FR, false),
     };
 
