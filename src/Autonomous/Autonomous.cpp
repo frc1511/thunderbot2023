@@ -445,7 +445,7 @@ Action::Result Autonomous::BalanceAction::process() {
             step++;
         }
         else {
-            drive->velocityControlAbsRotation(-1.7_mps, 0_mps, 90_deg, Drive::ControlFlag::FIELD_CENTRIC);
+            drive->velocityControlAbsRotation(-2.2_mps, 0_mps, 90_deg, Drive::ControlFlag::FIELD_CENTRIC);
         }
     }
     // Enable balancing.

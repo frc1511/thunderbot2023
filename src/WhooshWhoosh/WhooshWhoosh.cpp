@@ -3,7 +3,7 @@
 #include <thread>
 #include <chrono>
 
-#define BALANCE_P 0.027 // 1m/s at 4deg
+#define BALANCE_P 0.0325 // 1m/s at 4deg
 #define BALANCE_I 0.0
 #define BALANCE_D 0.0
 
