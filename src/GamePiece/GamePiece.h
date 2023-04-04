@@ -96,6 +96,8 @@ public:
 
     void resetLiftPIDController();
 
+    void setLiftMaxPivotEncoder(double rotations);
+
 private:
     Grabber* grabber;
     Lift* lift;
@@ -120,8 +122,8 @@ private:
         { LiftPreset::HIGH_CUBE,        std::make_pair(17_deg,  20_in)    }, // High scoring position.
         { LiftPreset::HIGH_CUBE_PIVOT,  std::make_pair(17_deg,  0_m)      }, // High scoring position - only pivot.
 
-        { LiftPreset::BALCONY,          std::make_pair(18_deg,  .43_m + 4_in) }, // Balcony scoring position.
-        { LiftPreset::BALCONY_PIVOT,    std::make_pair(18_deg,  0_m)      }, // Balcony scoring position - only pivot.
+        { LiftPreset::BALCONY,          std::make_pair(24_deg,  0.08_m) }, // Balcony scoring position.
+        { LiftPreset::BALCONY_PIVOT,    std::make_pair(24_deg,  0_m)      }, // Balcony scoring position - only pivot.
         { LiftPreset::SLIDE,            std::make_pair(7_deg,  0.2_m) },
         { LiftPreset::SLIDE_PIVOT,      std::make_pair(7_deg,  0_m)      },
         { LiftPreset::TRAVEL,           std::make_pair(-25_deg, 0_m)      }, // Travel position.
@@ -135,4 +137,7 @@ private:
     LiftPreset liftPreset = LiftPreset::INTAKE;
     bool manualWrist = false;
     bool wristTipped = false;
+
+    bool balconyWaiting = false;
+    frc::Timer balconyWaitingTimer;
 };

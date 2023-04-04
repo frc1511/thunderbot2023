@@ -12,7 +12,14 @@ GamePiece::GamePiece(Grabber* _grabber, Lift* _lift)
     // Pivot up after acquisition.
     grabber->onAcquire([this](Grabber::GamePieceType type) {
         setWrist(false);
-        setLiftPreset(LiftPreset::TRAVEL);
+        if (liftPreset == LiftPreset::BALCONY) {
+            balconyWaiting = true;
+            balconyWaitingTimer.Reset();
+            balconyWaitingTimer.Start();
+        }
+        else {
+            setLiftPreset(LiftPreset::TRAVEL);
+        }
     });
 }
 
@@ -29,6 +36,11 @@ void GamePiece::doPersistentConfiguration() {
 }
 
 void GamePiece::process() {
+    if (balconyWaiting && balconyWaitingTimer.Get() > 0.75_s) {
+        balconyWaiting = false;
+        setLiftPreset(LiftPreset::TRAVEL);
+    }
+
     if (!manualWrist) {
         if (wristTipped) {
             // We don't want the grabber to hit the ground, so when the wrist is tipped the lowest preset is the 'TIPPED_CONE' preset.
@@ -167,6 +179,10 @@ void GamePiece::overrideLiftKindaBroken() {
 
 void GamePiece::resetLiftPIDController() {
     lift->resetPIDController();
+}
+
+void GamePiece::setLiftMaxPivotEncoder(double rotations) {
+    lift->setMaxPivotEncoder(rotations);
 }
 
 void GamePiece::intakeGamePiece() {

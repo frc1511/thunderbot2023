@@ -470,6 +470,13 @@ void Controls::doAuxManual() {
 #define SWITCH_LIFT_DISABLE 7
 #define SWITCH_KITT_MODE 8
 #define SWITCH_FIRE_MODE 9
+#define SWITCH_PIVOT_PLUS_1 8
+#define SWITCH_PIVOT_PLUS_2 9
+#define SWITCH_PIVOT_PLUS_3 10
+#define SWITCH_PIVOT_PLUS_4 11
+#define SWITCH_PIVOT_PLUS_5 12
+
+#define LIFT_NORMAL_MAX_PIVOT 91
 
 void Controls::doSwitchPanel() {
     bool ledDisable = switchPanel.GetRawButton(SWITCH_LED_DISABLE);
@@ -481,6 +488,24 @@ void Controls::doSwitchPanel() {
     settings.liftActive = !switchPanel.GetRawButton(SWITCH_LIFT_DISABLE) && !switchPanel.GetRawButton(SWITCH_HAILEY_DISABLE);
     bool kittMode = switchPanel.GetRawButton(SWITCH_KITT_MODE);
     bool fireMode = switchPanel.GetRawButton(SWITCH_FIRE_MODE);
+    // if (switchPanel.GetRawButton(SWITCH_PIVOT_PLUS_5)) {
+    //     gamePiece->setLiftMaxPivotEncoder(LIFT_NORMAL_MAX_PIVOT + 5);
+    // }
+    // else if (switchPanel.GetRawButton(SWITCH_PIVOT_PLUS_4)) {
+    //     gamePiece->setLiftMaxPivotEncoder(LIFT_NORMAL_MAX_PIVOT + 4);
+    // }
+    // else if (switchPanel.GetRawButton(SWITCH_PIVOT_PLUS_3)) {
+    //     gamePiece->setLiftMaxPivotEncoder(LIFT_NORMAL_MAX_PIVOT + 3);
+    // }
+    // else if (switchPanel.GetRawButton(SWITCH_PIVOT_PLUS_2)) {
+    //     gamePiece->setLiftMaxPivotEncoder(LIFT_NORMAL_MAX_PIVOT + 2);
+    // }
+    // else if (switchPanel.GetRawButton(SWITCH_PIVOT_PLUS_1)) {
+    //     gamePiece->setLiftMaxPivotEncoder(LIFT_NORMAL_MAX_PIVOT + 1);
+    // }
+    // else {
+        gamePiece->setLiftMaxPivotEncoder(91 + 3);
+    // }
 
     // If re-enabling the lift, make sure that the PID controller doesn't freak out.
     if (switchPanel.GetRawButtonReleased(SWITCH_LIFT_DISABLE) || switchPanel.GetRawButtonReleased(SWITCH_HAILEY_DISABLE)) {

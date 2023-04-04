@@ -19,9 +19,6 @@
 // The maximum angle of the arm.
 #define MAX_PIVOT_ANGLE 20_deg
 
-// The encoder value at the maximum angle of the arm.
-#define MAX_PIVOT_ENCODER 93
-
 // The maximum extension length of the arm (delta from starting position).
 #define MAX_EXTENSION_LENGTH 38.25_in
 
@@ -259,6 +256,10 @@ void Lift::resetLiftBrokenKinda() {
     liftBrokenKinda = false;
 }
 
+void Lift::setMaxPivotEncoder(double rotations) {
+    maxPivotEncoder = rotations;
+}
+
 bool Lift::isAtPosition(){
     if (controlType == ControlType::POSITION){
         return atPosition;
@@ -272,8 +273,8 @@ Lift::LiftState Lift::getCurrentState() {
     double rightEncoderPosition = pivotMotorLeft.getEncoderPosition();
 
     // Percentages of the pivot range of motion.
-    double leftPercent = leftEncoderPosition / MAX_PIVOT_ENCODER;
-    double rightPercent = rightEncoderPosition / MAX_PIVOT_ENCODER;
+    double leftPercent = leftEncoderPosition / maxPivotEncoder;
+    double rightPercent = rightEncoderPosition / maxPivotEncoder;
 
     // Angle of the pivot.
     units::degree_t leftAngle = leftPercent * (MAX_PIVOT_ANGLE - MIN_PIVOT_ANGLE) + MIN_PIVOT_ANGLE;

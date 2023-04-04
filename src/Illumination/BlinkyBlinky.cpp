@@ -196,8 +196,8 @@ void BlinkyBlinky::fire() {
 
     if (fireIter >= fireLoops || fireIter <= 0) {
         fireDir = -fireDir;
-        fireLoops = FIRE_MAX_LOOPS * ((30 + (static_cast<double>(rand() % 70))) / 100.0);
-        fireRange = (LED_STRIP - 1) * ((50 + (static_cast<double>(rand() % 50))) / 100.0);
+        fireLoops = FIRE_MAX_LOOPS * ((60 + (static_cast<double>(rand() % 40))) / 100.0);
+        fireRange = (LED_STRIP - 1) * ((50 + (static_cast<double>(rand() % 51))) / 100.0);
         if (fireDir == 1) {
             fireIter = fireLoops;
         }

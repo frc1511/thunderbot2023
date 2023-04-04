@@ -55,6 +55,8 @@ public:
 
     void resetLiftBrokenKinda();
 
+    void setMaxPivotEncoder(double rotations);
+
 private:
     double manualPivotSpeed;
     double manualExtensionSpeed;
@@ -79,6 +81,8 @@ private:
     // Motors for pivoting the lift arm (ball screws).
     HardwareManager::LiftLeftPivotMotor pivotMotorLeft;
     HardwareManager::LiftRightPivotMotor pivotMotorRight;
+
+    double maxPivotEncoder = 91;
 
     // Sensor detecting if the lift is at the home position (fully retracted).
     frc::DigitalInput homeSensor;
