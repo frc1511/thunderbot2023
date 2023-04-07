@@ -163,6 +163,24 @@ void Drive::resetToMode(MatchMode mode) {
         // Reset the position and rotation on the field.
         // resetOdometry();
     }
+
+    static bool wasAuto = false;
+
+    // Going from Auto to Disabled to Teleop.
+    if (wasAuto && mode == Mechanism::MatchMode::TELEOP) {
+        wasAuto = false;
+        frc::Pose2d currPose(getEstimatedPose());
+        resetOdometry(frc::Pose2d(currPose.X(), currPose.Y(), currPose.Rotation().Degrees() + 90_deg));
+    }
+    else {
+        // Check if going from Auto to Disabled.
+        wasAuto = getLastMode() == Mechanism::MatchMode::AUTO && mode == Mechanism::MatchMode::DISABLED;
+
+        // Doing something else.
+        if (!wasAuto && mode != Mechanism::MatchMode::DISABLED) {
+            // Stuff to reset normally.
+        }
+    }
 }
 
 void Drive::process() {
@@ -668,10 +686,6 @@ void Drive::writeOffsetsFile() {
 
 void Drive::applyOffsets() {
     for (std::size_t i = 0; i < swerveModules.size(); i++) {
-        /**
-         * The offsets will be 90 degrees off because EVERYTHING about
-         * this robot is 90 degrees off!
-         */
         swerveModules.at(i)->setOffset(offsets.at(i) - 90_deg);
     }
 }
