@@ -248,7 +248,9 @@ void Grabber::overrideHasGamePiece(bool hasGamePiece) {
     }
     else {
         gamePieceType = GamePieceType::NONE;
-        setPosition(Position::OPEN);
+        if (currentPosition == Position::AJAR) {
+            setPosition(Position::AGAPE);
+        }
     }
 }
 
