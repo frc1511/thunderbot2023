@@ -173,13 +173,16 @@ void BlinkyBlinky::kitt() {
 
     setColor(frc::Color::kBlack);
 
+    // Match alliance color.
+    int hueOffset = frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kBlue ? 120 : 0;
+
     // Fade up.
     for (int i = pixel; i <= (pixel + fadeRange > LED_STRIP - 1 ? LED_STRIP - 1 : pixel + fadeRange); i++) {
         double percent = static_cast<double>(i - pixel) / fadeRange;
 
         double value = (1 / percent) * 128;
 
-        setMirroredPixel(i, frc::Color::FromHSV(percent * 5, value * 0.5 + 192, value));
+        setMirroredPixel(i, frc::Color::FromHSV(hueOffset + percent * 5, value * 0.5 + 192, value));
     }
     // Fade down.
     for (int i = pixel; i >= (pixel - fadeRange < 0 ? 0 : pixel - fadeRange); i--) {
@@ -187,11 +190,11 @@ void BlinkyBlinky::kitt() {
 
         double value = (1 / percent) * 128;
 
-        setMirroredPixel(i, frc::Color::FromHSV(percent * 5, value * 0.5 + 192, value));
+        setMirroredPixel(i, frc::Color::FromHSV(hueOffset + percent * 5, value * 0.5 + 192, value));
     }
 
     // Middle.
-    setMirroredPixel(pixel, frc::Color::kRed);
+    setMirroredPixel(pixel, frc::Color::FromHSV(hueOffset, 255, 128));
 }
 
 void BlinkyBlinky::fire() {
