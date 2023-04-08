@@ -115,8 +115,8 @@ void Autonomous::barrier() {
     // Reset odometry and drive to field cone 1.
     else if (step == 6) {
         scoreAction.setLevel(2);
-        auto init = paths->at(Path::BARRIER_1).getInitialPose();
-        drive->resetOdometry(frc::Pose2d(init.X(), init.Y(), init.Rotation().Degrees() - 90_deg));
+        frc::Pose2d initPose(paths->at(Path::BARRIER_1).getInitialPose());
+        drive->resetOdometry(frc::Pose2d(initPose.X(), initPose.Y(), initPose.Rotation().Degrees() - 90_deg));
         drive->runTrajectory(&paths->at(Path::BARRIER_1), actions);
         step++;
     }
@@ -166,7 +166,6 @@ void Autonomous::barrier() {
     //             barrierFinish2GPCS();
     //             break;
     //         default:
-    //             drive->resetOdometry(frc::Pose2d(0_m, 0_m, -60_deg));
     //             break;
     //     }
     // }
@@ -219,8 +218,8 @@ void Autonomous::center() {
             // Hi Ishan!!!
         }
 
-        auto init = paths->at(Path::BARRIER_1).getInitialPose();
-        drive->resetOdometry(frc::Pose2d(init.X(), init.Y(), init.Rotation().Degrees() - 90_deg));
+        frc::Pose2d initPose(paths->at(Path::BARRIER_1).getInitialPose());
+        drive->resetOdometry(frc::Pose2d(initPose.X(), initPose.Y(), initPose.Rotation().Degrees() - 90_deg));
     }
     // Wait a little bit for the lift.
     else if (step == 1 && liftTimer.Get() >= 0.5_s) {
@@ -244,8 +243,8 @@ void Autonomous::edge() {
     }
     // Reset odometry and drive to field cone 1.
     else if (step == 6) {
-        auto init = paths->at(Path::EDGE_1).getInitialPose();
-        drive->resetOdometry(frc::Pose2d(init.X(), init.Y(), init.Rotation().Degrees() - 90_deg));
+        frc::Pose2d initPose(paths->at(Path::EDGE_1).getInitialPose());
+        drive->resetOdometry(frc::Pose2d(initPose.X(), initPose.Y(), initPose.Rotation().Degrees() - 90_deg));
         drive->runTrajectory(&paths->at(Path::EDGE_1), actions);
         step++;
     }
@@ -281,13 +280,6 @@ void Autonomous::edge() {
         drive->runTrajectory(&paths->at(Path::EDGE_3), actions);
         step++;
     }
-    // Start intaking cone while driving.
-    // else if (step == 15 && !drive->isFinished()) {
-    //     if (drive->getTrajectoryTime() > 2_s && drive->getTrajectoryTime() < 2.1_s) {
-    //         gamePiece->setGrabberPosition(Grabber::Position::AGAPE);
-    //         gamePiece->setGrabberAction(Grabber::Action::INTAKE);
-    //     }
-    // }
     else if (step == 15 && drive->isFinished()) {
         gamePiece->overrideHasGamePiece(false);
         gamePiece->setGrabberAction(Grabber::Action::IDLE);
@@ -351,19 +343,19 @@ void Autonomous::scoreBackup() {
         step += (scoreAction.process() == Action::Result::DONE);
     }
     else if (step == 1) {
-        // All good :D
-        drive->resetOdometry(frc::Pose2d(0_m, 0_m, 180_deg));
+        frc::Pose2d initPose(paths->at(Path::BARRIER_1).getInitialPose());
+        drive->resetOdometry(frc::Pose2d(initPose.X(), initPose.Y(), initPose.Rotation().Degrees() - 90_deg));
         step++;
     }
     else if (step == 2) {
         gamePiece->overrideHasGamePiece(false);
         mobilityTimer.Reset();
         mobilityTimer.Start();
-        drive->velocityControlAbsRotation(0_mps, 0.6_mps, 0_deg, Drive::ControlFlag::FIELD_CENTRIC);
+        drive->velocityControlAbsRotation(0.6_mps, 0.0_mps, 90_deg, Drive::ControlFlag::FIELD_CENTRIC);
         step++;
     }
     else if (step == 3 && mobilityTimer.Get() >= 6_s) {
-        drive->velocityControlAbsRotation(0.0_mps, 0_mps, 0_deg, Drive::ControlFlag::FIELD_CENTRIC);
+        drive->velocityControlAbsRotation(0.0_mps, 0_mps, 90_deg, Drive::ControlFlag::FIELD_CENTRIC);
         step++;
         // Hi Trevor!!!!
     }
@@ -380,8 +372,9 @@ void Autonomous::score() {
         step += (scoreAction.process() == Action::Result::DONE);
     }
     else if (step == 1) {
-        // All good :D
-        drive->resetOdometry(frc::Pose2d(0_m, 0_m, 180_deg));
+        frc::Pose2d initPose(paths->at(Path::BARRIER_1).getInitialPose());
+        drive->resetOdometry(frc::Pose2d(initPose.X(), initPose.Y(), initPose.Rotation().Degrees() - 90_deg));
+        step++;
     }
 }
 
@@ -473,11 +466,13 @@ Autonomous::BalanceMobilityAction::BalanceMobilityAction(Drive* _drive, WhooshWh
 Autonomous::BalanceMobilityAction::~BalanceMobilityAction() = default;
 
 Action::Result Autonomous::BalanceMobilityAction::process() {
+    // Make sure it doesn't go too far.
     if (drive->getEstimatedPose().X() > 7.5_m) {
         drive->velocityControlAbsRotation(0_mps, 0_mps, 90_deg, Drive::ControlFlag::BRICK);
         return Action::Result::WORKING;
     }
 
+    // Drive backwards until tilted greater than 10 degrees.
     if (step == 0) {
         if (whooshWhoosh->getTiltAngle() >= 10_deg) {
             step++;
@@ -486,6 +481,7 @@ Action::Result Autonomous::BalanceMobilityAction::process() {
             drive->velocityControlAbsRotation(2_mps, 0.0_mps, 90_deg, Drive::ControlFlag::FIELD_CENTRIC);
         }
     }
+    // Drive backwards slower until tilt becomes negative.
     else if (step == 1) {
         if (whooshWhoosh->getTiltAngle() < 0_deg) {
             step++;
@@ -494,6 +490,7 @@ Action::Result Autonomous::BalanceMobilityAction::process() {
             drive->velocityControlAbsRotation(1.3_mps, 0.0_mps, 90_deg, Drive::ControlFlag::FIELD_CENTRIC);
         }
     }
+    // Drive backwards slower until tilt is near zero (on the ground on opposite side).
     else if (step == 2) {
         if (units::math::abs(whooshWhoosh->getTiltAngle()) <= 3_deg) {
             step++;
@@ -502,21 +499,25 @@ Action::Result Autonomous::BalanceMobilityAction::process() {
             drive->velocityControlAbsRotation(0.9_mps, 0.0_mps, 90_deg, Drive::ControlFlag::FIELD_CENTRIC);
         }
     }
+    // Start driving slowly off the Charge Station to get mobility.
     else if (step == 3) {
         stopTimer.Reset();
         stopTimer.Start();
         drive->velocityControlAbsRotation(0.5_mps, 0.0_mps, 90_deg, Drive::ControlFlag::FIELD_CENTRIC);
         step++;
     }
+    // Wait 2 seconds.
     else if (step == 4 && (stopTimer.Get() > 2_s)) {
         forwardsTimer.Reset();
         forwardsTimer.Start();
         step++;
     }
+    // Start driving back onto the Charge Station.
     else if (step == 5) {
         drive->velocityControlAbsRotation(-1.7_mps, 0.0_mps, 90_deg, Drive::ControlFlag::FIELD_CENTRIC);
         step += forwardsTimer.Get() > 0.5_s;
     }
+    // Balance.
     else if (step == 6) {
         balanceAction->process();
     }
