@@ -19,6 +19,20 @@ void Autonomous::resetToMode(MatchMode mode) {
     autoTimer.Start();
 
     step = 0;
+
+    if (mode == MatchMode::AUTO) {
+        whooshWhoosh->resetHeading();
+        whooshWhoosh->resetTilt();
+    }
+
+    static bool wasAuto = false;
+
+    if (getLastMode() == Mechanism::MatchMode::AUTO && mode == Mechanism::MatchMode::DISABLED) {
+        if (frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kRed && selectedAutoMode == AutoMode::CENTER_1GP_CS) {
+            frc::Pose2d currPose(drive->getEstimatedPose());
+            drive->resetOdometry(frc::Pose2d(currPose.X(), currPose.Y(), 180_deg + currPose.Rotation().Degrees()));
+        }
+    }
 }
 
 void Autonomous::process() {

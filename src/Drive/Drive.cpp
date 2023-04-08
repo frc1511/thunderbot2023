@@ -170,7 +170,7 @@ void Drive::resetToMode(MatchMode mode) {
     if (wasAuto && mode == Mechanism::MatchMode::TELEOP) {
         wasAuto = false;
         frc::Pose2d currPose(getEstimatedPose());
-        resetOdometry(frc::Pose2d(currPose.X(), currPose.Y(), currPose.Rotation().Degrees() + 90_deg));
+        resetOdometry(frc::Pose2d(currPose.X(), currPose.Y(), (180_deg - currPose.Rotation().Degrees()) + 90_deg + (frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kRed ? 180_deg : 0_deg)));
     }
     else {
         // Check if going from Auto to Disabled.

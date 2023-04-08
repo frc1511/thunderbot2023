@@ -76,7 +76,7 @@ void WhooshWhoosh::resetHeading() {
 
 void WhooshWhoosh::resetTilt() {
 #ifdef HAS_IMU
-    imu.SetGyroAngle(frc1511::ADIS16470_IMU::kRoll, 0_deg);
+    imu.SetGyroAngle(frc1511::ADIS16470_IMU::kPitch, 0_deg);
 #endif
 }
 

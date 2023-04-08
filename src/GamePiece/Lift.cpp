@@ -211,13 +211,13 @@ void Lift::process() {
         newTargetExtension = 0_m;
     }
     else {
-        pivotMotorLeft.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, rightPivotPercentOutput + pivotPercent * PIVOT_FF);
-        pivotMotorRight.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, rightPivotPercentOutput + pivotPercent * PIVOT_FF);
+        pivotMotorLeft.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, 0);//rightPivotPercentOutput + pivotPercent * PIVOT_FF);
+        pivotMotorRight.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, 0);//rightPivotPercentOutput + pivotPercent * PIVOT_FF);
     }
 
     double extensionPercentOutput = extensionPIDController.Calculate(DENORMALIZE_EXTENSION_POSITION(currentExtension, currentExtensionOffset), DENORMALIZE_EXTENSION_POSITION(newTargetExtension, currentExtensionOffset));
     extensionPercentOutput = std::clamp(extensionPercentOutput, -1.0, 1.0);
-    extensionMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT, extensionPercentOutput);
+    extensionMotor.set(ThunderCANMotorController::ControlMode::PERCENT_OUTPUT,0);// extensionPercentOutput);
     
     // Check if the lift is at the target position.
     atPosition = isAtPosition(currentLeftPivot, newTargetAngle, 3_deg) &&

@@ -200,7 +200,7 @@ void BlinkyBlinky::kitt() {
     }
 
     // Middle.
-    setMirroredPixel(pixel, frc::Color::FromHSV(hueOffset, 255, 128));
+    setMirroredPixel(pixel, frc::Color::FromHSV(hueOffset, 255, 255));
 }
 
 void BlinkyBlinky::fire() {
