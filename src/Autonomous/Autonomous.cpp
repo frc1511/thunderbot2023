@@ -158,7 +158,6 @@ void Autonomous::barrier() {
     else if (step == 15 && drive->isFinished()) {
         gamePiece->overrideHasGamePiece(true);
         gamePiece->setGrabberAction(Grabber::Action::IDLE);
-        drive->resetOdometry(frc::Pose2d(0_m, 0_m, -60_deg - 90_deg));
         step++;
     }
     // else if (step >= 16) {
@@ -200,7 +199,6 @@ void Autonomous::barrierFinish3GP() {
     }
     else if (step == 19) {
         gamePiece->overrideHasGamePiece(false);
-        drive->resetOdometry(frc::Pose2d(0_m, 0_m, 180_deg));
     }
 }
 
@@ -294,7 +292,6 @@ void Autonomous::edge() {
         gamePiece->overrideHasGamePiece(false);
         gamePiece->setGrabberAction(Grabber::Action::IDLE);
         step++;
-        drive->resetOdometry(frc::Pose2d(0_m, 0_m, 180_deg));
     }
 }
 
@@ -325,7 +322,6 @@ void Autonomous::edgeFinish3GP() {
     }
     else if (step == 19) {
         gamePiece->overrideHasGamePiece(false);
-        drive->resetOdometry(frc::Pose2d(0_m, 0_m, 180_deg));
     }
 }
 
@@ -457,19 +453,13 @@ Action::Result Autonomous::BalanceAction::process() {
         }
 
         units::meters_per_second_t antiTiltVel = whooshWhoosh->calculateAntiTiltDriveVelocity();
-        fmt::print("tilt: {}, vel: {}\n", whooshWhoosh->getTiltAngle().value(), -antiTiltVel.value());
         unsigned flags = Drive::ControlFlag::FIELD_CENTRIC;
         if (units::math::abs(antiTiltVel) <= 0.1_mps) {
             antiTiltVel = 0.0_mps;
             flags |= Drive::ControlFlag::BRICK;
-            step++;
         }
 
         drive->velocityControlAbsRotation(-antiTiltVel, 0_mps, 90_deg, flags);
-    }
-    else if (step == 2) {
-        drive->resetOdometry(frc::Pose2d(0_m, 0_m, 180_deg));
-        step++;
     }
 
     return Result::WORKING;
@@ -515,10 +505,10 @@ Action::Result Autonomous::BalanceMobilityAction::process() {
     else if (step == 3) {
         stopTimer.Reset();
         stopTimer.Start();
-        drive->velocityControlAbsRotation(0.3_mps, 0.0_mps, 90_deg, Drive::ControlFlag::FIELD_CENTRIC);
+        drive->velocityControlAbsRotation(0.5_mps, 0.0_mps, 90_deg, Drive::ControlFlag::FIELD_CENTRIC);
         step++;
     }
-    else if (step == 4 && (stopTimer.Get() > 3.5_s)) {
+    else if (step == 4 && (stopTimer.Get() > 2_s)) {
         forwardsTimer.Reset();
         forwardsTimer.Start();
         step++;

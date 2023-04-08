@@ -41,6 +41,7 @@ public:
         KNIGHT_RIDER,
         HOME_DEPOT,
         BALANCING,
+        PARTY,
         CUSTOM,
     };
 
@@ -74,6 +75,7 @@ private:
     void balancing();
     void kitt();
     void fire();
+    void party();
 
     LEDMode ledMode = LEDMode::ALLIANCE;
 
@@ -84,6 +86,9 @@ private:
     int fireDir = 1;
     int fireLoops = 20;
     int fireRange = (LED_STRIP - 1) * 0.3;
+
+    int strobeIter = 0;
+    bool strobeOn = true;
 
     frc::Color customColor;
 

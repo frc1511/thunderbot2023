@@ -228,6 +228,7 @@ void Lift::process() {
 void Lift::resetPIDController() {
     auto [extension, leftAngle, rightAngle, extensionOffset] = getCurrentState();
     pivotRightPIDController.Reset(rightAngle);
+    extensionPIDController.Reset(extension);
 }
 
 void Lift::setManualPivotSpeed(double speed) {
@@ -250,6 +251,16 @@ void Lift::setPosition(units::degree_t angle, units::meter_t extension) {
     controlType = ControlType::POSITION;
     targetAngle = angle;
     targetExtension = extension;
+}
+
+units::degree_t Lift::getPivotAngle() {
+    auto [extension, leftAngle, rightAngle, extensionOffset] = getCurrentState();
+    return rightAngle;
+}
+
+units::meter_t Lift::getExtensionLength() {
+    auto [extension, leftAngle, rightAngle, extensionOffset] = getCurrentState();
+    return extension;
 }
 
 void Lift::resetLiftBrokenKinda() {

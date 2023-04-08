@@ -166,8 +166,8 @@ void Grabber::process() {
     else if (currentPosition == Position::AGAPE) {
 #if WHICH_ROBOT == 2023
         // Only one piston is extended to intake a cone.
-        grabberPiston1.Set(frc::DoubleSolenoid::Value::kForward); 
-        grabberPiston2.Set(frc::DoubleSolenoid::Value::kReverse);
+        grabberPiston1.Set(frc::DoubleSolenoid::Value::kReverse); 
+        grabberPiston2.Set(frc::DoubleSolenoid::Value::kForward);
 #endif
     } 
     else if (currentPosition == Position::AJAR) {

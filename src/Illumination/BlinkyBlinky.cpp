@@ -75,6 +75,9 @@ void BlinkyBlinky::process() {
             case LEDMode::BALANCING:
                 balancing();
                 break;
+            case LEDMode::PARTY:
+                party();
+                break;
             case LEDMode::CUSTOM:
                 setColor(customColor);
                 break;
@@ -204,7 +207,6 @@ void BlinkyBlinky::fire() {
         else {
             fireIter = 0;
         }
-        fmt::print("fireRange: {}, fireLoops: {}\n", fireRange, fireLoops);
     }
 
     double percent = fireIter / fireLoops;
@@ -219,6 +221,16 @@ void BlinkyBlinky::fire() {
     for (int i = pixel; i < LED_STRIP; i++) {
         setMirroredPixel(i, frc::Color::kBlack);
     }
+}
+
+void BlinkyBlinky::party() {
+    strobeIter++;
+
+    if (strobeIter % 5) {
+        strobeOn = !strobeOn;
+    }
+
+    setColor(strobeOn ? frc::Color::kWhite : frc::Color::kBlack);
 }
 
 void BlinkyBlinky::sendFeedback() {
@@ -259,6 +271,9 @@ void BlinkyBlinky::sendFeedback() {
             break;
         case LEDMode::BALANCING:
             modeString = "balancing";
+            break;
+        case LEDMode::PARTY:
+            modeString = "party";
             break;
         case LEDMode::CUSTOM:
             modeString = "custom";

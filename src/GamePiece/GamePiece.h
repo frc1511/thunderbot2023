@@ -110,7 +110,7 @@ private:
         { LiftPreset::GROUND_CONE,      std::make_pair(-25_deg, 0.15_m)   }, // Low scoring position.
         { LiftPreset::GROUND_CUBE,      std::make_pair(-25_deg, 0.0_m)    }, // Low scoring position.
 
-        { LiftPreset::MID_CONE,         std::make_pair(13_deg,  0.59_m - 4.5_in + 3_in)   }, // Mid scoring position.
+        { LiftPreset::MID_CONE,         std::make_pair(13_deg,  0.59_m - 4.5_in + 3_in - 1.5_in)   }, // Mid scoring position.
         { LiftPreset::MID_CONE_PIVOT,   std::make_pair(13_deg,  0_m)      }, // Mid scoring position - only pivot.
 
         { LiftPreset::MID_CUBE,         std::make_pair(10_deg,  0_m)      }, // Mid scoring position.

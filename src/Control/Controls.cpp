@@ -97,6 +97,7 @@ void Controls::doDrive() {
     bool rotSlowMode = driveController.getRightBumper();
     bool rotSlowerIThinkIDKReallyCallaJustWantedThisForSomeReasonSoHereItIsIGuess = driveController.getRightTrigger() > AXIS_DEADZONE;
     bool toggleUltraBrickMode = driveController.getButton(DriveButton::SQUARE, ThunderGameController::ButtonState::PRESSED);
+    shouldStrobe = driveController.getButton(DriveButton::CIRCLE);
 
     double xAng = driveController.getAxis(DriveAxis::RIGHT_X);
     double yAng = driveController.getAxis(DriveAxis::RIGHT_Y);
@@ -539,6 +540,9 @@ void Controls::doSwitchPanel() {
             if (getCurrentMode() == MatchMode::DISABLED && getLastMode() == MatchMode::AUTO) {
                 blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::RAINBOW);
             }
+        }
+        else if (shouldStrobe) {
+            blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::PARTY);
         }
         else if (doUltraBrickMode) {
             blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::HOME_DEPOT);

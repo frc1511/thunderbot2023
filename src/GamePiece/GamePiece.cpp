@@ -49,8 +49,15 @@ void GamePiece::process() {
                 grabber->setWristPosition(false);
             }
             else {
-                // Only move the wrist if the lift is at the correct position.
-                grabber->setWristPosition(lift->isAtPosition() && (liftPreset == LiftPreset::TIPPED_CONE || liftPreset == LiftPreset::BALCONY));
+                if (liftPreset == LiftPreset::TIPPED_CONE) {
+                    grabber->setWristPosition(lift->isAtPosition());
+                }
+                else if (liftPreset == LiftPreset::BALCONY) {
+                    grabber->setWristPosition(lift->getPivotAngle() > -10_deg);
+                }
+                else {
+                    grabber->setWristPosition(false);
+                }
             }
         }
         else {

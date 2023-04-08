@@ -25,11 +25,11 @@
 #define EXTENSION_I 0.0
 #define EXTENSION_D 0.0
 
-#define PIVOT_MAX_VEL 55_deg_per_s
-#define PIVOT_MAX_ACCEL 60_deg_per_s_sq
+#define PIVOT_MAX_VEL 85_deg_per_s
+#define PIVOT_MAX_ACCEL 100_deg_per_s_sq
 
 // These values are made up (mean nothing in terms of actual units).
-#define EXTENSION_MAX_VEL 1_mps
+#define EXTENSION_MAX_VEL 1.5_mps
 #define EXTENSION_MAX_ACCEL 3_mps_sq
 
 class Lift : public Mechanism {
@@ -56,6 +56,9 @@ public:
     void resetLiftBrokenKinda();
 
     void setMaxPivotEncoder(double rotations);
+
+    units::degree_t getPivotAngle();
+    units::meter_t getExtensionLength();
 
 private:
     double manualPivotSpeed;
