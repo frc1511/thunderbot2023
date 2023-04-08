@@ -174,7 +174,13 @@ void BlinkyBlinky::kitt() {
     setColor(frc::Color::kBlack);
 
     // Match alliance color.
-    int hueOffset = frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kBlue ? 120 : 0;
+    int hueOffset = 0;
+    if (frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kBlue) {
+        hueOffset = 120;
+    }
+    else if (frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kInvalid) {
+        hueOffset = 45;
+    }
 
     // Fade up.
     for (int i = pixel; i <= (pixel + fadeRange > LED_STRIP - 1 ? LED_STRIP - 1 : pixel + fadeRange); i++) {
