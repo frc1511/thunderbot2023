@@ -132,6 +132,7 @@ void Controls::doDrive() {
     }
 
     if (toggleRotation) {
+        drive->resetPIDControllers();
         if (!driveAbsRotation) {
             driveAbsAngle = drive->getEstimatedPose().Rotation().Radians();
             driveAbsRotation = true;

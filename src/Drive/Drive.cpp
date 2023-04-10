@@ -83,6 +83,8 @@ void Drive::doPersistentConfiguration() {
 }
 
 void Drive::resetToMode(MatchMode mode) {
+    resetPIDControllers();
+
     driveMode = DriveMode::STOPPED;
 
     // Reset the manual control data.
@@ -379,6 +381,18 @@ frc::Rotation2d Drive::getRotation() {
 
 void Drive::reloadRecordedTrajectory() {
     recordedTrajectory = CSVTrajectory(RECORDED_TRAJ_PATH);
+}
+
+void Drive::resetPIDControllers() {
+    xPIDController.Reset();
+    yPIDController.Reset();
+
+    frc::Pose2d currPose(getEstimatedPose());
+    units::degree_t rotation(currPose.Rotation().Degrees());
+
+    manualThetaPIDController.Reset(rotation);
+    trajectoryThetaPIDController.Reset(rotation);
+
 }
 
 void Drive::updateOdometry() {

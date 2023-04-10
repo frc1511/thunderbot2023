@@ -202,6 +202,11 @@ public:
      */
     inline CSVTrajectory& getRecordedTrajectory() { return recordedTrajectory; }
 
+    /**
+     * Resets all drive PID controllers.
+     */
+    void resetPIDControllers();
+
 private:
     /**
      * Updates the position and rotation of the drivetrain on the field.
