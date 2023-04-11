@@ -62,6 +62,7 @@ void Autonomous::process() {
             break;
         case AutoMode::BARRIER_2GP:
         case AutoMode::BARRIER_2GP_CS:
+        case AutoMode::BARRIER_3GP:
             barrier();
             break;
         case AutoMode::CENTER_1GP_CS:
@@ -113,11 +114,11 @@ void Autonomous::doNothing() {
 void Autonomous::barrier() {
     // Score preloaded cube high.
     if (step == 0) {
-        if (selectedAutoMode == AutoMode::BARRIER_2GP_CS) {
-            scoreAction.setLevel(0);
+        if (selectedAutoMode == AutoMode::BARRIER_2GP) {
+            scoreAction.setLevel(2);
         }
         else {
-            scoreAction.setLevel(2);
+            scoreAction.setLevel(0);
         }
         gamePiece->setGrabberPosition(Grabber::Position::OPEN);
         gamePiece->overrideHasGamePiece(true);
@@ -174,15 +175,18 @@ void Autonomous::barrier() {
         gamePiece->setGrabberAction(Grabber::Action::IDLE);
         step++;
     }
-    // else if (step >= 16) {
-    //     switch (selectedAutoMode) {
-    //         case AutoMode::BARRIER_2GP_CS:
-    //             barrierFinish2GPCS();
-    //             break;
-    //         default:
-    //             break;
-    //     }
-    // }
+    else if (step >= 16) {
+        switch (selectedAutoMode) {
+            case AutoMode::BARRIER_2GP_CS:
+                barrierFinish2GPCS();
+                break;
+            case AutoMode::BARRIER_3GP:
+                barrierFinish3GP();
+                break;
+            default:
+                break;
+        }
+    }
 }
 
 void Autonomous::barrierFinish2GPCS() {
@@ -201,7 +205,7 @@ void Autonomous::barrierFinish2GPCS() {
 void Autonomous::barrierFinish3GP() {
     if (step == 16) {
         drive->runTrajectory(&paths->at(Path::BARRIER_FINAL_SCORE), actions);
-        gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH);
+        gamePiece->setLiftPreset(GamePiece::LiftPreset::MID);
         step++;
     }
     else if (step == 17 && drive->isFinished()) {
@@ -287,47 +291,12 @@ void Autonomous::edge() {
     }
     else if (step >= 9 && step <= 13) {
         step++; // Give it some time...
-        step = 15;
     }
     // Drive to field cone 2.
     else if (step == 14) {
-        drive->runTrajectory(&paths->at(Path::EDGE_3), actions);
-        step++;
-    }
-    else if (step == 15 && drive->isFinished()) {
         gamePiece->overrideHasGamePiece(false);
         gamePiece->setGrabberAction(Grabber::Action::IDLE);
         step++;
-    }
-}
-
-void Autonomous::edgeFinish2GPCS() {
-    if (step == 16) {
-        drive->runTrajectory(&paths->at(Path::EDGE_FINAL_BALANCE), actions);
-        step++;
-    }
-    else if (step == 17 && drive->isFinished()) {
-        step++;
-    }
-    else if (step == 18) {
-        balanceAction.process();
-    }
-}
-
-void Autonomous::edgeFinish3GP() {
-    if (step == 16) {
-        drive->runTrajectory(&paths->at(Path::EDGE_FINAL_SCORE), actions);
-        gamePiece->setLiftPreset(GamePiece::LiftPreset::HIGH);
-        step++;
-    }
-    else if (step == 17 && drive->isFinished()) {
-        step++;
-    }
-    else if (step == 18) {
-        step += (scoreAction.process() == Action::Result::DONE);
-    }
-    else if (step == 19) {
-        gamePiece->overrideHasGamePiece(false);
     }
 }
 
@@ -542,6 +511,7 @@ Action::Result Autonomous::BalanceMobilityAction::process() {
 void Autonomous::sendFeedback() {
     frc::SmartDashboard::PutNumber("Autonomous_Step", step);
     frc::SmartDashboard::PutBoolean("Autonomous_DriveFinished", drive->isFinished());
+    frc::SmartDashboard::PutString("Autonomous_ModeName", autoModeNames.at(selectedAutoMode));
 
     std::string buffer = "";
 
