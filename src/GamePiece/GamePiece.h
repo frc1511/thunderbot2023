@@ -31,7 +31,6 @@ public:
         BALCONY,       // Balcony scoring position.
         BALCONY_PIVOT, // Balcony scoring position - only pivot.
         SLIDE,
-        SLIDE_PIVOT,
         TRAVEL,        // Travel position.
 
         MID_CONE,
@@ -124,8 +123,7 @@ private:
 
         { LiftPreset::BALCONY,          std::make_pair(24.5_deg,  0.08_m) }, // Balcony scoring position.
         { LiftPreset::BALCONY_PIVOT,    std::make_pair(24.5_deg,  0_m)      }, // Balcony scoring position - only pivot.
-        { LiftPreset::SLIDE,            std::make_pair(7_deg,  0.2_m) },
-        { LiftPreset::SLIDE_PIVOT,      std::make_pair(7_deg,  0_m)      },
+        { LiftPreset::SLIDE,            std::make_pair(3_deg,  0.0_m) },
         { LiftPreset::TRAVEL,           std::make_pair(-25_deg, 0_m)      }, // Travel position.
 
         { LiftPreset::AUTO_JANKY,       std::make_pair(7_deg, 0.52_m + 1_in)   },

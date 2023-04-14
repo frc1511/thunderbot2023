@@ -36,8 +36,6 @@ void Autonomous::resetToMode(MatchMode mode) {
 }
 
 void Autonomous::process() {
-    selectedAutoMode = static_cast<AutoMode>(frc::SmartDashboard::GetNumber("Auto_Mode", 0.0));
-
     if (frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kRed && selectedAutoMode != AutoMode::CENTER_1GP_CS) {
         paths = &redPaths;
     }
@@ -490,7 +488,7 @@ Action::Result Autonomous::BalanceMobilityAction::process() {
         step++;
     }
     // Wait 2 seconds.
-    else if (step == 4 && (stopTimer.Get() > 2_s)) {
+    else if (step == 4 && (stopTimer.Get() > 1.25_s)) {
         forwardsTimer.Reset();
         forwardsTimer.Start();
         step++;
@@ -509,6 +507,8 @@ Action::Result Autonomous::BalanceMobilityAction::process() {
 }
 
 void Autonomous::sendFeedback() {
+    selectedAutoMode = static_cast<AutoMode>(frc::SmartDashboard::GetNumber("Auto_Mode", 0.0));
+
     frc::SmartDashboard::PutNumber("Autonomous_Step", step);
     frc::SmartDashboard::PutBoolean("Autonomous_DriveFinished", drive->isFinished());
     frc::SmartDashboard::PutString("Autonomous_ModeName", autoModeNames.at(selectedAutoMode));

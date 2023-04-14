@@ -49,7 +49,7 @@
 #define DRIVE_AUTO_MAX_ANG_VEL     6.28_rad_per_s
 #define DRIVE_AUTO_MAX_ANG_ACCEL   3.14_rad_per_s_sq
 
-#define DRIVE_MANUAL_MAX_VEL       3.5_mps
+#define DRIVE_MANUAL_MAX_VEL       4_mps
 #define DRIVE_MANUAL_MAX_ANG_VEL   360_deg_per_s
 #define DRIVE_MANUAL_MAX_ACCEL     3_mps_sq
 #define DRIVE_MANUAL_MAX_DECEL     -4_mps_sq

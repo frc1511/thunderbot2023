@@ -12,7 +12,7 @@ GamePiece::GamePiece(Grabber* _grabber, Lift* _lift)
     // Pivot up after acquisition.
     grabber->onAcquire([this](Grabber::GamePieceType type) {
         setWrist(false);
-        if (liftPreset == LiftPreset::BALCONY) {
+        if (liftPreset == LiftPreset::BALCONY || liftPreset == LiftPreset::SLIDE) {
             balconyWaiting = true;
             balconyWaitingTimer.Reset();
             balconyWaitingTimer.Start();
@@ -232,9 +232,6 @@ void GamePiece::sendFeedback() {
             break;
         case LiftPreset::SLIDE:
             liftPresetString = "Slide";
-            break;
-        case LiftPreset::SLIDE_PIVOT:
-            liftPresetString = "Slide Pivot";
             break;
         case LiftPreset::BALCONY:
             liftPresetString = "Balcony";
