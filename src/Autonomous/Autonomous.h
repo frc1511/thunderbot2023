@@ -33,11 +33,11 @@ private:
         DRIVE_FORWARDS = 1,
         SCORE          = 2,
         BARRIER_2GP    = 3,
-        BARRIER_2GP_CS = 4,
-        BARRIER_3GP    = 5,
-        CENTER_1GP_CS  = 6,
-        EDGE_2GP       = 7,
-        SCORE_BACKUP   = 8,
+        // BARRIER_2GP_CS = 4,
+        // BARRIER_3GP    = 5,
+        CENTER_1GP_CS  = 4,
+        EDGE_2GP       = 5,
+        SCORE_BACKUP   = 6,
     };
 
     AutoMode selectedAutoMode = AutoMode::DO_NOTHING;
@@ -63,10 +63,11 @@ private:
         { AutoMode::DRIVE_FORWARDS, "Drive Forwards"    },
         { AutoMode::SCORE,          "Score"             },
         { AutoMode::BARRIER_2GP,    "Barrier: 2.5GP"    },
-        { AutoMode::BARRIER_2GP_CS, "Barrier: 2.5GP+CS" },
-        { AutoMode::BARRIER_3GP,    "Barrier: 3GP+CS"   },
+        // { AutoMode::BARRIER_2GP_CS, "Barrier: 2.5GP+CS" },
+        // { AutoMode::BARRIER_3GP,    "Barrier: 3GP+CS"   },
         { AutoMode::CENTER_1GP_CS,  "Center: 1GP+CS"    },
         { AutoMode::EDGE_2GP,       "Edge: 2GP"         },
+        { AutoMode::SCORE_BACKUP,   "Score + Backup"    },
     };
 
     frc::Timer delayTimer,

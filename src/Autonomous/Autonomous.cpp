@@ -59,8 +59,8 @@ void Autonomous::process() {
             score();
             break;
         case AutoMode::BARRIER_2GP:
-        case AutoMode::BARRIER_2GP_CS:
-        case AutoMode::BARRIER_3GP:
+        // case AutoMode::BARRIER_2GP_CS:
+        // case AutoMode::BARRIER_3GP:
             barrier();
             break;
         case AutoMode::CENTER_1GP_CS:
@@ -81,8 +81,8 @@ bool Autonomous::isBalancing() {
     }
 
     switch (selectedAutoMode) {
-        case AutoMode::BARRIER_2GP_CS:
-            return step >= 18;
+        // case AutoMode::BARRIER_2GP_CS:
+        //     return step >= 18;
         case AutoMode::CENTER_1GP_CS:
             return step >= 2;
         default:
@@ -174,16 +174,16 @@ void Autonomous::barrier() {
         step++;
     }
     else if (step >= 16) {
-        switch (selectedAutoMode) {
-            case AutoMode::BARRIER_2GP_CS:
-                barrierFinish2GPCS();
-                break;
-            case AutoMode::BARRIER_3GP:
-                barrierFinish3GP();
-                break;
-            default:
-                break;
-        }
+        // switch (selectedAutoMode) {
+        //     case AutoMode::BARRIER_2GP_CS:
+        //         barrierFinish2GPCS();
+        //         break;
+        //     case AutoMode::BARRIER_3GP:
+        //         barrierFinish3GP();
+        //         break;
+        //     default:
+        //         break;
+        // }
     }
 }
 
@@ -488,7 +488,7 @@ Action::Result Autonomous::BalanceMobilityAction::process() {
         step++;
     }
     // Wait 2 seconds.
-    else if (step == 4 && (stopTimer.Get() > 1.25_s)) {
+    else if (step == 4 && (stopTimer.Get() > 1.5_s)) {
         forwardsTimer.Reset();
         forwardsTimer.Start();
         step++;
@@ -507,7 +507,14 @@ Action::Result Autonomous::BalanceMobilityAction::process() {
 }
 
 void Autonomous::sendFeedback() {
-    selectedAutoMode = static_cast<AutoMode>(frc::SmartDashboard::GetNumber("Auto_Mode", 0.0));
+    int desiredAutoMode = static_cast<int>(frc::SmartDashboard::GetNumber("Auto_Mode", 0.0));
+    if (desiredAutoMode < autoModeNames.size() && desiredAutoMode >= 0) {
+        selectedAutoMode = static_cast<AutoMode>(desiredAutoMode);
+    }
+    else {
+        selectedAutoMode = AutoMode::DO_NOTHING;
+    }
+
 
     frc::SmartDashboard::PutNumber("Autonomous_Step", step);
     frc::SmartDashboard::PutBoolean("Autonomous_DriveFinished", drive->isFinished());
