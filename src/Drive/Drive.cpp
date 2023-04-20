@@ -344,7 +344,12 @@ bool Drive::isFinished() const {
 }
 
 void Drive::calibrateIMU() {
-    whooshWhoosh->calibrateIMU();
+    if (getCurrentMode() == MatchMode::DISABLED) {
+        whooshWhoosh->calibrateIMU(true);
+    }
+    else {
+        whooshWhoosh->calibrateIMU(false);
+    }
     
     imuCalibrated = true;
 

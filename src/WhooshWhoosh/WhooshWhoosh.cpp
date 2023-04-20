@@ -57,14 +57,27 @@ units::meters_per_second_t WhooshWhoosh::calculateAntiTiltDriveVelocity() {
     return units::meters_per_second_t(balancePIDController.Calculate(getTiltAngle().value(), 0));
 }
 
-void WhooshWhoosh::calibrateIMU() {
+void WhooshWhoosh::calibrateIMU(bool longCal) {
     using namespace std::chrono_literals;
 
+
 #ifdef HAS_IMU
+    if (longCal) {
+        imu.ConfigCalTime(frc1511::ADIS16470_IMU::CalibrationTime::_4s);
+    }
+    else {
+        imu.ConfigCalTime(frc1511::ADIS16470_IMU::CalibrationTime::_512ms);
+    }
+
     imu.Calibrate();
 
     // Sleep for 4 seconds as the IMU calibrates.
-    std::this_thread::sleep_for(4s);
+    if (longCal) {
+        std::this_thread::sleep_for(4s);
+    }
+    else {
+        std::this_thread::sleep_for(0.5s);
+    }
 #endif
 }
 

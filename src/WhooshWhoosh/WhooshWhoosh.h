@@ -58,7 +58,7 @@ public:
     /**
      * Calibrates the IMU (sleeps the program for 4 seconds).
      */
-    void calibrateIMU();
+    void calibrateIMU(bool longCal);
 
     /**
      * Resets the yaw axis angle and rate to zero.
