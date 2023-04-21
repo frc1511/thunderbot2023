@@ -137,12 +137,13 @@ private:
      */
     class BalanceAction : public Action {
     public:
-        BalanceAction(Drive* drive, WhooshWhoosh* whooshWhoosh);
+        BalanceAction(Drive* drive, GamePiece* gamePiece, WhooshWhoosh* whooshWhoosh);
         ~BalanceAction();
 
         Result process() override;
     private:
         Drive* drive;
+        GamePiece* gamePiece;
         WhooshWhoosh* whooshWhoosh;
         int step = 0;
     };
@@ -152,12 +153,13 @@ private:
      */
     class BalanceMobilityAction : public Action {
     public:
-        BalanceMobilityAction(Drive* drive, WhooshWhoosh* whooshWhoosh, BalanceAction* balanceAction);
+        BalanceMobilityAction(Drive* drive, GamePiece* gamePiece, WhooshWhoosh* whooshWhoosh, BalanceAction* balanceAction);
         ~BalanceMobilityAction();
 
         Result process() override;
     private:
         Drive* drive;
+        GamePiece* gamePiece;
         WhooshWhoosh* whooshWhoosh;
         BalanceAction* balanceAction;
         int step = 0;
@@ -166,8 +168,8 @@ private:
     };
 
     ScoreAction scoreAction { gamePiece };
-    BalanceAction balanceAction { drive, whooshWhoosh };
-    BalanceMobilityAction balanceMobilityAction { drive, whooshWhoosh, &balanceAction };
+    BalanceAction balanceAction { drive, gamePiece, whooshWhoosh };
+    BalanceMobilityAction balanceMobilityAction { drive, gamePiece, whooshWhoosh, &balanceAction };
 
     frc::Timer liftTimer;
 

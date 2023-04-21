@@ -113,7 +113,7 @@ void Autonomous::barrier() {
     // Score preloaded cube high.
     if (step == 0) {
         if (selectedAutoMode == AutoMode::BARRIER_2GP) {
-            scoreAction.setLevel(2);
+            scoreAction.setLevel(1);
         }
         else {
             scoreAction.setLevel(0);
@@ -224,6 +224,7 @@ void Autonomous::center() {
         if (settings.liftActive) {
             gamePiece->setGrabberPosition(Grabber::Position::OPEN);
             gamePiece->overrideHasGamePiece(true);
+            scoreAction.setLevel(1);
             step += (scoreAction.process() == Action::Result::DONE);
 
             liftTimer.Reset();
@@ -239,6 +240,7 @@ void Autonomous::center() {
     }
     // Wait a little bit for the lift.
     else if (step == 1 && liftTimer.Get() >= 0.5_s) {
+        scoreAction.setLevel(2);
         step++;
     }
     // Balance with mobility.
@@ -250,6 +252,7 @@ void Autonomous::center() {
 void Autonomous::edge() {
     // Score preloaded cube high.
     if (step == 0) {
+        scoreAction.setLevel(1);
         gamePiece->setGrabberPosition(Grabber::Position::OPEN);
         gamePiece->overrideHasGamePiece(true);
         step += (scoreAction.process() == Action::Result::DONE);
@@ -350,9 +353,11 @@ void Autonomous::score() {
     if (step == 0) {
         gamePiece->setGrabberPosition(Grabber::Position::OPEN);
         gamePiece->overrideHasGamePiece(true);
+        scoreAction.setLevel(1);
         step += (scoreAction.process() == Action::Result::DONE);
     }
     else if (step == 1) {
+        scoreAction.setLevel(2);
         frc::Pose2d initPose(paths->at(Path::BARRIER_1).getInitialPose());
         drive->resetOdometry(frc::Pose2d(initPose.X(), initPose.Y(), initPose.Rotation().Degrees() - 90_deg));
         step++;
@@ -403,8 +408,8 @@ Action::Result Autonomous::ScoreAction::process() {
 
 // --- Balance Action ---
 
-Autonomous::BalanceAction::BalanceAction(Drive* _drive, WhooshWhoosh* _whooshWhoosh)
-: drive(_drive), whooshWhoosh(_whooshWhoosh) { }
+Autonomous::BalanceAction::BalanceAction(Drive* _drive, GamePiece* _gamePiece, WhooshWhoosh* _whooshWhoosh)
+: drive(_drive), gamePiece(_gamePiece), whooshWhoosh(_whooshWhoosh) { }
 
 Autonomous::BalanceAction::~BalanceAction() = default;
 
@@ -428,9 +433,10 @@ Action::Result Autonomous::BalanceAction::process() {
 
         units::meters_per_second_t antiTiltVel = whooshWhoosh->calculateAntiTiltDriveVelocity();
         unsigned flags = Drive::ControlFlag::FIELD_CENTRIC;
-        if (units::math::abs(antiTiltVel) <= 0.1_mps) {
+        if (units::math::abs(antiTiltVel) < 0.3_mps) {
             antiTiltVel = 0.0_mps;
             flags |= Drive::ControlFlag::BRICK;
+            gamePiece->setLiftPreset(GamePiece::LiftPreset::INTAKE);
         }
 
         drive->velocityControlAbsRotation(-antiTiltVel, 0_mps, 90_deg, flags);
@@ -441,8 +447,8 @@ Action::Result Autonomous::BalanceAction::process() {
 
 // --- Balance w/ Mobility Action ---
 
-Autonomous::BalanceMobilityAction::BalanceMobilityAction(Drive* _drive, WhooshWhoosh* _whooshWhoosh, BalanceAction* _balanceAction)
-: drive(_drive), whooshWhoosh(_whooshWhoosh), balanceAction(_balanceAction) { }
+Autonomous::BalanceMobilityAction::BalanceMobilityAction(Drive* _drive, GamePiece* _gamePiece, WhooshWhoosh* _whooshWhoosh, BalanceAction* _balanceAction)
+: drive(_drive), gamePiece(_gamePiece), whooshWhoosh(_whooshWhoosh), balanceAction(_balanceAction) { }
 
 Autonomous::BalanceMobilityAction::~BalanceMobilityAction() = default;
 
@@ -485,10 +491,11 @@ Action::Result Autonomous::BalanceMobilityAction::process() {
         stopTimer.Reset();
         stopTimer.Start();
         drive->velocityControlAbsRotation(0.5_mps, 0.0_mps, 90_deg, Drive::ControlFlag::FIELD_CENTRIC);
+        gamePiece->setLiftPreset(GamePiece::LiftPreset::TRAVEL);
         step++;
     }
     // Wait 2 seconds.
-    else if (step == 4 && (stopTimer.Get() > 1.5_s)) {
+    else if (step == 4 && (stopTimer.Get() > 1.95_s)) {
         forwardsTimer.Reset();
         forwardsTimer.Start();
         step++;
@@ -508,7 +515,7 @@ Action::Result Autonomous::BalanceMobilityAction::process() {
 
 void Autonomous::sendFeedback() {
     int desiredAutoMode = static_cast<int>(frc::SmartDashboard::GetNumber("Auto_Mode", 0.0));
-    if (desiredAutoMode < autoModeNames.size() && desiredAutoMode >= 0) {
+    if (desiredAutoMode < (int)autoModeNames.size() && desiredAutoMode >= 0) {
         selectedAutoMode = static_cast<AutoMode>(desiredAutoMode);
     }
     else {
