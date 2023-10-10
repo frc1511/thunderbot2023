@@ -47,7 +47,7 @@ private:
     bool manualAux = false;
     bool doUltraBrickMode = false;
     bool shouldStrobe = false;
-
+    
     bool wasScoring = false;
 
     bool driveAligning = false;

@@ -226,14 +226,14 @@ void Controls::doDrive() {
     }
 
     // Hi Peter!!!
-    if (xySlowMode){
+    if (xySlowMode || settings.newDriver){
         finalXVel *= 0.375;//.428571439;
         finalYVel *= 0.375;//.427928372; // LOL
     }
-    if (rotSlowMode){
+    if (rotSlowMode || settings.newDriver){
         finalAngVel *= .5;
     }
-    else if (rotSlowerIThinkIDKReallyCallaJustWantedThisForSomeReasonSoHereItIsIGuess) {
+    else if (rotSlowerIThinkIDKReallyCallaJustWantedThisForSomeReasonSoHereItIsIGuess || settings.newDriver)  {
         finalAngVel *= .4;
     }
 
@@ -466,12 +466,12 @@ void Controls::doAuxManual() {
 #define SWITCH_LIFT_DISABLE 7
 #define SWITCH_KITT_MODE 8
 #define SWITCH_FIRE_MODE 9
-#define SWITCH_PIVOT_PLUS_1 8
-#define SWITCH_PIVOT_PLUS_2 9
-#define SWITCH_PIVOT_PLUS_3 10
-#define SWITCH_PIVOT_PLUS_4 11
-#define SWITCH_PIVOT_PLUS_5 12
-
+// #define SWITCH_PIVOT_PLUS_1 8
+// #define SWITCH_PIVOT_PLUS_2 9
+// #define SWITCH_PIVOT_PLUS_3 10
+// #define SWITCH_PIVOT_PLUS_4 11
+// #define SWITCH_PIVOT_PLUS_5 12
+#define SWITCH_NEW_DRIVER 10
 #define LIFT_NORMAL_MAX_PIVOT 91
 
 void Controls::doSwitchPanel() {
@@ -484,6 +484,7 @@ void Controls::doSwitchPanel() {
     settings.liftActive = !switchPanel.GetRawButton(SWITCH_LIFT_DISABLE) && !switchPanel.GetRawButton(SWITCH_HAILEY_DISABLE);
     bool kittMode = switchPanel.GetRawButton(SWITCH_KITT_MODE);
     bool fireMode = switchPanel.GetRawButton(SWITCH_FIRE_MODE);
+    settings.newDriver = switchPanel.GetRawButton(SWITCH_NEW_DRIVER);
     // if (switchPanel.GetRawButton(SWITCH_PIVOT_PLUS_5)) {
     //     gamePiece->setLiftMaxPivotEncoder(LIFT_NORMAL_MAX_PIVOT + 5);
     // }

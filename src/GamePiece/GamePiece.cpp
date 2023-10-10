@@ -36,7 +36,11 @@ void GamePiece::doPersistentConfiguration() {
 }
 
 void GamePiece::process() {
-    if (balconyWaiting && balconyWaitingTimer.Get() > 0.75_s) {
+    units::second_t balconyWaitTime = 0.75_s;
+    if (settings.newDriver){
+        balconyWaitTime = 1.5_s;
+    }
+    if (balconyWaiting && balconyWaitingTimer.Get() > balconyWaitTime) {
         balconyWaiting = false;
         setLiftPreset(LiftPreset::TRAVEL);
     }
