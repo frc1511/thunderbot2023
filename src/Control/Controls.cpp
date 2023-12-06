@@ -466,7 +466,7 @@ void Controls::doAuxManual() {
 #define SWITCH_LIFT_DISABLE 7
 #define SWITCH_KITT_MODE 8
 #define SWITCH_FIRE_MODE 9
-// #define SWITCH_PIVOT_PLUS_1 8
+#define SWITCH_RAINBOW_MODE 11
 // #define SWITCH_PIVOT_PLUS_2 9
 // #define SWITCH_PIVOT_PLUS_3 10
 // #define SWITCH_PIVOT_PLUS_4 11
@@ -484,6 +484,7 @@ void Controls::doSwitchPanel() {
     settings.liftActive = !switchPanel.GetRawButton(SWITCH_LIFT_DISABLE) && !switchPanel.GetRawButton(SWITCH_HAILEY_DISABLE);
     bool kittMode = switchPanel.GetRawButton(SWITCH_KITT_MODE);
     bool fireMode = switchPanel.GetRawButton(SWITCH_FIRE_MODE);
+    bool rainbowMode = switchPanel.GetRawButton(SWITCH_RAINBOW_MODE);
     settings.newDriver = switchPanel.GetRawButton(SWITCH_NEW_DRIVER);
     // if (switchPanel.GetRawButton(SWITCH_PIVOT_PLUS_5)) {
     //     gamePiece->setLiftMaxPivotEncoder(LIFT_NORMAL_MAX_PIVOT + 5);
@@ -522,6 +523,9 @@ void Controls::doSwitchPanel() {
     }
     else if (fireMode) {
         blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::FIRE);
+    }
+    else if (rainbowMode){
+        blinkyBlinky->setLEDMode(BlinkyBlinky::LEDMode::RAINBOW);
     }
     else if (ledMode == 0) {
         if (settings.isCraterMode) {
