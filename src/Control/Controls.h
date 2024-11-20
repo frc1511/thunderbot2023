@@ -52,7 +52,7 @@ private:
 
     bool driveAligning = false;
 
-    bool driveRobotCentric = false;
+    bool driveRobotCentric = true;
     unsigned driveCtrlFlags = 0;
 
     bool driveRecording = false;
